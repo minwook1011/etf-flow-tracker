@@ -11,7 +11,9 @@ import time
 import urllib.request
 import urllib.parse
 import urllib.error
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -21,6 +23,7 @@ except Exception:
 BASE = os.path.dirname(os.path.abspath(__file__))
 UNIVERSE = os.path.join(BASE, "docs", "megacap_universe.json")
 OUT = os.path.join(BASE, "docs", "megacap.json")
+PROFILES = os.path.join(BASE, "docs", "megacap_profiles.json")
 KST = timezone(timedelta(hours=9))
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) etf-flow-tracker/1.0"
 
@@ -46,7 +49,8 @@ def http_get(url, timeout=20):
                 print(f"  [skip] {url[:80]} -> {e}")
     return None
 
-def fetch_closes(ticker):
+def fetch_chart(ticker):
+    """야후 차트 API → {'dates','o','h','l','c','v'} (None 봉 제거)"""
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/"
            f"{urllib.parse.quote(ticker)}?range=1y&interval=1d")
     raw = http_get(url)
@@ -56,17 +60,52 @@ def fetch_closes(ticker):
         res = json.loads(raw)["chart"]["result"][0]
         ts = res.get("timestamp") or []
         q = res["indicators"]["quote"][0]
-        dates, closes, vols = [], [], []
+        out = {"dates": [], "o": [], "h": [], "l": [], "c": [], "v": []}
         for i, t in enumerate(ts):
             c = q["close"][i]
             if c is None:
                 continue
-            dates.append(datetime.fromtimestamp(t, tz=KST).strftime("%Y-%m-%d"))
-            closes.append(float(c))
-            vols.append(int(q["volume"][i] or 0))
-        return (dates, closes, vols) if len(closes) >= 2 else None
+            out["dates"].append(datetime.fromtimestamp(t, tz=KST).strftime("%Y-%m-%d"))
+            out["c"].append(round(float(c), 4))
+            out["o"].append(round(float(q["open"][i] or c), 4))
+            out["h"].append(round(float(q["high"][i] or c), 4))
+            out["l"].append(round(float(q["low"][i] or c), 4))
+            out["v"].append(int(q["volume"][i] or 0))
+        return out if len(out["c"]) >= 2 else None
     except Exception:
         return None
+
+def fetch_news(query, limit=5):
+    """Google News RSS 최근 7일"""
+    url = ("https://news.google.com/rss/search?q=" + urllib.parse.quote(query)
+           + "&hl=ko&gl=KR&ceid=KR:ko")
+    raw = http_get(url)
+    if not raw:
+        return []
+    items = []
+    try:
+        root = ET.fromstring(raw)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+        for it in root.iter("item"):
+            title = (it.findtext("title") or "").strip()
+            link = (it.findtext("link") or "").strip()
+            pub = it.findtext("pubDate") or ""
+            src_el = it.find("source")
+            source = src_el.text.strip() if src_el is not None and src_el.text else ""
+            try:
+                dt = parsedate_to_datetime(pub)
+                if dt < cutoff:
+                    continue
+                date = dt.astimezone(KST).strftime("%Y-%m-%d")
+            except Exception:
+                date = ""
+            if title and link:
+                items.append({"title": title, "link": link, "date": date, "source": source})
+            if len(items) >= limit:
+                break
+    except Exception as e:
+        print(f"  [news-fail] {query}: {e}")
+    return items
 
 def pct(a, b):
     if not b:
@@ -135,11 +174,11 @@ def main():
     fail = 0
     for i, s in enumerate(stocks_in, 1):
         tk = s["ticker"]
-        r = fetch_closes(tk)
-        if not r:
+        ch = fetch_chart(tk)
+        if not ch:
             fail += 1
             continue
-        dates, closes, vols = r
+        dates, closes, vols = ch["dates"], ch["c"], ch["v"]
         year = dates[-1][:4]
         base = None
         for d, c in zip(dates, closes):
@@ -148,6 +187,8 @@ def main():
         ytd = pct(closes[-1], base if base is not None else closes[0])
         dv = [c * v for c, v in zip(closes, vols)]
         vr = round((sum(dv[-5:]) / 5) / (sum(dv[-20:]) / 20), 2) if len(dv) >= 20 and sum(dv[-20:]) > 0 else 1.0
+        candles = [{"d": ch["dates"][j], "o": ch["o"][j], "h": ch["h"][j], "l": ch["l"][j],
+                    "c": ch["c"][j], "v": ch["v"][j]} for j in range(max(0, len(closes) - 90), len(closes))]
         out_stocks.append({
             "ticker": tk, "name": s["name"], "sector": s["sector"],
             "rank": len(out_stocks) + 1,
@@ -157,6 +198,8 @@ def main():
             "r3m": ret_n(closes, 63), "ytd": ytd,
             "from_high": pct(closes[-1], max(closes[-252:])),
             "vol_ratio": vr,
+            "spark": closes[-30:],
+            "candles": candles,
         })
         if i % 50 == 0:
             print(f"  {i}/{len(stocks_in)} (실패 {fail})")
@@ -177,6 +220,26 @@ def main():
         print(f"  PER 확보: {sum(1 for s in out_stocks if s.get('pe_next') or s.get('pe_now'))}/{len(out_stocks)}")
     else:
         print("  [경고] 크럼 확보 실패 — PER 정보 없이 진행")
+
+    print("--- 종목별 뉴스 수집 ---")
+    news_count = 0
+    for i, s in enumerate(out_stocks, 1):
+        s["news"] = fetch_news(s["name"])
+        news_count += len(s["news"])
+        if i % 50 == 0:
+            print(f"  {i}/{len(out_stocks)} (누적 {news_count}건)")
+    print(f"  뉴스 총 {news_count}건 ({sum(1 for s in out_stocks if s['news'])}/{len(out_stocks)}종목에 1건 이상)")
+
+    # 회사 개요(megacap_profiles.json)는 수동 관리 파일 — 신규 편입 종목 중 누락된 것만 경고
+    if os.path.exists(PROFILES):
+        try:
+            profiles = json.load(open(PROFILES, encoding="utf-8")).get("profiles", {})
+            missing = [s["ticker"] for s in out_stocks if s["ticker"] not in profiles]
+            if missing:
+                print(f"  [안내] megacap_profiles.json에 회사개요 없는 신규 종목 {len(missing)}개: {', '.join(missing[:20])}"
+                      + (" ..." if len(missing) > 20 else ""))
+        except Exception as e:
+            print(f"  [profiles-check-fail] {e}")
 
     data = {
         "updated": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),

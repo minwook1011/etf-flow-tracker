@@ -315,6 +315,7 @@ function statModalBody(cfg) {
   var n = Math.min(_statModalWin + 1, (cfg.candles || []).length);
   var chartHtml = candleChartSVG((cfg.candles || []).slice(-n), 820, 300);
   return '<div class="modal-chips">' + chipsHtml + "</div>" +
+    (cfg.intro ? '<p class="note" style="margin:0 0 12px;max-width:none">' + escapeHtml(cfg.intro) + "</p>" : "") +
     '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
     chartHtml +
     (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle) : "") +

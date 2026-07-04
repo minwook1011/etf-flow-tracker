@@ -75,6 +75,7 @@
 <script src="stocks-common.js"></script>
 <script>
 var DATA = null;
+var PROFILES = {};
 var PERIODS = [["1W","r1w"],["1M","r1m"],["3M","r3m"],["YTD","ytd"]];
 var curPeriod = "r1m";
 var curSector = "전체";
@@ -229,18 +230,25 @@ function openStockModal(ticker) {
       cls: "", per: true
     });
   }
+  var profile = PROFILES[ticker];
   openStatModal({
     name: s.name, sub: s.ticker + " · " + s.sector + (s.rank ? " · 시총 " + s.rank + "위" : ""),
     price: s.price, priceCcy: ccyOf(s.ticker), r1d: s.r1d,
     chips: chips,
+    intro: profile ? profile.biz : "회사 개요가 아직 준비되지 않았습니다 (최근 명단에 새로 편입된 종목일 수 있습니다).",
     candles: s.candles, news: s.news
   });
 }
 
 function renderAll() { renderToggle(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered()); }
 
-fetchJSON("megacap.json").then(function (d) {
+Promise.all([
+  fetchJSON("megacap.json"),
+  fetchJSON("megacap_profiles.json").catch(function () { return null; })
+]).then(function (rs) {
+  var d = rs[0];
   DATA = d;
+  PROFILES = (rs[1] && rs[1].profiles) || {};
   var uni = d.universe_updated ? " · 명단 " + d.universe_updated.slice(0, 10) + " 기준(주 1회)" : "";
   $q("#updated").textContent = "시세 " + (d.updated || "-") + " · " + d.count + "종목" + uni;
   renderAll();
