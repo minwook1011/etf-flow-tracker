@@ -222,14 +222,14 @@ function mdRender(src) {
 }
 
 /* ---------- 모달 ---------- */
-function openModal(titleHtml, bodyHtml) {
+function openModal(titleHtml, bodyHtml, headerExtraHtml) {
   closeModal();
   var back = document.createElement("div");
   back.className = "modal-back";
   back.id = "modal-back";
   back.innerHTML =
-    '<div class="modal"><div class="m-head"><h3>' + titleHtml +
-    '</h3><button class="m-close" onclick="closeModal()">닫기 ✕</button></div>' +
+    '<div class="modal"><div class="m-head"><h3>' + titleHtml + "</h3>" + (headerExtraHtml || "") +
+    '<button class="m-close" onclick="closeModal()">닫기 ✕</button></div>' +
     '<div class="m-body">' + bodyHtml + "</div></div>";
   back.addEventListener("click", function (e) { if (e.target === back) closeModal(); });
   document.body.appendChild(back);
@@ -265,3 +265,189 @@ function makeSortable(table, rows, renderRows) {
 
 var PALETTE = ["#5b8cff", "#f0475a", "#f0b429", "#34d399", "#c084fc", "#22d3ee",
   "#fb923c", "#a3e635", "#f472b6", "#94a3b8", "#eab308", "#60a5fa"];
+
+/* ---------- 구성종목/보유 카드 그리드 (일간 등락순) ---------- */
+function holdingsGridHTML(holdings, title) {
+  var list = (holdings || []).slice().sort(function (a, b) { return num(b.r1d) - num(a.r1d); });
+  if (!list.length) return "";
+  var cards = list.map(function (h) {
+    return '<div class="hold" title="' + escapeHtml(h.name) + " " + escapeHtml(h.ticker) + '">' +
+      '<div class="h-top"><span class="h-tk">' + escapeHtml(h.ticker.replace(/\.K[SQ]$/, "")) + '</span>' +
+      '<span class="h-ret ' + pctClass(h.r1d) + '">' + fmtPct(h.r1d) + "</span></div>" +
+      '<div class="h-nm">' + escapeHtml(h.name) + "</div>" +
+      (h.spark ? sparklineSVG(h.spark, 100, 20) : "") +
+      '<div class="h-sub">' + fmtPrice(h.price, h.ccy) + "</div></div>";
+  }).join("");
+  return '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:18px 0 8px;font-weight:800">' +
+    (title || "대표 종목") + ' <span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">일간 등락순</span></h4>' +
+    '<div class="hold-grid">' + cards + "</div>";
+}
+
+/* ---------- 뉴스 리스트 (공용) ---------- */
+function newsListHTML(news, title) {
+  var list = news || [];
+  var body = list.length
+    ? "<ul style='margin-left:18px'>" + list.map(function (n) {
+        return '<li style="margin:5px 0"><a href="' + escapeHtml(n.link) + '" target="_blank" rel="noopener">' +
+          escapeHtml(n.title) + '</a> <span class="muted small">' + escapeHtml(n.source || "") +
+          (n.date ? " · " + n.date : "") + "</span></li>";
+      }).join("") + "</ul>"
+    : '<div class="empty">최근 7일 뉴스가 없습니다.</div>';
+  return '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:18px 0 8px;font-weight:800">' +
+    (title || "관련 뉴스") + "</h4>" + body;
+}
+
+/* ---------- 통계 모달(칩 + 기간탭 + 캔들 + 구성종목 + 뉴스 공용 골격) ----------
+   cfg: {key(모달 재호출용 고유id), name, sub, price, priceCcy, r1d, chips:[{label,value,cls,per}],
+         candles(전체 배열), holdings, news, holdingsTitle}
+   기간 탭(1/3/6개월)은 상태를 모듈 전역에 저장해 재호출 시 유지한다. */
+var STAT_WINDOWS = [{ d: 21, l: "1개월" }, { d: 63, l: "3개월" }, { d: 126, l: "6개월" }];
+var _statModalWin = 63;
+var _statModalCfg = null;
+function statModalBody(cfg) {
+  var chipsHtml = (cfg.chips || []).map(function (c) {
+    return '<span class="chip' + (c.per ? " per" : "") + '">' + escapeHtml(c.label) +
+      ' <b class="' + (c.cls || "") + '">' + escapeHtml(c.value) + "</b></span>";
+  }).join("");
+  var tabsHtml = STAT_WINDOWS.map(function (w) {
+    return '<button data-swin="' + w.d + '" class="' + (w.d === _statModalWin ? "on" : "") + '">' + w.l + "</button>";
+  }).join("");
+  var n = Math.min(_statModalWin + 1, (cfg.candles || []).length);
+  var chartHtml = candleChartSVG((cfg.candles || []).slice(-n), 820, 300);
+  return '<div class="modal-chips">' + chipsHtml + "</div>" +
+    '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
+    chartHtml +
+    (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle) : "") +
+    (cfg.news !== undefined ? newsListHTML(cfg.news) : "");
+}
+function openStatModal(cfg) {
+  _statModalCfg = cfg;
+  _statModalWin = 63;
+  var priceHtml = '<span class="px">' + fmtPrice(cfg.price, cfg.priceCcy) + "</span>" +
+    (cfg.r1d != null ? ' <span class="' + pctClass(cfg.r1d) + '" style="font-weight:700">' + fmtPct(cfg.r1d) + "</span>" : "") +
+    '<button class="cap-btn" onclick="captureStatChart()" title="차트를 클립보드에 복사">복사</button>';
+  openModal(
+    escapeHtml(cfg.name) + (cfg.sub ? ' <span class="muted small" style="font-weight:400">' + escapeHtml(cfg.sub) + "</span>" : ""),
+    statModalBody(cfg),
+    priceHtml
+  );
+  $qa("[data-swin]").forEach(function (b) {
+    b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
+  });
+}
+function rerenderStatModal() {
+  if (!_statModalCfg) return;
+  var mb = document.querySelector("#modal-back .m-body");
+  if (mb) mb.innerHTML = statModalBody(_statModalCfg);
+  $qa("[data-swin]").forEach(function (b) {
+    b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
+  });
+}
+
+/* ---------- 차트 클립보드 복사 ----------
+   모달 안의 캔들 SVG를 헤더(이름·가격·수익률)와 함께 PNG로 합성해 클립보드에 복사한다.
+   클립보드 미지원/거부 시 파일 다운로드로 대체한다. */
+function buildChartPNGBlob() {
+  return new Promise(function (resolve, reject) {
+    var modal = document.getElementById("modal-back");
+    var svg = modal && modal.querySelector(".m-body svg");
+    if (!svg) { reject(new Error("no chart")); return; }
+    var cs = getComputedStyle(document.documentElement);
+    function cv(name, fallback) { var v = cs.getPropertyValue(name).trim(); return v || fallback; }
+    var C = { bg: cv("--bg2", "#10141d"), text: cv("--text", "#e6e9f0"), muted: cv("--muted", "#8b93a7"),
+      up: cv("--up", "#f0475a"), dn: cv("--dn", "#3d7eff"), border: cv("--border", "#232a3a") };
+    var vb = svg.viewBox && svg.viewBox.baseVal;
+    var cw = (vb && vb.width) || svg.clientWidth || 820;
+    var ch = (vb && vb.height) || svg.clientHeight || 300;
+    var clone = svg.cloneNode(true);
+    clone.setAttribute("width", cw); clone.setAttribute("height", ch);
+    var s = new XMLSerializer().serializeToString(clone)
+      .replace(/var\(--up\)/g, C.up).replace(/var\(--dn\)/g, C.dn)
+      .replace(/var\(--border\)/g, C.border).replace(/var\(--muted\)/g, C.muted);
+    if (!/xmlns=/.test(s)) s = s.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+
+    var h3 = modal.querySelector(".m-head h3");
+    var name = h3 ? (h3.childNodes[0].textContent || "").trim() : "";
+    var pxEl = modal.querySelector(".m-head .px");
+    var price = pxEl ? pxEl.textContent.trim() : "";
+    var retEl = pxEl ? pxEl.nextElementSibling : null;
+    var ret = retEl ? retEl.textContent.trim() : "";
+    var retColor = retEl && retEl.classList.contains("up") ? C.up : retEl && retEl.classList.contains("dn") ? C.dn : C.muted;
+
+    var SCALE = 2, W = 900, pad = 28, headH = 64, footH = 26;
+    var chartW = W - pad * 2, chartH = Math.round(chartW * ch / cw);
+    var H = pad + headH + chartH + footH;
+    var canvas = document.createElement("canvas");
+    canvas.width = W * SCALE; canvas.height = H * SCALE;
+    var x = canvas.getContext("2d");
+    x.scale(SCALE, SCALE);
+    x.fillStyle = C.bg; x.fillRect(0, 0, W, H);
+    x.textBaseline = "alphabetic";
+    x.fillStyle = C.text; x.font = "800 22px Pretendard, sans-serif"; x.fillText(name, pad, pad + 20);
+    x.fillStyle = C.text; x.font = "700 18px Pretendard, sans-serif"; x.fillText(price, pad, pad + 44);
+    var pw = x.measureText(price).width;
+    x.fillStyle = retColor; x.font = "700 14px Pretendard, sans-serif"; x.fillText(ret, pad + pw + 10, pad + 44);
+    x.strokeStyle = C.border; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(pad, pad + headH - 6); x.lineTo(W - pad, pad + headH - 6); x.stroke();
+
+    var url = URL.createObjectURL(new Blob([s], { type: "image/svg+xml;charset=utf-8" }));
+    var img = new Image();
+    img.onload = function () {
+      x.drawImage(img, pad, pad + headH, chartW, chartH);
+      URL.revokeObjectURL(url);
+      x.fillStyle = C.muted; x.font = "400 10.5px Pretendard, sans-serif";
+      x.fillText("etf-flow-tracker · " + new Date().toISOString().slice(0, 10), pad, H - 10);
+      canvas.toBlob(function (b) { b ? resolve(b) : reject(new Error("toBlob failed")); }, "image/png");
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("img error")); };
+    img.src = url;
+  });
+}
+function flashCapBtn(msg) {
+  var b = document.querySelector("#modal-back .cap-btn");
+  if (!b) return;
+  if (b.dataset.label == null) b.dataset.label = b.textContent;
+  b.textContent = msg;
+  clearTimeout(b._t);
+  b._t = setTimeout(function () { b.textContent = b.dataset.label; }, 1600);
+}
+function downloadChartPNG(blob) {
+  var h3 = document.querySelector("#modal-back .m-head h3");
+  var name = (h3 ? h3.textContent : "chart").replace(/[^\w.-]/g, "_").slice(0, 40) || "chart";
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name + "_" + new Date().toISOString().slice(0, 10) + ".png";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+}
+/* ---------- ETF 상세 모달 (공용: data.json의 etf 객체 하나를 받아 통계모달을 연다) ---------- */
+function openEtfDetailModal(e, tk) {
+  var ccy = /\.K[SQ]$/.test(tk) ? "₩" : "$";
+  openStatModal({
+    name: e.name,
+    sub: tk.replace(/\.K[SQ]$/, "") + (e.group ? " · " + e.group : ""),
+    price: e.price, priceCcy: ccy, r1d: e.r1d,
+    chips: [
+      { label: "1주", value: fmtPct(e.r1w), cls: pctClass(e.r1w) },
+      { label: "1개월", value: fmtPct(e.r1m), cls: pctClass(e.r1m) },
+      { label: "3개월", value: fmtPct(e.r3m), cls: pctClass(e.r3m) },
+      { label: "YTD", value: fmtPct(e.ytd), cls: pctClass(e.ytd) },
+      { label: "거래대금", value: "×" + num(e.vol_ratio).toFixed(2), cls: e.vol_ratio > 1.2 ? "up" : "" },
+      { label: "52주 고점대비", value: fmtPct(e.from_high, 1), cls: pctClass(e.from_high) }
+    ],
+    candles: e.candles, holdings: e.holdings, holdingsTitle: "대표 구성종목", news: e.news
+  });
+}
+
+function captureStatChart() {
+  var canClip = !!(navigator.clipboard && window.ClipboardItem && window.isSecureContext);
+  if (canClip) {
+    navigator.clipboard.write([new ClipboardItem({ "image/png": buildChartPNGBlob() })])
+      .then(function () { flashCapBtn("복사됨 ✓"); })
+      .catch(function () {
+        buildChartPNGBlob().then(function (b) { downloadChartPNG(b); flashCapBtn("저장됨 ↓"); }).catch(function () { flashCapBtn("실패"); });
+      });
+    return;
+  }
+  buildChartPNGBlob().then(function (b) { downloadChartPNG(b); flashCapBtn("저장됨 ↓"); }).catch(function () { flashCapBtn("실패"); });
+}

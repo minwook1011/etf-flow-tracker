@@ -10,6 +10,7 @@ import sys
 import time
 import urllib.request
 import urllib.parse
+import urllib.error
 from datetime import datetime, timedelta, timezone
 
 try:
@@ -77,6 +78,51 @@ def ret_n(closes, n):
         return pct(closes[-1], closes[0])
     return pct(closes[-1], closes[-1 - n])
 
+def get_crumb():
+    """야후 쿠키+크럼 확보 (선행PER 조회용 quote API에 필요). 실패 시 (None, None)."""
+    try:
+        req = urllib.request.Request("https://fc.yahoo.com", headers={"User-Agent": UA})
+        cookie = ""
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                cookie = r.headers.get("Set-Cookie", "")
+        except urllib.error.HTTPError as e:
+            cookie = e.headers.get("Set-Cookie", "")
+        cookie = cookie.split(";")[0] if cookie else ""
+        if not cookie:
+            return None, None
+        hdr = {"User-Agent": UA, "Cookie": cookie}
+        req2 = urllib.request.Request("https://query1.finance.yahoo.com/v1/test/getcrumb", headers=hdr)
+        with urllib.request.urlopen(req2, timeout=15) as r:
+            crumb = r.read().decode("utf-8").strip()
+        return (cookie, crumb) if crumb and "<" not in crumb else (None, None)
+    except Exception as e:
+        print(f"  [crumb-fail] {e}")
+        return None, None
+
+def fetch_pe(symbols, cookie, crumb):
+    """v7 quote API로 선행/후행 PER 배치 조회 → {symbol: {pe_now, pe_next}}"""
+    out = {}
+    hdr = {"User-Agent": UA, "Cookie": cookie}
+    for i in range(0, len(symbols), 40):
+        batch = symbols[i:i + 40]
+        url = ("https://query1.finance.yahoo.com/v7/finance/quote?symbols="
+               + urllib.parse.quote(",".join(batch))
+               + "&fields=trailingPE,forwardPE&crumb=" + urllib.parse.quote(crumb))
+        try:
+            req = urllib.request.Request(url, headers=hdr)
+            _throttle()
+            with urllib.request.urlopen(req, timeout=20) as r:
+                raw = r.read()
+            for q in json.loads(raw)["quoteResponse"]["result"]:
+                out[q.get("symbol")] = {
+                    "pe_now": round(q["trailingPE"], 1) if q.get("trailingPE") else None,
+                    "pe_next": round(q["forwardPE"], 1) if q.get("forwardPE") else None,
+                }
+        except Exception as e:
+            print(f"  [pe-fail] batch {i}: {e}")
+    return out
+
 def main():
     print(f"=== fetch_megacap.py 시작 ({datetime.now(KST).strftime('%Y-%m-%d %H:%M KST')}) ===")
     if not os.path.exists(UNIVERSE):
@@ -104,6 +150,7 @@ def main():
         vr = round((sum(dv[-5:]) / 5) / (sum(dv[-20:]) / 20), 2) if len(dv) >= 20 and sum(dv[-20:]) > 0 else 1.0
         out_stocks.append({
             "ticker": tk, "name": s["name"], "sector": s["sector"],
+            "rank": len(out_stocks) + 1,
             "mcap_usd": s.get("mcap_usd", 0),
             "price": round(closes[-1], 4),
             "r1w": ret_n(closes, 5), "r1m": ret_n(closes, 21),
@@ -117,6 +164,19 @@ def main():
     if len(out_stocks) < len(stocks_in) * 0.2:
         print("[경고] 80% 이상 실패 — 기존 megacap.json 유지 후 종료")
         sys.exit(0)
+
+    print("--- 선행PER 수집 ---")
+    cookie, crumb = get_crumb()
+    if crumb:
+        pe_map = fetch_pe([s["ticker"] for s in out_stocks], cookie, crumb)
+        for s in out_stocks:
+            pe = pe_map.get(s["ticker"])
+            if pe:
+                s["pe_now"] = pe["pe_now"]
+                s["pe_next"] = pe["pe_next"]
+        print(f"  PER 확보: {sum(1 for s in out_stocks if s.get('pe_next') or s.get('pe_now'))}/{len(out_stocks)}")
+    else:
+        print("  [경고] 크럼 확보 실패 — PER 정보 없이 진행")
 
     data = {
         "updated": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),
