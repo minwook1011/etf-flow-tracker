@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>글로벌 섹터 ETF 자금 흐름</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="page-head">
+    <h1>글로벌 섹터 ETF 자금 흐름</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+
+  <div class="section">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <div class="toggle" id="period-toggle"></div>
+      <span class="muted small">막대 = 수익률, 괄호 = ACWI 대비 초과수익</span>
+    </div>
+    <div class="card" style="margin-top:12px" id="bar-chart"><div class="spin">로딩 중…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>누적 수익률 트렌드<span class="sub">그룹별 · ACWI 병기</span></h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px">
+      <div class="toggle" id="trend-period"></div>
+      <span id="group-chips"></span>
+    </div>
+    <div class="card" id="trend-chart"></div>
+    <div id="trend-legend" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:10px"></div>
+  </div>
+
+  <div class="section">
+    <h2>그룹별 히트맵<span class="sub">색 = 선택 기간 수익률 · <span class="badge inflow">자금유입</span> = ACWI 초과수익 + 거래대금 확대(vol 5d/20d &gt; 1.3)</span></h2>
+    <div id="heatmap"></div>
+  </div>
+
+  <div class="section">
+    <h2>전 종목 비교<span class="sub">헤더 클릭 시 정렬</span></h2>
+    <div class="tbl-wrap">
+      <table class="tbl" id="etf-table">
+        <thead><tr>
+          <th class="l" data-key="ticker" data-str="1">티커</th>
+          <th class="l" data-key="name" data-str="1">이름</th>
+          <th class="l" data-key="group" data-str="1">그룹</th>
+          <th data-key="price">가격</th>
+          <th data-key="r1d">1D</th>
+          <th data-key="r1w">1W</th>
+          <th data-key="r1m">1M</th>
+          <th data-key="r3m">3M</th>
+          <th data-key="ytd">YTD</th>
+          <th data-key="rel_r1m">vsACWI(1M)</th>
+          <th data-key="vol_ratio">Vol 5d/20d</th>
+          <th data-key="from_high">52주고점比</th>
+          <th>30일</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="theme.js"></script>
+<script src="stocks-common.js"></script>
+<script>
+var DATA = null;
+var PERIODS = [["1D","r1d"],["1W","r1w"],["1M","r1m"],["3M","r3m"],["YTD","ytd"]];
+var curPeriod = "r1w";
+var TREND_PERIODS = [["1M","1m"],["3M","3m"],["6M","6m"]];
+var curTrend = "3m";
+var curGroup = "미국 섹터";
+var GROUP_ORDER = ["미국 섹터","테마","지역","채권·원자재","한국","벤치마크"];
+
+function etfList() {
+  if (!DATA) return [];
+  return Object.keys(DATA.etfs).map(function (k) { return DATA.etfs[k]; });
+}
+function relOf(e, key) {
+  // 선택 기간의 ACWI 대비 초과수익 (ytd는 클라이언트에서 계산)
+  if (key === "ytd") {
+    var b = DATA.etfs[DATA.benchmark];
+    return b ? +(num(e.ytd) - num(b.ytd)).toFixed(2) : 0;
+  }
+  return num(e["rel_" + key]);
+}
+
+/* ---------- 기간 토글 ---------- */
+function renderToggles() {
+  $q("#period-toggle").innerHTML = PERIODS.map(function (p) {
+    return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
+  }).join("");
+  $qa("#period-toggle button").forEach(function (b) {
+    b.onclick = function () { curPeriod = b.dataset.k; renderToggles(); renderBars(); renderHeatmap(); };
+  });
+  $q("#trend-period").innerHTML = TREND_PERIODS.map(function (p) {
+    return '<button data-k="' + p[1] + '" class="' + (p[1] === curTrend ? "on" : "") + '">' + p[0] + "</button>";
+  }).join("");
+  $qa("#trend-period button").forEach(function (b) {
+    b.onclick = function () { curTrend = b.dataset.k; renderToggles(); renderTrend(); };
+  });
+  var groups = GROUP_ORDER.filter(function (g) {
+    return etfList().some(function (e) { return e.group === g; }) && g !== "벤치마크";
+  });
+  $q("#group-chips").innerHTML = groups.map(function (g) {
+    return '<button class="chip ' + (g === curGroup ? "on" : "") + '" data-g="' + g + '">' + g + "</button>";
+  }).join(" ");
+  $qa("#group-chips .chip").forEach(function (c) {
+    c.onclick = function () { curGroup = c.dataset.g; renderToggles(); renderTrend(); };
+  });
+}
+
+/* ---------- 수익률 바차트 ---------- */
+function renderBars() {
+  var list = etfList().filter(function (e) { return e.ticker !== DATA.benchmark; })
+    .sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); });
+  var maxAbs = Math.max.apply(null, list.map(function (e) { return Math.abs(num(e[curPeriod])); })) || 1;
+  var html = list.map(function (e) {
+    var v = num(e[curPeriod]);
+    var wpct = (Math.abs(v) / maxAbs) * 50;
+    var bar = v >= 0
+      ? '<div style="position:absolute;left:50%;width:' + wpct + '%;height:100%;background:var(--up);opacity:.75;border-radius:0 3px 3px 0"></div>'
+      : '<div style="position:absolute;right:50%;width:' + wpct + '%;height:100%;background:var(--dn);opacity:.75;border-radius:3px 0 0 3px"></div>';
+    var rel = relOf(e, curPeriod);
+    return '<div class="bar-row" data-t="' + e.ticker + '" style="display:flex;align-items:center;gap:8px;padding:2px 0;cursor:pointer">' +
+      '<div style="flex:0 0 150px;text-align:right" class="small"><b>' + escapeHtml(e.name) + '</b> <span class="muted">' + e.ticker + "</span></div>" +
+      '<div style="flex:1;position:relative;height:15px;background:var(--bg2);border-radius:3px">' + bar + "</div>" +
+      '<div style="flex:0 0 145px" class="small">' + pctSpan(v) +
+      ' <span class="muted">(' + (rel > 0 ? "+" : "") + rel.toFixed(1) + "p)</span></div></div>";
+  }).join("");
+  $q("#bar-chart").innerHTML = html || '<div class="empty">데이터 없음</div>';
+  $qa("#bar-chart .bar-row").forEach(function (r) {
+    r.onclick = function () { openEtfModal(r.dataset.t); };
+  });
+}
+
+/* ---------- 트렌드 라인차트 ---------- */
+function renderTrend() {
+  var list = etfList().filter(function (e) { return e.group === curGroup; });
+  var bench = DATA.etfs[DATA.benchmark];
+  var series = list.map(function (e, i) {
+    return { name: e.name, values: (e.hist && e.hist[curTrend]) || [], color: PALETTE[i % PALETTE.length] };
+  }).filter(function (s) { return s.values.length > 1; });
+  if (bench && curGroup !== "벤치마크") {
+    series.push({ name: "ACWI(벤치)", values: (bench.hist && bench.hist[curTrend]) || [], color: "#8b93a7" });
+  }
+  $q("#trend-chart").innerHTML = lineChartSVG(series, 950, 300);
+  $q("#trend-legend").innerHTML = series.map(function (s) {
+    var last = s.values.length ? s.values[s.values.length - 1] : 0;
+    return '<span class="small"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' +
+      s.color + ';margin-right:4px"></span>' + escapeHtml(s.name) + " " + pctSpan(last, 1) + "</span>";
+  }).join("");
+}
+
+/* ---------- 히트맵 ---------- */
+function renderHeatmap() {
+  var box = $q("#heatmap");
+  var html = "";
+  GROUP_ORDER.forEach(function (g) {
+    var list = etfList().filter(function (e) { return e.group === g; })
+      .sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); });
+    if (!list.length) return;
+    html += '<div style="margin-bottom:14px"><div class="muted small" style="margin:6px 0"><b>' + g + "</b></div>" +
+      '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(158px,1fr))">';
+    list.forEach(function (e) {
+      var v = num(e[curPeriod]);
+      var inflow = relOf(e, curPeriod === "ytd" ? "r1m" : curPeriod) > 0 && num(e.vol_ratio) > 1.3;
+      html += '<div class="card hm" data-t="' + e.ticker + '" style="cursor:pointer;padding:10px;background:' +
+        heatBg(v) + '">' +
+        '<div style="display:flex;justify-content:space-between;gap:4px"><b style="font-size:13px">' + escapeHtml(e.name) + "</b>" +
+        (inflow ? '<span class="badge inflow">자금유입</span>' : "") + "</div>" +
+        '<div class="muted small">' + e.ticker + "</div>" +
+        '<div style="font-size:16px;font-weight:800" class="' + pctClass(v) + '">' + fmtPct(v) + "</div>" +
+        '<div class="small muted">vol ' + num(e.vol_ratio).toFixed(2) + " · 고점比 " + fmtPct(e.from_high, 1) + "</div></div>";
+    });
+    html += "</div></div>";
+  });
+  box.innerHTML = html || '<div class="empty">데이터 없음</div>';
+  $qa("#heatmap .hm").forEach(function (c) {
+    c.onclick = function () { openEtfModal(c.dataset.t); };
+  });
+}
+
+/* ---------- 테이블 ---------- */
+function renderTableRows(rows) {
+  $q("#etf-table tbody").innerHTML = rows.map(function (e) {
+    var ccy = /\.K[SQ]$/.test(e.ticker) ? "₩" : "$";
+    return "<tr data-t=\"" + e.ticker + "\">" +
+      '<td class="l"><b>' + e.ticker + "</b></td>" +
+      '<td class="l">' + escapeHtml(e.name) + "</td>" +
+      '<td class="l muted">' + escapeHtml(e.group) + "</td>" +
+      "<td>" + fmtPrice(e.price, ccy) + "</td>" +
+      "<td>" + pctSpan(e.r1d) + "</td><td>" + pctSpan(e.r1w) + "</td>" +
+      "<td>" + pctSpan(e.r1m) + "</td><td>" + pctSpan(e.r3m) + "</td>" +
+      "<td>" + pctSpan(e.ytd) + "</td>" +
+      "<td>" + pctSpan(e.rel_r1m) + "</td>" +
+      "<td" + (num(e.vol_ratio) > 1.3 ? ' class="up"' : "") + ">" + num(e.vol_ratio).toFixed(2) + "</td>" +
+      "<td>" + pctSpan(e.from_high, 1) + "</td>" +
+      "<td>" + sparklineSVG(e.spark, 90, 24) + "</td></tr>";
+  }).join("");
+  $qa("#etf-table tbody tr").forEach(function (tr) {
+    tr.onclick = function () { openEtfModal(tr.dataset.t); };
+  });
+}
+
+/* ---------- 상세 모달 ---------- */
+function openEtfModal(tk) {
+  var e = DATA.etfs[tk];
+  if (!e) return;
+  var ccy = /\.K[SQ]$/.test(tk) ? "₩" : "$";
+  var holdings = (e.holdings || []).slice().sort(function (a, b) { return num(b.r1d) - num(a.r1d); });
+  var hHtml = holdings.length
+    ? '<div class="tbl-wrap"><table class="tbl" style="min-width:400px"><thead><tr>' +
+      '<th class="l">종목</th><th>가격</th><th>일간</th></tr></thead><tbody>' +
+      holdings.map(function (h) {
+        return '<tr><td class="l">' + escapeHtml(h.name) + ' <span class="muted small">' + h.ticker + "</span></td>" +
+          "<td>" + fmtPrice(h.price, h.ccy) + "</td><td>" + pctSpan(h.r1d) + "</td></tr>";
+      }).join("") + "</tbody></table></div>"
+    : '<div class="empty">구성종목 데이터 없음</div>';
+  var news = (e.news || []);
+  var nHtml = news.length
+    ? "<ul style='margin-left:18px'>" + news.map(function (n) {
+        return '<li style="margin:5px 0"><a href="' + escapeHtml(n.link) + '" target="_blank" rel="noopener">' +
+          escapeHtml(n.title) + '</a> <span class="muted small">' + escapeHtml(n.source || "") +
+          (n.date ? " · " + n.date : "") + "</span></li>";
+      }).join("") + "</ul>"
+    : '<div class="empty">최근 7일 뉴스 없음</div>';
+  openModal(
+    escapeHtml(e.name) + ' <span class="muted">' + tk + "</span> " + pctSpan(e.r1d),
+    '<div class="muted small" style="margin-bottom:6px">종가 ' + fmtPrice(e.price, ccy) + " · " + e.last_date +
+    " · 1W " + fmtPct(e.r1w) + " · 1M " + fmtPct(e.r1m) + " · YTD " + fmtPct(e.ytd) + "</div>" +
+    candleChartSVG(e.candles, 820, 300) +
+    "<h4 style='margin:14px 0 8px'>대표 구성종목 <span class='muted small'>(일간 등락순)</span></h4>" + hHtml +
+    "<h4 style='margin:14px 0 8px'>관련 뉴스</h4>" + nHtml
+  );
+}
+
+/* ---------- 초기화 ---------- */
+fetchJSON("data.json").then(function (d) {
+  DATA = d;
+  $q("#updated").textContent = "기준: " + (d.updated || "-") + " · 벤치마크 " + (d.benchmark || "ACWI");
+  renderToggles();
+  renderBars();
+  renderTrend();
+  renderHeatmap();
+  var rows = etfList();
+  renderTableRows(rows);
+  makeSortable($q("#etf-table"), rows, renderTableRows);
+}).catch(function (err) {
+  $q("#bar-chart").innerHTML = '<div class="empty">data.json 로드 실패 — fetch_data.py를 먼저 실행하세요<br><span class="small">' +
+    escapeHtml(err.message) + "</span></div>";
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>글로벌 메가캡 — FLOW·TRACKER</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="page-head">
+    <h1>글로벌 메가캡 TOP300</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+
+  <div class="section">
+    <h2>섹터 강세 순위<span class="sub">섹터 내 수익률 중앙값 기준</span></h2>
+    <div class="toggle" id="period-toggle" style="margin-bottom:12px"></div>
+    <div class="card" id="sector-rank"><div class="spin">로딩 중…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>섹터별 모멘텀 리더 TOP5<span class="sub"><span class="badge hi">고점근접</span> = 52주 고점 -3% 이내 · <span class="badge lowvol">거래한산</span> = vol 5d/20d &lt; 0.6</span></h2>
+    <div class="grid" id="leaders" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr))"></div>
+  </div>
+
+  <div class="section">
+    <h2>전체 300종<span class="sub">섹터 필터 + 헤더 클릭 정렬</span></h2>
+    <div id="sector-filter" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="mc-table">
+        <thead><tr>
+          <th class="l">#</th>
+          <th class="l" data-key="ticker" data-str="1">티커</th>
+          <th class="l" data-key="name" data-str="1">이름</th>
+          <th class="l" data-key="sector" data-str="1">섹터</th>
+          <th data-key="mcap_usd">시총</th>
+          <th data-key="r1w">1W</th>
+          <th data-key="r1m">1M</th>
+          <th data-key="r3m">3M</th>
+          <th data-key="ytd">YTD</th>
+          <th data-key="from_high">52주고점比</th>
+          <th data-key="vol_ratio">Vol 5d/20d</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="theme.js"></script>
+<script src="stocks-common.js"></script>
+<script>
+var DATA = null;
+var PERIODS = [["1W","r1w"],["1M","r1m"],["3M","r3m"],["YTD","ytd"]];
+var curPeriod = "r1m";
+var curSector = "전체";
+
+function median(arr) {
+  if (!arr.length) return 0;
+  var s = arr.slice().sort(function (a, b) { return a - b; });
+  var m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+function sectors() {
+  var set = {};
+  (DATA.stocks || []).forEach(function (s) { set[s.sector] = 1; });
+  return Object.keys(set);
+}
+function badges(s) {
+  var b = "";
+  if (num(s.from_high) > -3) b += ' <span class="badge hi">고점근접</span>';
+  if (num(s.vol_ratio) < 0.6) b += ' <span class="badge lowvol">거래한산</span>';
+  return b;
+}
+
+function renderToggle() {
+  $q("#period-toggle").innerHTML = PERIODS.map(function (p) {
+    return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
+  }).join("");
+  $qa("#period-toggle button").forEach(function (b) {
+    b.onclick = function () { curPeriod = b.dataset.k; renderToggle(); renderRank(); renderLeaders(); };
+  });
+}
+
+function renderRank() {
+  var rows = sectors().map(function (sec) {
+    var vals = DATA.stocks.filter(function (s) { return s.sector === sec; })
+      .map(function (s) { return num(s[curPeriod]); });
+    return { sector: sec, med: +median(vals).toFixed(2), n: vals.length };
+  }).sort(function (a, b) { return b.med - a.med; });
+  var maxAbs = Math.max.apply(null, rows.map(function (r) { return Math.abs(r.med); })) || 1;
+  $q("#sector-rank").innerHTML = rows.map(function (r) {
+    var w = (Math.abs(r.med) / maxAbs) * 50;
+    var bar = r.med >= 0
+      ? '<div style="position:absolute;left:50%;width:' + w + '%;height:100%;background:var(--up);opacity:.75;border-radius:0 3px 3px 0"></div>'
+      : '<div style="position:absolute;right:50%;width:' + w + '%;height:100%;background:var(--dn);opacity:.75;border-radius:3px 0 0 3px"></div>';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:2px 0">' +
+      '<div style="flex:0 0 150px;text-align:right" class="small"><b>' + escapeHtml(r.sector) + '</b> <span class="muted">' + r.n + "종</span></div>" +
+      '<div style="flex:1;position:relative;height:15px;background:var(--bg2);border-radius:3px">' + bar + "</div>" +
+      '<div style="flex:0 0 70px" class="small">' + pctSpan(r.med) + "</div></div>";
+  }).join("");
+}
+
+function renderLeaders() {
+  var secOrder = sectors().map(function (sec) {
+    var vals = DATA.stocks.filter(function (s) { return s.sector === sec; }).map(function (s) { return num(s[curPeriod]); });
+    return { sec: sec, med: median(vals) };
+  }).sort(function (a, b) { return b.med - a.med; }).map(function (x) { return x.sec; });
+  $q("#leaders").innerHTML = secOrder.map(function (sec) {
+    var top = DATA.stocks.filter(function (s) { return s.sector === sec; })
+      .sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); }).slice(0, 5);
+    return '<div class="card"><b>' + escapeHtml(sec) + "</b>" +
+      top.map(function (s) {
+        return '<div style="display:flex;justify-content:space-between;gap:6px;margin-top:7px;font-size:12.5px">' +
+          "<span>" + escapeHtml(s.name) + ' <span class="muted">' + s.ticker + "</span>" + badges(s) + "</span>" +
+          "<span>" + pctSpan(s[curPeriod]) + "</span></div>";
+      }).join("") + "</div>";
+  }).join("");
+}
+
+function renderFilter() {
+  var list = ["전체"].concat(sectors());
+  $q("#sector-filter").innerHTML = list.map(function (s) {
+    return '<button class="chip ' + (s === curSector ? "on" : "") + '" data-s="' + escapeHtml(s) + '">' + escapeHtml(s) + "</button>";
+  }).join("");
+  $qa("#sector-filter .chip").forEach(function (c) {
+    c.onclick = function () { curSector = c.dataset.s; renderFilter(); renderTable(filtered()); };
+  });
+}
+function filtered() {
+  return DATA.stocks.filter(function (s) { return curSector === "전체" || s.sector === curSector; });
+}
+function renderTable(rows) {
+  $q("#mc-table tbody").innerHTML = rows.map(function (s, i) {
+    var ccy = /\.K[SQ]$/.test(s.ticker) ? "₩" : /\.(T|TW|HK|NS|SR|L|PA|DE|AS|SW|MI|MC|ST|OL|CO)$/.test(s.ticker) ? "" : "$";
+    return "<tr>" +
+      '<td class="l muted">' + (i + 1) + "</td>" +
+      '<td class="l"><b>' + s.ticker + "</b></td>" +
+      '<td class="l">' + escapeHtml(s.name) + badges(s) + "</td>" +
+      '<td class="l muted">' + escapeHtml(s.sector) + "</td>" +
+      "<td>" + fmtMcap(s.mcap_usd) + "</td>" +
+      "<td style='background:" + heatBg(s.r1w, 8) + "'>" + pctSpan(s.r1w) + "</td>" +
+      "<td style='background:" + heatBg(s.r1m, 12) + "'>" + pctSpan(s.r1m) + "</td>" +
+      "<td style='background:" + heatBg(s.r3m, 20) + "'>" + pctSpan(s.r3m) + "</td>" +
+      "<td style='background:" + heatBg(s.ytd, 25) + "'>" + pctSpan(s.ytd) + "</td>" +
+      "<td>" + pctSpan(s.from_high, 1) + "</td>" +
+      "<td" + (num(s.vol_ratio) > 1.3 ? ' class="up"' : num(s.vol_ratio) < 0.6 ? ' class="muted"' : "") + ">" +
+      num(s.vol_ratio).toFixed(2) + "</td></tr>";
+  }).join("");
+}
+
+fetchJSON("megacap.json").then(function (d) {
+  DATA = d;
+  $q("#updated").textContent = "시세: " + (d.updated || "-") + " · 명단 산정: " + (d.universe_updated || "-") + " · " + d.count + "종";
+  renderToggle(); renderRank(); renderLeaders(); renderFilter();
+  renderTable(filtered());
+  makeSortable($q("#mc-table"), DATA.stocks, function (sorted) {
+    renderTable(sorted.filter(function (s) { return curSector === "전체" || s.sector === curSector; }));
+  });
+}).catch(function (err) {
+  $q("#sector-rank").innerHTML = '<div class="empty">megacap.json 로드 실패 — fetch_universe.py → fetch_megacap.py를 실행하세요<br><span class="small">' +
+    escapeHtml(err.message) + "</span></div>";
+});
+</script>
+</body>
+</html>

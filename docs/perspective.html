@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>핵심 테제 트래킹 — FLOW·TRACKER</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="page-head">
+    <h1>핵심 테제 트래킹</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+  <p class="muted small">테제 스코어 = 등록일 이후 관련 티커(미국+한국)의 평균 수익률. 칩 색 = 각 티커의 등록일 이후 수익률.</p>
+  <div id="weeks"><div class="spin">로딩 중…</div></div>
+</div>
+
+<script src="theme.js"></script>
+<script src="stocks-common.js"></script>
+<script>
+var QUOTES = {};
+
+/* 등록일 이후 수익률: thesis_quotes의 종가 시계열에서 등록일 이후 첫 종가 대비 최신 종가 */
+function retSince(ticker, dateStr) {
+  var q = QUOTES[ticker];
+  if (!q || !q.dates || q.dates.length < 2) return null;
+  var base = null;
+  for (var i = 0; i < q.dates.length; i++) {
+    if (q.dates[i] >= dateStr) { base = q.closes[i]; break; }
+  }
+  if (base == null) base = q.closes[q.closes.length - 1];
+  if (!base) return null;
+  return +((q.closes[q.closes.length - 1] / base - 1) * 100).toFixed(2);
+}
+
+function chip(t, since, isKr) {
+  var body = "<b>" + t + "</b> " + (since == null ? '<span class="muted">—</span>' : pctSpan(since, 1));
+  var tag = isKr ? '<span class="muted" style="font-size:10px">KR</span> ' : '<span class="muted" style="font-size:10px">US</span> ';
+  return '<span class="chip" style="cursor:default">' + tag + body + "</span>";
+}
+
+function render(theses, data) {
+  QUOTES = (data && data.thesis_quotes) || {};
+  var weeks = (theses.weeks || []).slice().sort(function (a, b) {
+    return String(b.date).localeCompare(String(a.date));
+  });
+  if (!weeks.length) {
+    $q("#weeks").innerHTML = '<div class="empty">등록된 테제가 없습니다 — docs/theses.json에 추가하세요</div>';
+    return;
+  }
+  $q("#weeks").innerHTML = weeks.map(function (w) {
+    var cards = (w.theses || []).map(function (t) {
+      var all = (t.tickers || []).map(function (x) { return { t: x, kr: false }; })
+        .concat((t.kr || []).map(function (x) { return { t: x, kr: true }; }));
+      var rets = [];
+      var chips = all.map(function (o) {
+        var r = retSince(o.t, w.date);
+        if (r != null) rets.push(r);
+        return chip(o.t, r, o.kr);
+      }).join(" ");
+      var score = rets.length ? +(rets.reduce(function (a, b) { return a + b; }, 0) / rets.length).toFixed(2) : null;
+      var scoreHtml = score == null
+        ? '<span class="muted">스코어 —</span>'
+        : '<span style="font-size:19px;font-weight:800" class="' + pctClass(score) + '">' + fmtPct(score) + "</span>";
+      return '<div class="card" style="margin-bottom:10px">' +
+        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:baseline">' +
+        "<b style='font-size:15px'>" + escapeHtml(t.title) + "</b>" +
+        '<span class="small"><span class="muted">테제 스코어(등록 후) </span>' + scoreHtml + "</span></div>" +
+        '<p style="margin:8px 0" class="muted">' + escapeHtml(t.summary) + "</p>" +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">' + chips + "</div></div>";
+    }).join("");
+    return '<div class="section"><h2>' + escapeHtml(w.week) +
+      '<span class="sub">등록 ' + escapeHtml(w.date) + "</span></h2>" + cards + "</div>";
+  }).join("");
+}
+
+Promise.all([
+  fetchJSON("theses.json"),
+  fetchJSON("data.json").catch(function () { return null; })
+]).then(function (rs) {
+  var theses = rs[0], data = rs[1];
+  $q("#updated").textContent = "테제 갱신: " + (theses.updated || "-") +
+    (data ? " · 시세 기준: " + (data.updated || "-") : " · 시세 없음(스코어 미표시)");
+  render(theses, data);
+}).catch(function (err) {
+  $q("#weeks").innerHTML = '<div class="empty">theses.json 로드 실패<br><span class="small">' + escapeHtml(err.message) + "</span></div>";
+});
+</script>
+</body>
+</html>

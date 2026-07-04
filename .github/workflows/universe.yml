@@ -1,0 +1,38 @@
+name: weekly-universe-update
+
+on:
+  schedule:
+    - cron: "0 21 * * 0"   # 일요일 21:00 UTC = 한국 월요일 오전 6:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-universe
+  cancel-in-progress: false
+
+jobs:
+  universe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 시총 TOP300 명단 재산정 (실패해도 기존 명단 유지)
+        run: python3 fetch_universe.py || echo "명단 갱신 실패 — 기존 명단 유지"
+
+      - name: 변경 시 커밋 & 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/megacap_universe.json
+          if git diff --cached --quiet; then
+            echo "변경 없음 — 커밋 생략"
+          else
+            git commit -m "universe: $(TZ=Asia/Seoul date +%Y-%m-%d) TOP300 재산정"
+            git push
+          fi
