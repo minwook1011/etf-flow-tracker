@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>핵심 테제 트래킹 — FLOW·TRACKER</title>
 <link rel="stylesheet" href="theme.css">
+<style>
+.thesis-card { margin-bottom: 12px; }
+.thesis-card .t-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.thesis-card .t-head b { font-size: 15.5px; }
+.thesis-card .score { font-size: 19px; font-weight: 800; }
+.tk-chip { cursor: pointer; border: 0; font-family: inherit; }
+.tk-chip:hover { border-color: var(--accent); }
+.fold-btn {
+  background: none; border: 1px solid var(--border); color: var(--accent); cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 7px; margin-top: 8px;
+}
+.fold-btn:hover { background: var(--card-hover); }
+.t-analysis { display: none; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
+.thesis-card.open .t-analysis { display: block; }
+.thesis-card.open .fold-btn .arrow { transform: rotate(180deg); }
+.fold-btn .arrow { display: inline-block; transition: transform .15s; }
+.trend-mini { margin-top: 10px; }
+.trend-mini .lbl { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+</style>
 </head>
 <body>
 <header id="topnav"></header>
@@ -13,7 +32,7 @@
     <h1>핵심 테제 트래킹</h1>
     <span class="upd" id="updated"></span>
   </div>
-  <p class="muted small">테제 스코어 = 등록일 이후 관련 티커(미국+한국)의 평균 수익률. 칩 색 = 각 티커의 등록일 이후 수익률.</p>
+  <p class="muted small">테제 스코어 = 등록일 이후 관련 티커(미국+한국)의 평균 수익률 · 아래 미니 차트는 등록일 이후 평균 수익률 추이 · 티커 칩 클릭 시 개별 추이 확인</p>
   <div id="weeks"><div class="spin">로딩 중…</div></div>
 </div>
 
@@ -23,22 +42,63 @@
 var QUOTES = {};
 
 /* 등록일 이후 수익률: thesis_quotes의 종가 시계열에서 등록일 이후 첫 종가 대비 최신 종가 */
+function baseIdxSince(q, dateStr) {
+  for (var i = 0; i < q.dates.length; i++) {
+    if (q.dates[i] >= dateStr) return i;
+  }
+  return q.dates.length - 1;
+}
 function retSince(ticker, dateStr) {
   var q = QUOTES[ticker];
   if (!q || !q.dates || q.dates.length < 2) return null;
-  var base = null;
-  for (var i = 0; i < q.dates.length; i++) {
-    if (q.dates[i] >= dateStr) { base = q.closes[i]; break; }
-  }
-  if (base == null) base = q.closes[q.closes.length - 1];
+  var base = q.closes[baseIdxSince(q, dateStr)];
   if (!base) return null;
   return +((q.closes[q.closes.length - 1] / base - 1) * 100).toFixed(2);
 }
+/* 등록일 이후 종목들의 평균 수익률 추이(거래일 오프셋 기준) */
+function scoreTrendSeries(tickers, dateStr) {
+  var list = tickers.map(function (t) {
+    var q = QUOTES[t];
+    if (!q || !q.dates || q.dates.length < 2) return null;
+    var bi = baseIdxSince(q, dateStr);
+    var base = q.closes[bi];
+    if (!base) return null;
+    var vals = [];
+    for (var j = bi; j < q.closes.length; j++) vals.push(((q.closes[j] / base) - 1) * 100);
+    return vals;
+  }).filter(Boolean);
+  if (!list.length) return [];
+  var maxLen = Math.max.apply(null, list.map(function (s) { return s.length; }));
+  var avg = [];
+  for (var k = 0; k < maxLen; k++) {
+    var here = list.filter(function (s) { return s.length > k; }).map(function (s) { return s[k]; });
+    avg.push(here.reduce(function (a, b) { return a + b; }, 0) / here.length);
+  }
+  return avg;
+}
 
 function chip(t, since, isKr) {
-  var body = "<b>" + t + "</b> " + (since == null ? '<span class="muted">—</span>' : pctSpan(since, 1));
+  var body = "<b>" + escapeHtml(t) + "</b> " + (since == null ? '<span class="muted">—</span>' : pctSpan(since, 1));
   var tag = isKr ? '<span class="muted" style="font-size:10px">KR</span> ' : '<span class="muted" style="font-size:10px">US</span> ';
-  return '<span class="chip" style="cursor:default">' + tag + body + "</span>";
+  return '<button class="chip tk-chip" data-t="' + escapeHtml(t) + '" data-kr="' + (isKr ? "1" : "0") + '">' + tag + body + "</button>";
+}
+
+function openTickerModal(ticker, isKr, regDate) {
+  var q = QUOTES[ticker];
+  if (!q || !q.dates || !q.dates.length) {
+    openModal(escapeHtml(ticker), '<div class="empty">이 티커의 시세 데이터가 아직 없습니다 (다음 자동 갱신 때 수집됩니다)</div>');
+    return;
+  }
+  var closes = q.closes, dates = q.dates;
+  var since = retSince(ticker, regDate);
+  var pctSeries = closes.map(function (c) { return (c / closes[0] - 1) * 100; });
+  var ccy = isKr ? "₩" : "$";
+  var body = '<div class="muted small" style="margin-bottom:10px">최근 종가 ' + fmtPrice(closes[closes.length - 1], ccy) +
+    " (" + escapeHtml(dates[dates.length - 1]) + ") · 등록일(" + escapeHtml(regDate) + ") 이후 " +
+    (since == null ? "—" : fmtPct(since)) + "</div>" +
+    '<div class="card">' + lineChartSVG([{ name: ticker, values: pctSeries, color: "#5b8cff" }], 780, 220) + "</div>";
+  openModal(escapeHtml(ticker) + (isKr ? ' <span class="muted small">KR</span>' : ' <span class="muted small">US</span>'), body);
+  wireLineHover(document.getElementById("modal-back"));
 }
 
 function render(theses, data) {
@@ -51,7 +111,7 @@ function render(theses, data) {
     return;
   }
   $q("#weeks").innerHTML = weeks.map(function (w) {
-    var cards = (w.theses || []).map(function (t) {
+    var cards = (w.theses || []).map(function (t, ti) {
       var all = (t.tickers || []).map(function (x) { return { t: x, kr: false }; })
         .concat((t.kr || []).map(function (x) { return { t: x, kr: true }; }));
       var rets = [];
@@ -63,17 +123,42 @@ function render(theses, data) {
       var score = rets.length ? +(rets.reduce(function (a, b) { return a + b; }, 0) / rets.length).toFixed(2) : null;
       var scoreHtml = score == null
         ? '<span class="muted">스코어 —</span>'
-        : '<span style="font-size:19px;font-weight:800" class="' + pctClass(score) + '">' + fmtPct(score) + "</span>";
-      return '<div class="card" style="margin-bottom:10px">' +
-        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:baseline">' +
-        "<b style='font-size:15px'>" + escapeHtml(t.title) + "</b>" +
+        : '<span class="score ' + pctClass(score) + '">' + fmtPct(score) + "</span>";
+      var trendSeries = scoreTrendSeries(all.map(function (o) { return o.t; }), w.date);
+      var trendLast = trendSeries.length ? trendSeries[trendSeries.length - 1] : 0;
+      var trendHtml = trendSeries.length > 1
+        ? '<div class="trend-mini"><div class="lbl">테제 스코어 추이 (등록일 이후, 관련 티커 평균)</div>' +
+          lineChartSVG([{ name: "평균 수익률", values: trendSeries, color: trendLast >= 0 ? "#f0475a" : "#3d7eff" }], 780, 110) + "</div>"
+        : "";
+      var hasAnalysis = t.analysis && t.analysis.trim();
+      var cardId = "th-" + w.week + "-" + ti;
+      return '<div class="card thesis-card" id="' + cardId + '" data-regdate="' + escapeHtml(w.date) + '">' +
+        '<div class="t-head">' +
+        "<b>" + escapeHtml(t.title) + "</b>" +
         '<span class="small"><span class="muted">테제 스코어(등록 후) </span>' + scoreHtml + "</span></div>" +
         '<p style="margin:8px 0" class="muted">' + escapeHtml(t.summary) + "</p>" +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px">' + chips + "</div></div>";
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">' + chips + "</div>" +
+        trendHtml +
+        (hasAnalysis
+          ? '<button class="fold-btn" data-card="' + cardId + '">자세히 보기 <span class="arrow">▾</span></button>' +
+            '<div class="t-analysis">' + mdRender(t.analysis) + "</div>"
+          : "") +
+        "</div>";
     }).join("");
     return '<div class="section"><h2>' + escapeHtml(w.week) +
       '<span class="sub">등록 ' + escapeHtml(w.date) + "</span></h2>" + cards + "</div>";
   }).join("");
+
+  $qa(".tk-chip").forEach(function (c) {
+    c.onclick = function () {
+      var card = c.closest(".thesis-card");
+      openTickerModal(c.dataset.t, c.dataset.kr === "1", card.dataset.regdate);
+    };
+  });
+  $qa(".fold-btn").forEach(function (b) {
+    b.onclick = function () { document.getElementById(b.dataset.card).classList.toggle("open"); };
+  });
+  $qa(".trend-mini").forEach(function (el) { wireLineHover(el); });
 }
 
 Promise.all([

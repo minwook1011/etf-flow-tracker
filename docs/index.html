@@ -146,11 +146,13 @@ function renderTrend() {
     series.push({ name: "ACWI(벤치)", values: (bench.hist && bench.hist[curTrend]) || [], color: "#8b93a7" });
   }
   $q("#trend-chart").innerHTML = lineChartSVG(series, 950, 300);
-  $q("#trend-legend").innerHTML = series.map(function (s) {
+  $q("#trend-legend").innerHTML = series.map(function (s, i) {
     var last = s.values.length ? s.values[s.values.length - 1] : 0;
-    return '<span class="small"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' +
+    return '<span class="small" data-line-idx="' + i + '" style="cursor:pointer;padding:2px 5px;border-radius:5px;transition:opacity .12s">' +
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' +
       s.color + ';margin-right:4px"></span>' + escapeHtml(s.name) + " " + pctSpan(last, 1) + "</span>";
   }).join("");
+  wireLineHover($q("#trend-chart").parentElement);
 }
 
 /* ---------- 히트맵 ---------- */

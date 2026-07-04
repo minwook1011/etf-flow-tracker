@@ -97,15 +97,46 @@ function lineChartSVG(series, w, h) {
     gl += '<line x1="' + padL + '" y1="' + y(0) + '" x2="' + (w - padR) + '" y2="' + y(0) +
       '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>';
   }
-  var lines = series.map(function (s) {
-    var pts = s.values.map(function (v, i) {
-      return x(i, s.values.length).toFixed(1) + "," + y(num(v)).toFixed(1);
+  var lines = series.map(function (s, i) {
+    var pts = s.values.map(function (v, j) {
+      return x(j, s.values.length).toFixed(1) + "," + y(num(v)).toFixed(1);
     }).join(" ");
-    return '<polyline fill="none" stroke="' + s.color + '" stroke-width="1.8" points="' + pts + '"><title>' +
-      escapeHtml(s.name) + "</title></polyline>";
+    var title = '<title>' + escapeHtml(s.name) + "</title>";
+    /* 굵은 투명 히트박스(호버 인식용) + 실제 표시선(pointer-events 없음, 겹침 방지) */
+    return '<polyline class="tl-hit" data-idx="' + i + '" fill="none" stroke="transparent" stroke-width="12" ' +
+      'style="cursor:pointer" points="' + pts + '">' + title + "</polyline>" +
+      '<polyline class="tl-line" data-idx="' + i + '" fill="none" stroke="' + s.color +
+      '" stroke-width="1.8" points="' + pts + '" style="pointer-events:none;transition:opacity .12s,stroke-width .12s">' +
+      title + "</polyline>";
   }).join("");
   return '<svg width="100%" viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" style="min-width:640px">' +
     gl + lines + "</svg>";
+}
+
+/* 라인차트 호버 하이라이트: root 안의 .tl-hit(히트박스)에 마우스 올리면 해당 data-idx 선만
+   진하게, 나머지는 흐리게. root 안에 [data-line-idx] 요소(범례 등)가 있으면 서로 연동. */
+function wireLineHover(root) {
+  var hits = $qa(".tl-hit", root);
+  if (!hits.length) return;
+  function setActive(idx) {
+    $qa(".tl-line", root).forEach(function (el) {
+      var on = idx === null || el.dataset.idx === String(idx);
+      el.style.opacity = on ? "1" : "0.15";
+      el.style.strokeWidth = (idx !== null && on) ? "3" : "1.8";
+    });
+    $qa("[data-line-idx]", root).forEach(function (el) {
+      el.classList.toggle("hl-active", idx !== null && el.dataset.lineIdx === String(idx));
+      el.style.opacity = (idx === null || el.dataset.lineIdx === String(idx)) ? "1" : "0.4";
+    });
+  }
+  hits.forEach(function (hit) {
+    hit.addEventListener("mouseenter", function () { setActive(hit.dataset.idx); });
+    hit.addEventListener("mouseleave", function () { setActive(null); });
+  });
+  $qa("[data-line-idx]", root).forEach(function (el) {
+    el.addEventListener("mouseenter", function () { setActive(el.dataset.lineIdx); });
+    el.addEventListener("mouseleave", function () { setActive(null); });
+  });
 }
 
 /* 일봉 캔들차트 + 거래량 */
