@@ -33,6 +33,19 @@
 .stmt .tags span { display: inline-block; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; font-size: 11px; color: var(--muted); margin-right: 4px; }
 .dir-group { margin: 8px 0; }
 .dir-group .gt { color: var(--muted); font-size: 12px; font-weight: 700; margin: 8px 0 5px; }
+.wk-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.wk-section { margin-bottom: 12px; }
+.wk-head {
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 11px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 9px;
+}
+.wk-head:hover { border-color: var(--accent); }
+.wk-head .wk-title { font-weight: 800; font-size: 14.5px; }
+.wk-head .wk-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+.wk-head .wk-chevron { color: var(--muted); font-size: 13px; transition: transform .15s ease; flex: 0 0 auto; }
+.wk-section.open .wk-head .wk-chevron { transform: rotate(90deg); }
+.wk-body { display: none; padding-top: 10px; }
+.wk-section.open .wk-body { display: block; }
 </style>
 </head>
 <body>
@@ -73,7 +86,11 @@
       <input class="search" id="pp-search" placeholder="인물 이름·소속 검색" style="margin-bottom:8px">
       <div id="directory"></div>
     </div>
-    <div class="section" id="stmt-weeks"><div class="spin">로딩 중…</div></div>
+    <div class="section">
+      <h2>주차별 발언 <span class="sub">헤더 클릭 시 펼치기/접기 — 클릭 전에도 건수·주요 인물 표시</span></h2>
+      <div class="wk-nav" id="week-nav"></div>
+      <div id="stmt-weeks"><div class="spin">로딩 중…</div></div>
+    </div>
   </div>
 </div>
 
@@ -228,16 +245,54 @@ function stmtMatches(s) {
     .join(" ").toLowerCase();
   return hay.indexOf(kw) >= 0;
 }
+var openWeeks = null;   // 사용자가 수동으로 펼친 주차 (Set)
+function toggleWeek(wk) {
+  if (openWeeks.has(wk)) openWeeks.delete(wk); else openWeeks.add(wk);
+  renderStatements();
+}
+function jumpWeek(wk) {
+  openWeeks.add(wk);
+  renderStatements();
+  var el = document.getElementById("wk-" + wk);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function personNamesPreview(list, max) {
+  var seen = {}, names = [];
+  list.forEach(function (s) {
+    if (!seen[s.person_id]) {
+      seen[s.person_id] = 1;
+      names.push((personById(s.person_id) || { name: s.person_id }).name);
+    }
+  });
+  var shown = names.slice(0, max).join(" · ");
+  return names.length > max ? shown + " 외 " + (names.length - max) + "명" : shown;
+}
 function renderStatements() {
   var weeks = (PP.weeks || []).slice().sort(function (a, b) {
     return String(b.week).localeCompare(String(a.week));
   });
-  var total = 0;
-  var html = weeks.map(function (w) {
+  var weekData = weeks.map(function (w) {
     var list = (w.statements || []).filter(stmtMatches)
       .sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
-    if (!list.length) return "";
-    total += list.length;
+    return { w: w, list: list };
+  }).filter(function (x) { return x.list.length; });
+
+  if (openWeeks === null) {
+    openWeeks = new Set(weekData.length ? [weekData[0].w.week] : []);
+  }
+  var forceOpen = !!(kw || selPerson);   // 검색·인물 필터가 걸려 있으면 해당 주차 전부 자동 펼침
+
+  $q("#week-nav").innerHTML = weekData.map(function (x) {
+    return '<button class="chip wk-chip" data-wk="' + escapeHtml(x.w.week) + '">' +
+      escapeHtml(x.w.week) + ' <span class="cnt">' + x.list.length + "건</span></button>";
+  }).join("") || '<span class="muted small">등록된 주차 없음</span>';
+  $qa("#week-nav .wk-chip").forEach(function (c) {
+    c.onclick = function () { jumpWeek(c.dataset.wk); };
+  });
+
+  var html = weekData.map(function (x) {
+    var w = x.w, list = x.list;
+    var isOpen = forceOpen || openWeeks.has(w.week);
     var items = list.map(function (s, i) {
       var p = personById(s.person_id) || { name: s.person_id, affil: "" };
       var badge = isNew(s.added) ? ' <span class="badge new">NEW</span>' : "";
@@ -254,7 +309,13 @@ function renderStatements() {
         (hasAn ? '<div class="analysis">' + mdRender(s.analysis) + "</div>" : "") +
         "</div>";
     }).join("");
-    return '<div class="section"><h2>' + escapeHtml(w.week) + '<span class="sub">' + list.length + "건</span></h2>" + items + "</div>";
+    var hasNew = list.some(function (s) { return isNew(s.added); });
+    return '<div class="wk-section' + (isOpen ? " open" : "") + '" id="wk-' + escapeHtml(w.week) + '">' +
+      '<div class="wk-head" onclick="toggleWeek(\'' + escapeHtml(w.week) + '\')">' +
+      '<div><span class="wk-title">' + escapeHtml(w.week) + "</span>" + (hasNew ? ' <span class="badge new">NEW</span>' : "") +
+      '<div class="wk-meta">' + list.length + "건 · " + escapeHtml(personNamesPreview(list, 4)) + "</div></div>" +
+      '<span class="wk-chevron">▸</span></div>' +
+      '<div class="wk-body">' + items + "</div></div>";
   }).join("");
   $q("#stmt-weeks").innerHTML = html ||
     '<div class="empty">' + (kw || selPerson ? "필터에 해당하는 발언이 없습니다" : "등록된 발언 없음 — docs/people.json에 추가하세요") + "</div>";
