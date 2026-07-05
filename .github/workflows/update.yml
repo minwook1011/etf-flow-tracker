@@ -34,11 +34,14 @@ jobs:
       - name: 실적 캘린더(발표일·컨센서스·EPS 서프라이즈) 갱신
         run: python3 fetch_earnings_calendar.py || echo "실적 캘린더 갱신 실패 — 기존 데이터 유지"
 
+      - name: 공포·탐욕 지수 + 매크로 지표 갱신
+        run: python3 fetch_macro.py || echo "매크로 갱신 실패 — 기존 데이터 유지"
+
       - name: 변경 시 커밋 & 푸시
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data.json docs/megacap.json docs/financials.json docs/earnings_calendar.json
+          git add docs/data.json docs/megacap.json docs/financials.json docs/earnings_calendar.json docs/macro.json
           if git diff --cached --quiet; then
             echo "변경 없음 — 커밋 생략"
           else

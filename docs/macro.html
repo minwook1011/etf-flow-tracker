@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>매크로 및 투자전략 — FLOW·TRACKER</title>
+<link rel="stylesheet" href="theme.css?v=20260706a">
+<style>
+.gauge-wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+.gauge-box { flex: 0 0 auto; text-align: center; }
+.gauge-val { font-size: 40px; font-weight: 800; font-family: var(--mono); margin-top: -54px; }
+.gauge-lbl { font-size: 14px; font-weight: 800; margin-top: 2px; }
+.gauge-meta { flex: 1; min-width: 220px; }
+.fg-tbl-wrap { flex: 1; min-width: 280px; }
+.fg-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 13px; }
+.fg-row .fl { flex: 0 0 46px; color: var(--muted); font-family: var(--mono); }
+.fg-row .fv { font-weight: 700; font-family: var(--mono); }
+.methodology-note { font-size: 12px; color: var(--muted); background: var(--bg2); border-radius: 8px; padding: 10px 12px; margin-top: 14px; line-height: 1.65; }
+.dd-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin: 8px 0 4px; }
+.dd-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+.ep-tbl-wrap { margin-top: 14px; }
+.ep-row { cursor: pointer; }
+.ep-row td.sev { border-left: 4px solid transparent; }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; margin-right: 8px; flex: 0 0 auto; }
+.macro-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+.macro-card .mc-head { display: flex; align-items: center; margin-bottom: 8px; }
+.macro-card .mc-title { font-weight: 800; font-size: 15px; }
+.macro-card .mc-why { font-family: var(--serif); font-size: 13.5px; line-height: 1.7; color: var(--text); margin: 6px 0 12px; }
+.macro-card .mc-latest { font-size: 12px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
+.case-phase { border-left: 3px solid var(--accent); padding: 8px 0 8px 14px; margin-bottom: 12px; }
+.case-phase .cp-date { font-family: var(--mono); font-size: 11.5px; color: var(--accent); font-weight: 700; }
+.case-phase .cp-title { font-weight: 800; font-size: 14px; margin: 2px 0 4px; }
+.report-box { font-family: var(--serif); font-size: 14.5px; line-height: 1.85; }
+.report-box h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); margin: 22px 0 8px; font-weight: 800; font-family: var(--sans); }
+.report-box h3:first-child { margin-top: 0; }
+.stat-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
+</style>
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="kicker">매크로 및 투자전략 · 공포·탐욕 & 매크로 분석</div>
+  <div class="page-head">
+    <h1>매크로 및 투자전략</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+  <p class="note">
+    자체 산출 <b>공포·탐욕 프록시 지수</b>와 무료로 확인 가능한 <b>주요 매크로 지표</b>(10년물 금리·물가·고용·기준금리 등)로
+    현재 시장 국면을 진단하고, 과거 15% 이상 조정이 왔던 국면들과 비교해 현재 위치를 가늠합니다.
+    <b>차트에 마우스를 올리면 다른 선이 흐려져 비교가 쉬워집니다.</b> 투자 권유가 아니며, 모든 확률·통계는
+    과거 데이터 기반 참고용입니다.
+  </p>
+
+  <div class="section">
+    <h2>공포·탐욕 게이지<span class="sub">자체 산출 프록시 · 1D/1W/1M/YTD 추이</span></h2>
+    <div class="card gauge-wrap" id="gauge-card"><div class="spin">로딩 중…</div></div>
+    <div class="methodology-note" id="methodology-note"></div>
+  </div>
+
+  <div class="section">
+    <h2>역사적 조정 국면<span class="sub">S&amp;P500 · 전고점 대비 10% 이상 하락 구간 전부 · 진할수록 낙폭이 큼</span></h2>
+    <div class="dd-legend" id="dd-legend"></div>
+    <div class="card" id="spx-history-chart"><div class="spin">로딩 중…</div></div>
+    <div class="ep-tbl-wrap tbl-wrap">
+      <table class="tbl" id="ep-table" style="min-width:0">
+        <tr><th class="l">국면</th><th>낙폭</th><th>고점→저점</th><th>저점→회복</th><th>저점 당시 공포·탐욕</th></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>케이스 스터디: 2022년 약세장<span class="sub">지수 -25.4% · 고점 2022-01-03 → 저점 2022-10-12 → 회복 2024-01-19</span></h2>
+    <div class="card" id="case-2022"><div class="spin">로딩 중…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>주요 매크로 지표<span class="sub">중요도 순 · 왜 중요한지 설명 + 나스닥과 겹쳐보기(둘 다 구간 시작점 대비 누적 변화율로 환산)</span></h2>
+    <div id="macro-list"><div class="spin">로딩 중…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>현재 시장 분석 리포트<span class="sub">현재 공포·탐욕 + 매크로 상황 → 관전 포인트 → 과거 데이터 기반 확률</span></h2>
+    <div class="card report-box" id="report"><div class="spin">로딩 중…</div></div>
+  </div>
+</div>
+
+<div class="modal-back" id="modal-back-holder" style="display:none"></div>
+
+<script src="theme.js?v=20260706a"></script>
+<script src="stocks-common.js?v=20260706a"></script>
+<script>
+var MACRO = null;
+
+/* ---------- 유틸 ---------- */
+function fmtDate(d) { return d || "-"; }
+function severityColor(sev, alpha) {
+  var a = alpha != null ? alpha : { moderate: 0.10, significant: 0.18, high: 0.26, severe: 0.38 }[sev];
+  return "rgba(240,71,90," + a + ")";
+}
+function severityLabel(sev) {
+  return { moderate: "10%+", significant: "15%+", high: "20%+", severe: "30%+" }[sev] || sev;
+}
+function fgZone(v) {
+  if (v == null) return { l: "데이터 없음", c: "var(--muted)" };
+  if (v < 20) return { l: "극단적 공포", c: "#3d7eff" };
+  if (v < 40) return { l: "공포", c: "#6fa1ff" };
+  if (v < 60) return { l: "중립", c: "var(--muted)" };
+  if (v < 80) return { l: "탐욕", c: "#34d399" };
+  return { l: "극단적 탐욕", c: "#0f9d64" };
+}
+
+/* ---------- 공포탐욕 게이지 ---------- */
+function gaugeSVG(v) {
+  var w = 220, h = 130, cx = w / 2, cy = 110, r = 90;
+  var zones = [[0, 20, "#3d7eff"], [20, 40, "#6fa1ff"], [40, 60, "#8b93a7"], [60, 80, "#34d399"], [80, 100, "#0f9d64"]];
+  function pt(val, rad) {
+    var ang = Math.PI - (val / 100) * Math.PI;
+    return [cx + rad * Math.cos(ang), cy - rad * Math.sin(ang)];
+  }
+  var arcs = zones.map(function (z) {
+    var p0 = pt(z[0], r), p1 = pt(z[1], r);
+    var large = (z[1] - z[0]) > 50 ? 1 : 0;
+    return '<path d="M' + p0[0].toFixed(1) + "," + p0[1].toFixed(1) + " A" + r + "," + r + " 0 " + large + " 0 " +
+      p1[0].toFixed(1) + "," + p1[1].toFixed(1) + '" stroke="' + z[2] + '" stroke-width="16" fill="none" stroke-linecap="butt"/>';
+  }).join("");
+  var needle = "";
+  if (v != null) {
+    var np = pt(v, r - 12);
+    needle = '<line x1="' + cx + '" y1="' + cy + '" x2="' + np[0].toFixed(1) + '" y2="' + np[1].toFixed(1) +
+      '" stroke="var(--text)" stroke-width="3" stroke-linecap="round"/><circle cx="' + cx + '" cy="' + cy + '" r="5" fill="var(--text)"/>';
+  }
+  return '<svg width="' + w + '" height="' + (h + 4) + '" viewBox="0 0 ' + w + " " + (h + 4) + '">' + arcs + needle + "</svg>";
+}
+function fgDelta(daily, back) {
+  var arr = daily.fear_greed;
+  var last = null;
+  for (var i = arr.length - 1; i >= 0; i--) { if (arr[i] != null) { last = arr[i]; break; } }
+  if (last == null) return null;
+  var i2 = Math.max(0, arr.length - 1 - back);
+  var prev = arr[i2];
+  return prev == null ? null : { now: last, prev: prev, chg: Math.round((last - prev) * 10) / 10 };
+}
+function ytdFG(daily) {
+  var dates = daily.dates, arr = daily.fear_greed;
+  var year = dates[dates.length - 1].slice(0, 4);
+  var startIdx = dates.findIndex(function (d) { return d.slice(0, 4) === year; });
+  var last = arr[arr.length - 1];
+  var start = arr[startIdx];
+  return (last == null || start == null) ? null : { now: last, prev: start, chg: Math.round((last - start) * 10) / 10 };
+}
+function renderGauge() {
+  var daily = MACRO.daily;
+  var cur = MACRO.latest_fear_greed;
+  var zone = fgZone(cur);
+  var d1 = fgDelta(daily, 1), w1 = fgDelta(daily, 5), m1 = fgDelta(daily, 21), ytd = ytdFG(daily);
+  function row(lbl, d) {
+    if (!d) return '<div class="fg-row"><span class="fl">' + lbl + '</span><span class="fv muted">–</span></div>';
+    var cls = d.chg > 0 ? "beat" : d.chg < 0 ? "miss" : "inl";
+    return '<div class="fg-row"><span class="fl">' + lbl + "</span><span class=\"fv\">" + d.prev.toFixed(1) +
+      " → " + d.now.toFixed(1) + '</span><span class="fv ' + cls + '">' + (d.chg > 0 ? "+" : "") + d.chg + "</span></div>";
+  }
+  $q("#gauge-card").innerHTML =
+    '<div class="gauge-box">' + gaugeSVG(cur) + '<div class="gauge-val" style="color:' + zone.c + '">' + (cur != null ? cur.toFixed(1) : "–") + "</div>" +
+    '<div class="gauge-lbl" style="color:' + zone.c + '">' + zone.l + "</div></div>" +
+    '<div class="gauge-meta"><div class="stat-chip-row">' +
+    Object.keys(MACRO.latest_components).map(function (k) {
+      var labels = { momentum_pct: "모멘텀", volatility_pct: "변동성(역)", strength_pct: "주가강도", junk_demand_pct: "정크본드수요", safe_haven_pct: "안전자산수요" };
+      var v = MACRO.latest_components[k];
+      return '<span class="chip">' + labels[k] + ' <b>' + (v != null ? v.toFixed(0) : "–") + "</b></span>";
+    }).join("") + "</div>" +
+    '<p class="muted small" style="max-width:520px">5개 하위지표(모멘텀·변동성·정크본드 수요·안전자산 수요·주가강도)를 전체기간 백분위로 환산해 평균한 값입니다. 0에 가까울수록 극단적 공포, 100에 가까울수록 극단적 탐욕입니다.</p></div>' +
+    '<div class="fg-tbl-wrap"><h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:0 0 8px;font-weight:800">추이</h4>' +
+    row("1일", d1) + row("1주", w1) + row("1개월", m1) + row("YTD", ytd) + "</div>";
+  $q("#methodology-note").textContent = MACRO.methodology;
+}
+
+/* ---------- 역사적 조정 국면 ---------- */
+function spxHistoryChartSVG(weekly, episodes) {
+  var w = 900, h = 320, padL = 50, padR = 10, padT = 12, padB = 22;
+  var dates = weekly.dates, spx = weekly.spx;
+  var logVals = spx.map(function (v) { return v ? Math.log10(v) : null; });
+  var valid = logVals.filter(function (v) { return v != null; });
+  var mn = Math.min.apply(null, valid), mx = Math.max.apply(null, valid);
+  var span = mx - mn || 1;
+  function x(i) { return padL + (i / Math.max(dates.length - 1, 1)) * (w - padL - padR); }
+  function y(v) { return padT + (1 - (v - mn) / span) * (h - padT - padB); }
+  function xOfDate(d) {
+    var idx = dates.findIndex(function (dd) { return dd >= d; });
+    if (idx < 0) idx = dates.length - 1;
+    return x(idx);
+  }
+  var bands = episodes.map(function (ep) {
+    var x0 = xOfDate(ep.peak_date);
+    var x1 = xOfDate(ep.recovery_date || dates[dates.length - 1]);
+    return '<rect x="' + x0.toFixed(1) + '" y="' + padT + '" width="' + Math.max(1, x1 - x0).toFixed(1) + '" height="' + (h - padT - padB) +
+      '" fill="' + severityColor(ep.severity) + '"><title>' + ep.peak_date + " ~ " + (ep.recovery_date || "진행중") + " (" + ep.pct_decline + '%)</title></rect>';
+  }).join("");
+  var gl = "";
+  var steps = 5;
+  for (var g = 0; g <= steps; g++) {
+    var gv = mn + (span * g) / steps;
+    var gy = y(gv);
+    gl += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (w - padR) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1"/>' +
+      '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" fill="var(--muted)" font-size="10" text-anchor="end">' + Math.round(Math.pow(10, gv)) + "</text>";
+  }
+  var yearTicks = "";
+  var lastYear = "";
+  dates.forEach(function (d, i) {
+    var yr = d.slice(0, 4);
+    if (yr !== lastYear && +yr % 4 === 0) {
+      yearTicks += '<text x="' + x(i).toFixed(1) + '" y="' + (h - 4) + '" fill="var(--muted)" font-size="10" text-anchor="middle">' + yr + "</text>";
+    }
+    lastYear = yr;
+  });
+  var pts = spx.map(function (v, i) { return v ? x(i).toFixed(1) + "," + y(Math.log10(v)).toFixed(1) : null; }).filter(Boolean).join(" ");
+  return '<svg width="100%" viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" style="min-width:640px">' +
+    gl + bands + '<polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="' + pts + '"/>' + yearTicks + "</svg>";
+}
+function renderDrawdownHistory() {
+  $q("#dd-legend").innerHTML = ["moderate", "significant", "high", "severe"].map(function (s) {
+    return '<span><i style="background:' + severityColor(s) + '"></i>' + severityLabel(s) + "</span>";
+  }).join("");
+  $q("#spx-history-chart").innerHTML = spxHistoryChartSVG(MACRO.weekly, MACRO.drawdown_episodes.spx);
+  var eps = MACRO.drawdown_episodes.spx.slice().sort(function (a, b) { return a.pct_decline - b.pct_decline; });
+  var rows = eps.map(function (ep, i) {
+    var fgAtTrough = fgNear(MACRO.weekly, ep.trough_date);
+    var days = ep.recovery_date ? Math.round((new Date(ep.recovery_date) - new Date(ep.trough_date)) / 86400000) : null;
+    return '<tr class="ep-row" data-i="' + i + '"><td class="l sev" style="border-left-color:' + severityColor(ep.severity, 0.7) + '">' +
+      ep.peak_date.slice(0, 4) + "년 " + severityLabel(ep.severity) + " 조정</td>" +
+      "<td class='miss'>" + ep.pct_decline + "%</td>" +
+      "<td class='small'>" + ep.peak_date + " → " + ep.trough_date + "</td>" +
+      "<td class='small'>" + (days != null ? days + "일" : "진행중") + "</td>" +
+      "<td>" + (fgAtTrough != null ? fgAtTrough.toFixed(1) : "–") + "</td></tr>";
+  }).join("");
+  $q("#ep-table").innerHTML = "<tr><th class='l'>국면</th><th>낙폭</th><th>고점→저점</th><th>저점→회복(일)</th><th>저점 당시 공포·탐욕</th></tr>" + rows;
+  $qa("#ep-table .ep-row").forEach(function (tr) {
+    tr.onclick = function () { openEpisodeModal(eps[+tr.dataset.i]); };
+  });
+}
+function fgNear(weekly, dateStr) {
+  /* dateStr에 가장 가까운 주(전후 모두 비교)를 찾는다 — 급락 국면은 지수가 주 단위로도 크게 움직여
+     단순 "이후 첫 주"만 보면 실제 저점과 어긋날 수 있다. */
+  var target = new Date(dateStr).getTime();
+  var bestIdx = -1, bestDiff = Infinity;
+  weekly.dates.forEach(function (d, i) {
+    var diff = Math.abs(new Date(d).getTime() - target);
+    if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+  });
+  return bestIdx >= 0 ? weekly.fear_greed[bestIdx] : null;
+}
+function openEpisodeModal(ep) {
+  var fgPeak = fgNear(MACRO.weekly, ep.peak_date);
+  var fgTrough = fgNear(MACRO.weekly, ep.trough_date);
+  var days = ep.recovery_date ? Math.round((new Date(ep.recovery_date) - new Date(ep.trough_date)) / 86400000) : null;
+  var body =
+    '<div class="stat-chip-row">' +
+    '<span class="chip">낙폭 <b class="miss">' + ep.pct_decline + '%</b></span>' +
+    '<span class="chip">고점 <b>' + ep.peak_date + '</b></span>' +
+    '<span class="chip">저점 <b>' + ep.trough_date + '</b></span>' +
+    '<span class="chip">회복 <b>' + (ep.recovery_date || "진행중") + '</b></span>' +
+    '<span class="chip">저점→회복 <b>' + (days != null ? days + "일" : "-") + '</b></span></div>' +
+    "<p>고점 당시 공포·탐욕 지수는 <b>" + (fgPeak != null ? fgPeak.toFixed(1) : "-") + "</b>, 저점 당시에는 <b>" +
+    (fgTrough != null ? fgTrough.toFixed(1) : "-") + "</b>였습니다. " +
+    (fgTrough != null && fgTrough < 20 ? "저점 국면에서 지수가 20 미만(극단적 공포)까지 떨어졌던 사례입니다." :
+     fgTrough != null && fgTrough < 35 ? "저점 국면에서 지수가 공포 구간까지 떨어졌던 사례입니다." :
+     "이 국면은 낙폭에 비해 지수가 극단적으로 떨어지지는 않았던(패닉성이 약했던) 사례입니다.") + "</p>";
+  openModal(ep.peak_date.slice(0, 4) + "년 " + severityLabel(ep.severity) + " 조정 국면", body);
+}
+
+/* ---------- 2022년 케이스 스터디 ---------- */
+function render2022Case() {
+  var phases = [
+    { date: "2021-12 ~ 2022-01-03(고점)", title: "고점 형성 — 금리인상 경계감 속 사상 최고치", txt: "2021년 말 S&P500은 사상 최고치를 경신했지만, 40년 만의 최고 인플레이션(CPI 7%대)과 연준의 매파 전환 시사로 공포·탐욕 지수는 이미 고점 대비 하락하기 시작(약 70선 → 60선대)했습니다. 시장은 여전히 탐욕 국면이었지만 균열의 조짐이 있었습니다." },
+    { date: "2022-01 ~ 2022-06", title: "1차 급락 — 금리인상 시작 + 우크라이나 전쟁", txt: "3월 연준이 기준금리 인상을 시작했고, 2월 러시아의 우크라이나 침공으로 원자재 가격까지 급등하며 인플레이션 우려가 배가됐습니다. 6월 중순 지수는 고점 대비 -23%까지 하락했고 공포·탐욕 지수는 19까지 급락(극단적 공포)했습니다." },
+    { date: "2022-07 ~ 2022-08", title: "일시 반등 — '피벗' 기대감", txt: "연준이 긴축 속도를 늦출 것이라는 '피벗' 기대감에 지수는 8월까지 반등(공포·탐욕 지수 36선까지 회복)했습니다. 그러나 8월 잭슨홀 회의에서 파월 의장이 강경한 긴축 지속 의지를 재확인하며 반등은 오래가지 못했습니다." },
+    { date: "2022-09 ~ 2022-10-12(저점)", title: "2차 급락 — 저점 형성", txt: "9월 이후 재차 급락해 10월 12일 고점 대비 -25.4%인 저점을 기록했습니다. 이 시점 공포·탐욕 지수는 약 31선으로, 낙폭에 비해 극단적 공포(20 미만)까지는 가지 않았던 점이 특징적입니다 — 패닉성 투매보다는 금리인상에 따른 밸류에이션 재조정 성격이 강했음을 시사합니다." },
+    { date: "2022-11 ~ 2023 상반기", title: "반등의 조짐", txt: "10월 저점 이후 인플레이션 지표(CPI)가 정점을 지나 완만해지는 신호가 나오기 시작했고, 11월 공포·탐욕 지수는 46선까지 반등했습니다. 이후 등락을 거듭하면서도 저점을 높여가는 흐름이 나타났습니다 — 역사적으로 '저점 대비 지수가 재차 낮은 저점을 만들지 않고 상승 전환'하는 패턴이 반등 신호로 여겨집니다." },
+    { date: "2024-01-19(회복)", title: "전고점 회복", txt: "저점 이후 약 15개월(464일) 만에 지수는 전고점을 회복했습니다. 이는 2018년(120일)·2020년 코로나(148일) 급락 대비 훨씬 긴 회복 기간으로, 금리인상 사이클이 원인인 조정은 유동성 위기성 조정보다 회복이 느리다는 특징을 보여줍니다." }
+  ];
+  var html = phases.map(function (p) {
+    return '<div class="case-phase"><div class="cp-date">' + p.date + '</div><div class="cp-title">' + p.title + '</div><p class="small" style="line-height:1.7">' + p.txt + '</p></div>';
+  }).join("");
+  html += '<div class="methodology-note"><b>결론(사후적 관점):</b> 2022년 국면에서 "매수했어야 할 지점"을 사후적으로 보면 10월 저점 부근이지만, 당시 실시간으로는 공포·탐욕 지수가 극단적 공포(20 미만)까지 가지 않아 통상적인 "패닉 바닥" 신호가 뚜렷하지 않았던 사례입니다. 대신 ① 인플레이션(CPI) 정점 통과, ② 공포·탐욕 지수가 저점을 높여가는 패턴, ③ 연준의 긴축 속도 조절 시사 — 이 세 가지가 함께 나타난 11월~12월이 역사적으로 더 신뢰할 만한 반등 신호였습니다.</div>';
+  $q("#case-2022").innerHTML = html;
+}
+
+/* ---------- 매크로 지표 ---------- */
+var MACRO_DEFS = [
+  { key: "dgs10", name: "미국 10년물 국채금리", unit: "%", why: "주식(특히 성장주)의 미래 현금흐름을 할인하는 기준금리 역할을 합니다. 금리가 오르면 주식의 이론적 가치가 낮아지고, 채권 대비 주식의 매력도 상대적으로 떨어집니다. 2022년 급등이 성장주 급락의 핵심 배경이었습니다." },
+  { key: "cpi", name: "소비자물가지수(CPI)", unit: "지수", why: "연준 통화정책의 가장 직접적인 판단 근거입니다. 물가가 높으면 금리 인상 압력이 커지고, 기업 마진(원가 상승)과 소비자 실질구매력을 동시에 훼손합니다." },
+  { key: "fedfunds", name: "연방기금금리(기준금리)", unit: "%", why: "모든 자산의 할인율이자 유동성 공급의 핵심 변수입니다. 금리 인상 사이클은 밸류에이션 압축(주가수익비율 하락)을, 인하 사이클은 유동성 확대를 통해 자산가격을 지지하는 경향이 있습니다." },
+  { key: "unrate", name: "실업률", unit: "%", why: "경기 사이클의 후행지표이자 침체 신호입니다. 특히 3개월 이동평균이 저점 대비 0.5%p 오르면 침체를 알리는 '삼의 법칙(Sahm Rule)'이 유명한데, 실업률 급등은 소비 위축 → 기업 실적 둔화로 이어집니다." },
+  { key: "pce", name: "개인소비지출 물가지수(PCE)", unit: "지수", why: "연준이 '공식적으로 가장 선호'한다고 밝힌 물가 지표입니다. CPI보다 소비 패턴 변화를 더 잘 반영해 통화정책 결정에 실질적으로 더 큰 영향을 미칩니다." },
+  { key: "ppi", name: "생산자물가지수(PPI)", unit: "지수", why: "기업이 원자재·중간재를 사들이는 단계의 물가로, 소비자물가(CPI)보다 먼저 움직이는 선행지표 성격이 있습니다. PPI 상승은 향후 CPI 상승과 기업 마진 압박을 예고할 수 있습니다." },
+  { key: "payems", name: "비농업 고용자수", unit: "천명", why: "미국 고용시장의 모멘텀을 보여주는 대표 지표로, 매월 첫째 주 금요일 발표 시 시장 변동성이 가장 커지는 지표 중 하나입니다. 고용 둔화는 소비 위축의 선행 신호입니다." },
+  { key: "icsa", name: "신규 실업수당 청구건수", unit: "건", why: "매주 발표되는 고용지표 중 가장 빠른(고빈도) 선행지표입니다. 청구건수가 추세적으로 늘기 시작하면 노동시장 냉각과 경기 둔화의 초기 신호로 해석됩니다." },
+  { key: "umcsent", name: "미시간대 소비자심리지수", unit: "지수", why: "가계의 소비 여력과 심리를 보여주는 지표로, 소비지출(미국 GDP의 약 70%)의 향방을 가늠하는 선행지표 역할을 합니다." },
+  { key: "m2", name: "M2 통화공급량", unit: "십억달러", why: "시중 유동성의 총량입니다. 2020~2021년 M2 급증은 자산가격 상승의 배경 중 하나로 꼽히며, 이후 증가세 둔화·감소는 유동성 축소 국면을 나타냅니다." }
+];
+function indexedPair(macroSeries, weekly) {
+  if (!macroSeries || !macroSeries.length || !weekly.dates.length) return null;
+  var filtered = macroSeries.filter(function (p) { return p.date >= weekly.dates[0]; });
+  if (filtered.length < 2) return null;
+  var base = filtered[0].value;
+  var ndxBase = null;
+  var dates = [], macroPct = [], ndxPct = [];
+  filtered.forEach(function (p) {
+    var idx = weekly.dates.findIndex(function (d) { return d >= p.date; });
+    if (idx < 0) idx = weekly.dates.length - 1;
+    var ndxVal = weekly.ixic[idx];
+    if (ndxVal == null) return;
+    if (ndxBase === null) ndxBase = ndxVal;
+    dates.push(p.date);
+    macroPct.push(base ? (p.value / base - 1) * 100 : 0);
+    ndxPct.push(ndxBase ? (ndxVal / ndxBase - 1) * 100 : 0);
+  });
+  return { dates: dates, macroPct: macroPct, ndxPct: ndxPct, latest: filtered[filtered.length - 1] };
+}
+function macroCardHTML(def, idx) {
+  var series = MACRO.macro_monthly[def.key];
+  if (!series || series.length < 2) {
+    return '<div class="macro-card"><div class="mc-head"><span class="rank-badge">' + (idx + 1) + '</span><span class="mc-title">' + def.name + '</span></div>' +
+      '<div class="mc-why">' + def.why + '</div><div class="empty">데이터 수집 중입니다.</div></div>';
+  }
+  var pair = indexedPair(series, MACRO.weekly);
+  var chartHtml = pair
+    ? lineChartSVG([{ name: def.name, values: pair.macroPct, color: "#f0b429" }, { name: "나스닥", values: pair.ndxPct, color: "#5b8cff" }], 860, 220)
+    : '<div class="empty">비교 데이터 부족</div>';
+  var legend = pair
+    ? '<div class="ins-legend" style="margin-bottom:6px"><span data-line-idx="0"><i style="background:#f0b429"></i>' + def.name +
+      '</span><span data-line-idx="1"><i style="background:#5b8cff"></i>나스닥</span></div>'
+    : "";
+  return '<div class="macro-card" id="mc-' + def.key + '"><div class="mc-head"><span class="rank-badge">' + (idx + 1) + '</span><span class="mc-title">' + def.name + '</span></div>' +
+    '<div class="mc-why">' + def.why + '</div>' + legend +
+    '<div class="chart-hover-root">' + chartHtml + '</div>' +
+    '<div class="mc-latest">최근값(' + series[series.length - 1].date + '): ' + series[series.length - 1].value.toLocaleString() + " " + def.unit +
+    (pair ? " · 차트는 " + pair.dates[0] + " 이후 구간을 각 시작점(0%) 대비 누적 변화율로 환산해 나스닥과 비교" : "") + "</div></div>";
+}
+function renderMacroList() {
+  $q("#macro-list").innerHTML = MACRO_DEFS.map(macroCardHTML).join("");
+  $qa("#macro-list .chart-hover-root").forEach(function (root) { wireLineHover(root); });
+}
+
+/* ---------- 분석 리포트 ---------- */
+function renderReport() {
+  var cur = MACRO.latest_fear_greed;
+  var zone = fgZone(cur);
+  var eps = MACRO.drawdown_episodes.spx;
+  var big = eps.filter(function (e) { return Math.abs(e.pct_decline) >= 15; });
+  var recoveries = big.filter(function (e) { return e.recovery_date; }).map(function (e) {
+    return Math.round((new Date(e.recovery_date) - new Date(e.trough_date)) / 86400000);
+  });
+  var under6mo = recoveries.filter(function (d) { return d <= 200; }).length;
+  var fgAtTroughs = big.map(function (e) { return fgNear(MACRO.weekly, e.trough_date); }).filter(function (v) { return v != null; });
+  var under20 = fgAtTroughs.filter(function (v) { return v < 20; }).length;
+
+  var latestCpi = (MACRO.macro_monthly.cpi || []).slice(-13);
+  var cpiYoy = latestCpi.length >= 13 ? ((latestCpi[12].value / latestCpi[0].value - 1) * 100).toFixed(1) : null;
+  var latestUnrate = (MACRO.macro_monthly.unrate || []).slice(-1)[0];
+  var latestFedfunds = (MACRO.macro_monthly.fedfunds || []).slice(-1)[0];
+  var latestDgs10 = (MACRO.macro_monthly.dgs10 || []).slice(-1)[0];
+
+  var html = "<h3>현재 공포·탐욕 및 매크로 상황</h3>" +
+    "<p>공포·탐욕 프록시 지수는 현재 <b style='color:" + zone.c + "'>" + (cur != null ? cur.toFixed(1) : "-") + " (" + zone.l + ")</b>로," +
+    " 극단적인 국면은 아닌 중립~다소 탐욕 쪽에 위치합니다." +
+    (latestDgs10 ? " 10년물 금리는 " + latestDgs10.value.toFixed(2) + "%, " : "") +
+    (latestFedfunds ? "기준금리는 " + latestFedfunds.value.toFixed(2) + "%" : "") +
+    (cpiYoy ? ", 최근 CPI는 전년 대비 약 " + cpiYoy + "% 상승" : "") +
+    (latestUnrate ? ", 실업률은 " + latestUnrate.value.toFixed(1) + "%" : "") + " 수준입니다.</p>" +
+    "<h3>과거 데이터가 말해주는 것 — 15% 이상 조정 " + big.length + "건 분석</h3>" +
+    "<p>1997년 이후 S&amp;P500이 전고점 대비 15% 이상 하락한 국면은 총 " + big.length + "건이었습니다. 이 중 저점에서 전고점을 회복하기까지 " +
+    "6개월(약 200일) 이내로 걸린 경우는 " + under6mo + "건/" + recoveries.length + "건이었고, 2000년 닷컴버블(1,694일)·2008년 금융위기(1,480일)처럼 " +
+    "구조적 위기 국면은 회복까지 수년이 걸렸습니다. 즉 <b>같은 '15% 이상 조정'이라도 원인이 밸류에이션 재조정(금리발) 성격인지, " +
+    "신용·유동성 위기 성격인지에 따라 회복 속도가 크게 갈립니다.</b></p>" +
+    "<p>저점 당시 공포·탐욕 지수가 20 미만(극단적 공포)까지 떨어졌던 경우는 " + under20 + "건/" + fgAtTroughs.length +
+    "건으로, 대부분의 큰 조정에서는 지수가 극단적 공포 구간까지 진입했습니다. 현재 지수(" + (cur != null ? cur.toFixed(1) : "-") +
+    ")는 이 구간과 거리가 있어, 과거 패턴상 '패닉 저점'의 신호는 아직 나타나지 않은 상태로 해석할 수 있습니다.</p>" +
+    "<h3>앞으로 지켜볼 것</h3>" +
+    "<ul style='margin-left:20px;line-height:1.9'>" +
+    "<li><b>10년물 금리 추이</b> — 금리가 추가로 급등할 경우(특히 실질금리) 밸류에이션 압축 재개 가능성.</li>" +
+    "<li><b>CPI·PCE의 방향</b> — 물가 재가속 신호가 나오면 연준의 정책 유연성이 줄어들어 위험자산에 부담.</li>" +
+    "<li><b>신규 실업수당 청구건수의 추세 전환</b> — 노동시장 냉각의 가장 빠른 신호.</li>" +
+    "<li><b>공포·탐욕 지수가 40 미만으로 진입하는지</b> — 과거 사례상 이 구간부터 조정 국면 진입 가능성이 높아짐.</li>" +
+    "</ul>" +
+    "<p class='muted small' style='margin-top:16px'>※ 위 확률·통계는 1997년 이후 11건의 조정 국면이라는 제한된 표본 기반이며, 미래를 보장하지 않습니다. " +
+    "특정 시점의 매수·매도를 권유하는 내용이 아닙니다.</p>";
+  $q("#report").innerHTML = html;
+}
+
+fetchJSON("macro.json").then(function (d) {
+  MACRO = d;
+  $q("#updated").textContent = "기준: " + (d.updated || "-");
+  renderGauge();
+  renderDrawdownHistory();
+  render2022Case();
+  renderMacroList();
+  renderReport();
+}).catch(function (err) {
+  $q("#gauge-card").innerHTML = '<div class="empty">macro.json 로드 실패 — fetch_macro.py를 먼저 실행하세요<br><span class="small">' + escapeHtml(err.message) + "</span></div>";
+});
+</script>
+</body>
+</html>

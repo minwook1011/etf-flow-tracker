@@ -6,6 +6,7 @@
     ["perspective.html", "핵심 테제 트래킹"],
     ["worldflow.html", "세상 흐름 파악"],
     ["earnings.html", "미국 주요 실적 정리"],
+    ["macro.html", "매크로 및 투자전략"],
   ];
   var here = location.pathname.split("/").pop() || "index.html";
   var nav = document.getElementById("topnav");
