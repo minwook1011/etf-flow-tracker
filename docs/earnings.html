@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>미국 주요 실적 정리 — FLOW·TRACKER</title>
+<link rel="stylesheet" href="theme.css?v=20260705b">
+<style>
+.ern-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 15px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+.ern-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
+.ern-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ern-head .e-nm { font-weight: 800; font-size: 15px; }
+.ern-head .e-q { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.ern-head .e-date { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-left: auto; }
+.ern-sum { font-family: var(--serif); font-size: 13.5px; line-height: 1.7; color: var(--text); margin-top: 6px; }
+.ern-tags span { display: inline-block; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; font-size: 11px; color: var(--muted); margin: 6px 4px 0 0; }
+.mono-toggle { display: inline-flex; }
+.tab-row { display: flex; gap: 6px; margin: 10px 0; }
+.tab-row button { background: var(--card); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 5px 14px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+.tab-row button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ern-sub-tab { border-top: 1px dashed var(--border); margin-top: 12px; padding-top: 10px; }
+.ern-sub-tab h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin: 0 0 6px; font-weight: 800; }
+.qa-list { font-size: 13px; line-height: 1.7; }
+.cal-lane { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.cal-cell { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
+.cal-cell:hover { border-color: var(--accent); }
+.cal-cell .c-d { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.cal-cell .c-nm { font-weight: 700; font-size: 13.5px; margin-top: 1px; }
+.cal-cell .c-q { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+.co-search { max-width: 420px; }
+</style>
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="kicker">미국 주요 실적 정리 · 메가캡 어닝</div>
+  <div class="page-head">
+    <h1>미국 주요 실적 정리</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+  <p class="note">
+    글로벌 메가캡(시총 TOP300) 기업의 <b>실적 요약·어닝콜 Q&A·상세 분석</b>과, 최근 5개년·8개 분기의
+    <b>매출·매출증가율·영업이익·OPM·영업이익증가율</b>을 봅니다. 기업을 클릭하면 일봉 차트와 재무 추이가 열립니다.
+    실적 요약/Q&A/분석은 원문 복제가 아닌 요약이며 투자 권유가 아닙니다.
+  </p>
+
+  <div class="section">
+    <h2>정리된 실적<span class="sub">카드 클릭 = 요약·질문·전문 + 재무 추이</span></h2>
+    <div id="earnings-list"><div class="spin">로딩 중…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>실적 캘린더<span class="sub">발표일 순 · 정리된 실적 있는 종목은 상단 배지</span></h2>
+    <div id="cal-list"></div>
+  </div>
+
+  <div class="section">
+    <h2>기업 재무 열람<span class="sub">메가캡 전체 · 이름·티커 검색 후 클릭 = 5개년/분기 재무</span></h2>
+    <input class="search co-search" id="co-search" placeholder="기업명 또는 티커 검색 (예: 엔비디아, NVDA, 삼성)" style="margin-bottom:10px">
+    <div class="cal-lane" id="co-grid"></div>
+  </div>
+</div>
+
+<div class="modal-back" id="modal-back-holder" style="display:none"></div>
+
+<script src="theme.js?v=20260705b"></script>
+<script src="stocks-common.js?v=20260705b"></script>
+<script>
+var MEGA = {}, FIN = {}, ERN = [], PROFILES = {};
+var finMode = {};  // ticker -> 'annual'|'quarterly' (모달 내 토글 상태)
+
+function ccyOf(tk) {
+  return /\.K[SQ]$/.test(tk) ? "KRW" : /\.SR$/.test(tk) ? "SAR" : /\.T$/.test(tk) ? "JPY"
+    : /\.TW$/.test(tk) ? "TWD" : /\.(L)$/.test(tk) ? "GBP" : /\.(PA|DE|AS|SW|MI|MC|ST|OL)$/.test(tk) ? "EUR" : "USD";
+}
+function priceCcySym(tk) { return /\.K[SQ]$/.test(tk) ? "₩" : /\.(T|TW|HK|NS|SR|L|PA|DE|AS|SW|MI|MC|ST|OL|CO)$/.test(tk) ? "" : "$"; }
+/* megacap.json엔 r1d가 없으므로 캔들 마지막 2봉으로 당일 등락 계산 */
+function dayRet(s) {
+  if (s && typeof s.r1d === "number" && s.r1d !== 0) return s.r1d;
+  var c = s && s.candles;
+  if (c && c.length >= 2) { var a = c[c.length - 1].c, b = c[c.length - 2].c; return b ? +((a / b - 1) * 100).toFixed(2) : 0; }
+  return 0;
+}
+
+/* ---------- 기업 재무/차트 모달 ---------- */
+function openCompanyModal(tk) {
+  var s = MEGA[tk];
+  var fin = FIN[tk];
+  var name = (s && s.name) || (fin && fin.name) || tk;
+  var ccy = (fin && ((fin.quarterly && fin.quarterly[0] && fin.quarterly[0].ccy) || (fin.annual && fin.annual[0] && fin.annual[0].ccy))) || ccyOf(tk);
+  finMode[tk] = finMode[tk] || "annual";
+  var chips = [];
+  if (s) {
+    chips = [
+      { label: "1주", value: fmtPct(s.r1w), cls: pctClass(s.r1w) },
+      { label: "1개월", value: fmtPct(s.r1m), cls: pctClass(s.r1m) },
+      { label: "YTD", value: fmtPct(s.ytd), cls: pctClass(s.ytd) },
+      { label: "52주 고점대비", value: fmtPct(s.from_high, 1), cls: pctClass(s.from_high) }
+    ];
+    if (s.mcap_usd) chips.push({ label: "시총", value: fmtMcap(s.mcap_usd), cls: "" });
+    if (s.pe_now != null || s.pe_next != null) chips.push({ label: "선행PER", per: true, cls: "", value: (s.pe_now != null ? "올해 " + s.pe_now : "") + (s.pe_now != null && s.pe_next != null ? " → " : "") + (s.pe_next != null ? "내년 " + s.pe_next : "") });
+  }
+  var chipsHtml = chips.map(function (c) {
+    return '<span class="chip' + (c.per ? " per" : "") + '">' + escapeHtml(c.label) + ' <b class="' + c.cls + '">' + escapeHtml(c.value) + "</b></span>";
+  }).join("");
+  var candleHtml = (s && s.candles) ? candleChartSVG(s.candles.slice(-90), 820, 260) : "";
+  var body = '<div class="modal-chips">' + chipsHtml + "</div>" +
+    (PROFILES[tk] ? '<p class="note" style="margin:0 0 10px;max-width:none">' + escapeHtml(PROFILES[tk].biz) + "</p>" : "") +
+    candleHtml +
+    '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:16px 0 4px;font-weight:800">재무 추이</h4>' +
+    '<div class="tab-row"><button data-fmode="annual" class="' + (finMode[tk] === "annual" ? "on" : "") + '">연간(최근 ' + ((fin && fin.annual) ? fin.annual.length : 0) + '년)</button>' +
+    '<button data-fmode="quarterly" class="' + (finMode[tk] === "quarterly" ? "on" : "") + '">분기(최근 ' + ((fin && fin.quarterly) ? fin.quarterly.length : 0) + '개)</button></div>' +
+    '<div id="fin-holder"></div>';
+  openModal(escapeHtml(name) + ' <span class="muted small">' + escapeHtml(tk.replace(/\.[A-Z]+$/, "")) + "</span>" + (s ? " " + pctSpan(dayRet(s)) : ""), body,
+    s ? '<span class="px">' + fmtPrice(s.price, priceCcySym(tk)) + "</span>" : "");
+  renderFin(tk);
+  $qa("[data-fmode]").forEach(function (b) {
+    b.onclick = function () { finMode[tk] = b.dataset.fmode; $qa("[data-fmode]").forEach(function (x) { x.classList.toggle("on", x.dataset.fmode === finMode[tk]); }); renderFin(tk); };
+  });
+}
+function renderFin(tk) {
+  var fin = FIN[tk];
+  var holder = document.querySelector("#modal-back .m-body #fin-holder");
+  if (!holder) return;
+  if (!fin) { holder.innerHTML = '<div class="empty">재무 데이터가 아직 없습니다.</div>'; return; }
+  var isQ = finMode[tk] === "quarterly";
+  var rows = isQ ? fin.quarterly : fin.annual;
+  var ccy = (rows && rows[0] && rows[0].ccy) || ccyOf(tk);
+  holder.innerHTML = financialsHTML(rows, isQ, ccy);
+}
+
+/* ---------- 정리된 실적 카드 ---------- */
+function ernCard(e, idx) {
+  return '<div class="ern-card" data-idx="' + idx + '">' +
+    '<div class="ern-head"><span class="e-nm">' + escapeHtml(e.name) + '</span>' +
+    '<span class="e-q">' + escapeHtml(e.quarter) + '</span>' +
+    '<span class="e-date">' + escapeHtml(e.report_date) + "</span></div>" +
+    '<div class="ern-sum">' + escapeHtml((e.summary || "").slice(0, 160)) + ((e.summary || "").length > 160 ? "…" : "") + "</div>" +
+    (e.tags && e.tags.length ? '<div class="ern-tags">' + e.tags.map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>" : "") +
+    "</div>";
+}
+function openErnModal(e) {
+  var tk = e.ticker, s = MEGA[tk], fin = FIN[tk];
+  finMode[tk] = finMode[tk] || "quarterly";
+  var candleHtml = (s && s.candles) ? candleChartSVG(s.candles.slice(-90), 820, 240) : "";
+  var body =
+    '<div class="muted small" style="margin-bottom:8px;font-family:var(--mono)">' + escapeHtml(e.quarter) + " · 발표 " + escapeHtml(e.report_date) + "</div>" +
+    '<div class="ern-sub-tab" style="border-top:0;padding-top:0"><h4>내용 요약</h4><div style="font-family:var(--serif);line-height:1.75;font-size:14px">' + escapeHtml(e.summary) + "</div></div>" +
+    (e.qa ? '<div class="ern-sub-tab"><h4>질문 요약 (어닝콜 Q&amp;A)</h4><div class="qa-list">' + mdRender(e.qa) + "</div></div>" : "") +
+    (e.full ? '<div class="ern-sub-tab"><h4>전문 분석</h4><details class="fold" open><summary>펼치기/접기</summary>' + mdRender(e.full) + "</details></div>" : "") +
+    (candleHtml ? '<div class="ern-sub-tab"><h4>주가 (최근 90일)</h4>' + candleHtml + "</div>" : "") +
+    '<div class="ern-sub-tab"><h4>재무 추이</h4>' +
+    '<div class="tab-row"><button data-fmode="annual" class="' + (finMode[tk] === "annual" ? "on" : "") + '">연간</button>' +
+    '<button data-fmode="quarterly" class="' + (finMode[tk] === "quarterly" ? "on" : "") + '">분기</button></div>' +
+    '<div id="fin-holder"></div></div>';
+  openModal(escapeHtml(e.name) + ' <span class="muted small">' + escapeHtml(tk.replace(/\.[A-Z]+$/, "")) + "</span>" + (s ? " " + pctSpan(dayRet(s)) : ""), body,
+    s ? '<span class="px">' + fmtPrice(s.price, priceCcySym(tk)) + "</span>" : "");
+  renderFin(tk);
+  $qa("[data-fmode]").forEach(function (b) {
+    b.onclick = function () { finMode[tk] = b.dataset.fmode; $qa("[data-fmode]").forEach(function (x) { x.classList.toggle("on", x.dataset.fmode === finMode[tk]); }); renderFin(tk); };
+  });
+}
+
+/* ---------- 캘린더 / 기업 그리드 ---------- */
+function renderCalendar() {
+  var ernByTk = {};
+  ERN.forEach(function (e) { ernByTk[e.ticker] = e; });
+  // 정리된 실적을 발표일 최신순으로
+  var rows = ERN.slice().sort(function (a, b) { return String(b.report_date).localeCompare(String(a.report_date)); });
+  $q("#cal-list").innerHTML = rows.length
+    ? '<div class="cal-lane">' + rows.map(function (e) {
+        return '<div class="cal-cell" data-t="' + escapeHtml(e.ticker) + '" data-idx="' + ERN.indexOf(e) + '">' +
+          '<div class="c-d">' + escapeHtml(e.report_date) + ' <span class="badge new" style="font-size:9px">정리됨</span></div>' +
+          '<div class="c-nm">' + escapeHtml(e.name) + "</div>" +
+          '<div class="c-q">' + escapeHtml(e.quarter) + "</div></div>";
+      }).join("") + "</div>"
+    : '<div class="empty">아직 정리된 실적이 없습니다.</div>';
+  $qa("#cal-list .cal-cell").forEach(function (c) {
+    c.onclick = function () { openErnModal(ERN[+c.dataset.idx]); };
+  });
+}
+function renderCompanyGrid(filter) {
+  var q = (filter || "").trim().toLowerCase();
+  var list = Object.keys(MEGA).map(function (tk) { return MEGA[tk]; })
+    .filter(function (s) { return !q || (s.name + " " + s.ticker).toLowerCase().indexOf(q) >= 0; })
+    .sort(function (a, b) { return (b.mcap_usd || 0) - (a.mcap_usd || 0); })
+    .slice(0, q ? 60 : 40);
+  $q("#co-grid").innerHTML = list.map(function (s) {
+    return '<div class="cal-cell" data-t="' + escapeHtml(s.ticker) + '">' +
+      '<div class="c-nm">' + escapeHtml(s.name) + '</div>' +
+      '<div class="c-d">' + escapeHtml(s.ticker.replace(/\.[A-Z]+$/, "")) + " · " + escapeHtml(s.sector) +
+      (FIN[s.ticker] ? "" : ' <span class="muted">· 재무없음</span>') + "</div></div>";
+  }).join("") || '<div class="empty">검색 결과 없음</div>';
+  $qa("#co-grid .cal-cell").forEach(function (c) {
+    c.onclick = function () { openCompanyModal(c.dataset.t); };
+  });
+}
+
+Promise.all([
+  fetchJSON("megacap.json"),
+  fetchJSON("financials.json").catch(function () { return null; }),
+  fetchJSON("earnings.json").catch(function () { return null; }),
+  fetchJSON("megacap_profiles.json").catch(function () { return null; })
+]).then(function (rs) {
+  (rs[0].stocks || []).forEach(function (s) { MEGA[s.ticker] = s; });
+  FIN = (rs[1] && rs[1].financials) || {};
+  ERN = (rs[2] && rs[2].earnings) || [];
+  PROFILES = (rs[3] && rs[3].profiles) || {};
+  $q("#updated").textContent = "재무 기준: " + ((rs[1] && rs[1].updated) || "-") + " · 정리된 실적 " + ERN.length + "건";
+  $q("#earnings-list").innerHTML = ERN.length
+    ? ERN.slice().sort(function (a, b) { return String(b.report_date).localeCompare(String(a.report_date)); }).map(function (e) { return ernCard(e, ERN.indexOf(e)); }).join("")
+    : '<div class="empty">아직 정리된 실적이 없습니다. 아래 <b>기업 재무 열람</b>에서 종목을 클릭하면 재무 추이를 볼 수 있습니다.</div>';
+  $qa("#earnings-list .ern-card").forEach(function (c) {
+    c.onclick = function () { openErnModal(ERN[+c.dataset.idx]); };
+  });
+  renderCalendar();
+  renderCompanyGrid("");
+  $q("#co-search").addEventListener("input", function () { renderCompanyGrid(this.value); });
+}).catch(function (err) {
+  $q("#earnings-list").innerHTML = '<div class="empty">데이터 로드 실패<br><span class="small">' + escapeHtml(err.message) + "</span></div>";
+});
+</script>
+</body>
+</html>
