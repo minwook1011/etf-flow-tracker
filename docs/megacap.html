@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글로벌 메가캡 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706a">
+<link rel="stylesheet" href="theme.css?v=20260706b">
 <style>
 .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 6px; }
 .uni-wrap { display: flex; align-items: center; gap: 8px; }
@@ -46,11 +46,6 @@
     <div class="card" id="sector-rank"><div class="spin">로딩 중…</div></div>
   </div>
 
-  <div class="section">
-    <h2>Bottom-up Approach<span class="sub">섹터 구분 없이 메가캡 전체에서 선택 기간 수익률 1위부터 · 아직 임시 정렬(단순 수익률순), 기술적분석 기준 확정 예정</span></h2>
-    <div class="grid" id="bottomup-board" style="grid-template-columns:repeat(auto-fill,minmax(158px,1fr))"><div class="spin">로딩 중…</div></div>
-  </div>
-
   <div id="board"></div>
 
   <div class="section">
@@ -81,8 +76,8 @@
   </p>
 </div>
 
-<script src="theme.js?v=20260706a"></script>
-<script src="stocks-common.js?v=20260706a"></script>
+<script src="theme.js?v=20260706b"></script>
+<script src="stocks-common.js?v=20260706b"></script>
 <script>
 var DATA = null;
 var PROFILES = {};
@@ -121,7 +116,7 @@ function renderToggle() {
     return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
   }).join("");
   $qa("#period-toggle button").forEach(function (b) {
-    b.onclick = function () { curPeriod = b.dataset.k; renderToggle(); renderTreemapSection(); renderRank(); renderBottomUp(); renderBoard(); };
+    b.onclick = function () { curPeriod = b.dataset.k; renderToggle(); renderTreemapSection(); renderRank(); renderBoard(); };
   });
   $q("#universe-toggle").innerHTML = UNIVERSES.map(function (n) {
     return '<button data-n="' + n + '" class="' + (n === universeN ? "on" : "") + '">TOP ' + n + "</button>";
@@ -130,7 +125,7 @@ function renderToggle() {
     b.onclick = function () {
       universeN = +b.dataset.n;
       try { localStorage.setItem("megacapN", universeN); } catch (e) {}
-      renderToggle(); renderTreemapSection(); renderRank(); renderBottomUp(); renderBoard(); renderFilter(); renderTable(filtered());
+      renderToggle(); renderTreemapSection(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered());
     };
   });
 }
@@ -185,26 +180,6 @@ function renderBoard() {
       '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(158px,1fr))">' + cards + "</div>";
   }).join("");
   $qa("#board .stock-card").forEach(function (c) {
-    c.onclick = function () { openStockModal(c.dataset.t); };
-  });
-}
-
-/* Bottom-up: 섹터 구분 없이 전체 메가캡을 선택 기간 수익률순으로 — 임시 정렬 기준(추후 기술적분석 기준으로 교체 예정)
-   카드 상단 배지는 순위를 매기는 기준인 curPeriod 값 자체를 보여준다(일반 stockCard는 당일등락만 보여줘 근거가 안 보임). */
-function bottomUpCard(s, rank) {
-  var v = num(s[curPeriod]);
-  return '<div class="stock-card' + (rank === 1 ? " lead" : "") + '" data-t="' + s.ticker + '">' +
-    '<div class="sc-top"><span class="sc-nm">' + escapeHtml(s.name) + '</span><span class="sc-today ' + pctClass(v) + '">' + fmtPct(v) + "</span></div>" +
-    '<div class="sc-tk">' + rank + "위 · " + s.ticker + " · " + escapeHtml(s.sector) + "</div>" +
-    sparklineSVG(s.spark, 130, 32) +
-    '<div class="sc-px">' + fmtPrice(s.price, ccyOf(s.ticker)) + '</div>' +
-    '<div class="sc-sub"><span>오늘</span> <b class="' + pctClass(s.r1d) + '">' + fmtPct(s.r1d) + "</b></div></div>";
-}
-function renderBottomUp() {
-  var top = scoped().slice().sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); }).slice(0, 24);
-  $q("#bottomup-board").innerHTML = top.map(function (s, i) { return bottomUpCard(s, i + 1); }).join("")
-    || '<div class="empty">데이터 없음</div>';
-  $qa("#bottomup-board .stock-card").forEach(function (c) {
     c.onclick = function () { openStockModal(c.dataset.t); };
   });
 }
@@ -285,7 +260,7 @@ window.addEventListener("resize", function () {
   _tmResize = setTimeout(renderTreemapSection, 200);
 });
 
-function renderAll() { renderToggle(); renderTreemapSection(); renderRank(); renderBottomUp(); renderBoard(); renderFilter(); renderTable(filtered()); }
+function renderAll() { renderToggle(); renderTreemapSection(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered()); }
 
 Promise.all([
   fetchJSON("megacap.json"),

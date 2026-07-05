@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bottom-up 종목 발굴 — FLOW·TRACKER</title>
+<link rel="stylesheet" href="theme.css?v=20260706b">
+<style>
+.controls { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 6px; }
+.uni-wrap { display: flex; align-items: center; gap: 8px; }
+.uni-wrap .lbl { font-size: 11.5px; color: var(--muted); }
+.bu-rank-tk { display: flex; align-items: baseline; gap: 6px; }
+.bu-rank-tk .rk-no { color: var(--accent); font-weight: 800; font-family: var(--mono); }
+.wip-banner { font-size: 12.5px; color: var(--gold); background: rgba(240,180,41,0.08); border-left: 2px solid var(--gold);
+  border-radius: 0 6px 6px 0; padding: 9px 12px; margin: 10px 0 4px; line-height: 1.65; }
+</style>
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="kicker">Bottom-up 접근 · 종목 발굴</div>
+  <div class="page-head">
+    <h1>Bottom-up 종목 발굴</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+  <p class="note">
+    섹터(Top-down)가 아니라 <b>개별 종목의 주가 흐름</b>에서 출발합니다. 글로벌 메가캡 300개 전체를
+    섹터 구분 없이 흐름이 좋은 순서로 세워, <b>강한 종목을 초기에 포착</b>하는 것이 목적입니다.
+    카드를 클릭하면 일봉 차트·수익률·뉴스가 열립니다.
+  </p>
+  <div class="wip-banner" id="wip-banner">
+    ⚙️ <b>현재는 임시 정렬</b>입니다 — 선택한 기간의 단순 수익률순으로 세워둔 상태입니다.
+    최종적으로는 <b>기술적 분석 기반의 순위 산정</b>으로 교체할 예정이며, 그 방법론은 학습 후 반영됩니다.
+  </div>
+
+  <div class="controls">
+    <div class="toggle" id="period-toggle"></div>
+    <div class="uni-wrap"><span class="lbl">범위</span><div class="toggle" id="universe-toggle"></div></div>
+  </div>
+
+  <div class="section">
+    <h2>흐름 강한 종목 순위<span class="sub" id="bu-sub">선택 기간 수익률 상위 · 카드 클릭 = 상세</span></h2>
+    <div class="grid" id="bottomup-board" style="grid-template-columns:repeat(auto-fill,minmax(158px,1fr))"><div class="spin">로딩 중…</div></div>
+    <button class="more-btn" id="bu-more" style="display:none;margin-top:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 16px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">더 보기</button>
+  </div>
+</div>
+
+<div class="modal-back" id="modal-back-holder" style="display:none"></div>
+
+<script src="theme.js?v=20260706b"></script>
+<script src="stocks-common.js?v=20260706b"></script>
+<script>
+var DATA = null, PROFILES = {};
+var PERIODS = [["1W", "r1w"], ["1M", "r1m"], ["3M", "r3m"], ["YTD", "ytd"]];
+var curPeriod = "r1m";
+var UNIVERSES = [100, 300];
+var universeN = 300;
+var SHOWN = 30;
+try { var _v = parseInt(localStorage.getItem("megacapN"), 10); if (UNIVERSES.indexOf(_v) >= 0) universeN = _v; } catch (e) {}
+
+function inScope(s) { return s.rank == null || s.rank <= universeN; }
+function scoped() { return (DATA.stocks || []).filter(inScope); }
+function ccyOf(ticker) {
+  return /\.K[SQ]$/.test(ticker) ? "₩" : /\.(T|TW|HK|NS|SR|L|PA|DE|AS|SW|MI|MC|ST|OL|CO)$/.test(ticker) ? "" : "$";
+}
+
+function renderToggle() {
+  $q("#period-toggle").innerHTML = PERIODS.map(function (p) {
+    return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
+  }).join("");
+  $qa("#period-toggle button").forEach(function (b) {
+    b.onclick = function () { curPeriod = b.dataset.k; SHOWN = 30; renderToggle(); renderBottomUp(); };
+  });
+  $q("#universe-toggle").innerHTML = UNIVERSES.map(function (n) {
+    return '<button data-n="' + n + '" class="' + (n === universeN ? "on" : "") + '">TOP ' + n + "</button>";
+  }).join("");
+  $qa("#universe-toggle button").forEach(function (b) {
+    b.onclick = function () {
+      universeN = +b.dataset.n;
+      try { localStorage.setItem("megacapN", universeN); } catch (e) {}
+      SHOWN = 30; renderToggle(); renderBottomUp();
+    };
+  });
+}
+
+/* 카드 상단 배지는 순위 산정 기준값(선택 기간 수익률) 자체를 보여준다. */
+function bottomUpCard(s, rank) {
+  var v = num(s[curPeriod]);
+  return '<div class="stock-card' + (rank === 1 ? " lead" : "") + '" data-t="' + s.ticker + '">' +
+    '<div class="sc-top"><span class="sc-nm">' + escapeHtml(s.name) + '</span><span class="sc-today ' + pctClass(v) + '">' + fmtPct(v) + "</span></div>" +
+    '<div class="sc-tk bu-rank-tk"><span class="rk-no">' + rank + "위</span> " + s.ticker.replace(/\.[A-Z]+$/, "") + " · " + escapeHtml(s.sector) + "</div>" +
+    sparklineSVG(s.spark, 130, 32) +
+    '<div class="sc-px">' + fmtPrice(s.price, ccyOf(s.ticker)) + '</div>' +
+    '<div class="sc-sub"><span>오늘</span> <b class="' + pctClass(s.r1d) + '">' + fmtPct(s.r1d) + "</b></div></div>";
+}
+function renderBottomUp() {
+  var all = scoped().slice().sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); });
+  var shown = all.slice(0, SHOWN);
+  var periodLabel = PERIODS.filter(function (p) { return p[1] === curPeriod; })[0][0];
+  $q("#bu-sub").textContent = periodLabel + " 수익률 상위 · TOP" + universeN + " 중 · 카드 클릭 = 상세";
+  $q("#bottomup-board").innerHTML = shown.map(function (s, i) { return bottomUpCard(s, i + 1); }).join("")
+    || '<div class="empty">데이터 없음</div>';
+  $q("#bu-more").style.display = all.length > SHOWN ? "" : "none";
+  $qa("#bottomup-board .stock-card").forEach(function (c) {
+    c.onclick = function () { openStockModal(c.dataset.t); };
+  });
+}
+
+function openStockModal(ticker) {
+  var s = (DATA.stocks || []).filter(function (x) { return x.ticker === ticker; })[0];
+  if (!s) return;
+  var chips = [
+    { label: "1주", value: fmtPct(s.r1w), cls: pctClass(s.r1w) },
+    { label: "1개월", value: fmtPct(s.r1m), cls: pctClass(s.r1m) },
+    { label: "3개월", value: fmtPct(s.r3m), cls: pctClass(s.r3m) },
+    { label: "YTD", value: fmtPct(s.ytd), cls: pctClass(s.ytd) },
+    { label: "52주고점대비", value: fmtPct(s.from_high, 1), cls: pctClass(s.from_high) }
+  ];
+  if (s.mcap_usd) chips.push({ label: "시총", value: fmtMcap(s.mcap_usd), cls: "" });
+  if (s.pe_now != null || s.pe_next != null) {
+    chips.push({
+      label: "선행PER",
+      value: (s.pe_now != null ? "올해 " + s.pe_now : "") + (s.pe_now != null && s.pe_next != null ? " → " : "") + (s.pe_next != null ? "내년 " + s.pe_next : ""),
+      cls: "", per: true
+    });
+  }
+  var profile = PROFILES[ticker];
+  openStatModal({
+    name: s.name, sub: s.ticker.replace(/\.[A-Z]+$/, "") + " · " + s.sector + (s.rank ? " · 시총 " + s.rank + "위" : ""),
+    price: s.price, priceCcy: ccyOf(s.ticker), r1d: s.r1d,
+    chips: chips,
+    intro: profile ? profile.biz : "회사 개요가 아직 준비되지 않았습니다 (최근 명단에 새로 편입된 종목일 수 있습니다).",
+    candles: s.candles, news: s.news
+  });
+}
+
+$q("#bu-more").addEventListener("click", function () { SHOWN += 30; renderBottomUp(); });
+
+Promise.all([
+  fetchJSON("megacap.json"),
+  fetchJSON("megacap_profiles.json").catch(function () { return null; })
+]).then(function (rs) {
+  DATA = rs[0];
+  PROFILES = (rs[1] && rs[1].profiles) || {};
+  var uni = DATA.universe_updated ? " · 명단 " + DATA.universe_updated.slice(0, 10) + " 기준(주 1회)" : "";
+  $q("#updated").textContent = "시세 " + (DATA.updated || "-") + " · " + DATA.count + "종목" + uni;
+  renderToggle();
+  renderBottomUp();
+}).catch(function (err) {
+  $q("#bottomup-board").innerHTML = '<div class="empty">megacap.json 로드 실패 — fetch_megacap.py를 실행하세요<br><span class="small">' +
+    escapeHtml(err.message) + "</span></div>";
+});
+</script>
+</body>
+</html>
