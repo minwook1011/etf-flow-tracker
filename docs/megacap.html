@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글로벌 메가캡 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260705">
+<link rel="stylesheet" href="theme.css?v=20260705b">
 <style>
 .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 6px; }
 .uni-wrap { display: flex; align-items: center; gap: 8px; }
@@ -34,6 +34,11 @@
   <div class="controls">
     <div class="toggle" id="period-toggle"></div>
     <div class="uni-wrap"><span class="lbl">범위</span><div class="toggle" id="universe-toggle"></div></div>
+  </div>
+
+  <div class="section">
+    <h2>시장 지도<span class="sub">칸 크기 = 시가총액 · 색 = 선택 기간 수익률 · 칸 클릭 = 종목 상세</span></h2>
+    <div id="treemap-box"><div class="spin">로딩 중…</div></div>
   </div>
 
   <div class="section">
@@ -71,8 +76,8 @@
   </p>
 </div>
 
-<script src="theme.js?v=20260705"></script>
-<script src="stocks-common.js?v=20260705"></script>
+<script src="theme.js?v=20260705b"></script>
+<script src="stocks-common.js?v=20260705b"></script>
 <script>
 var DATA = null;
 var PROFILES = {};
@@ -111,7 +116,7 @@ function renderToggle() {
     return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
   }).join("");
   $qa("#period-toggle button").forEach(function (b) {
-    b.onclick = function () { curPeriod = b.dataset.k; renderToggle(); renderRank(); renderBoard(); };
+    b.onclick = function () { curPeriod = b.dataset.k; renderToggle(); renderTreemapSection(); renderRank(); renderBoard(); };
   });
   $q("#universe-toggle").innerHTML = UNIVERSES.map(function (n) {
     return '<button data-n="' + n + '" class="' + (n === universeN ? "on" : "") + '">TOP ' + n + "</button>";
@@ -120,7 +125,7 @@ function renderToggle() {
     b.onclick = function () {
       universeN = +b.dataset.n;
       try { localStorage.setItem("megacapN", universeN); } catch (e) {}
-      renderToggle(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered());
+      renderToggle(); renderTreemapSection(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered());
     };
   });
 }
@@ -240,7 +245,22 @@ function openStockModal(ticker) {
   });
 }
 
-function renderAll() { renderToggle(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered()); }
+function renderTreemapSection() {
+  var box = $q("#treemap-box");
+  if (!box) return;
+  var caps = { r1w: 5, r1m: 10, r3m: 18, ytd: 25 };
+  var items = scoped().map(function (s) {
+    return { ticker: s.ticker, label: s.name, mcap: num(s.mcap_usd) || 1, ret: num(s[curPeriod]), group: s.sector };
+  });
+  renderTreemap(box, items, caps[curPeriod] || 8, openStockModal);
+}
+var _tmResize;
+window.addEventListener("resize", function () {
+  clearTimeout(_tmResize);
+  _tmResize = setTimeout(renderTreemapSection, 200);
+});
+
+function renderAll() { renderToggle(); renderTreemapSection(); renderRank(); renderBoard(); renderFilter(); renderTable(filtered()); }
 
 Promise.all([
   fetchJSON("megacap.json"),

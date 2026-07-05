@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260705">
+<link rel="stylesheet" href="theme.css?v=20260705b">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -73,13 +73,29 @@
       <h2>다가오는 행사</h2>
       <div class="up-strip" id="upcoming"></div>
     </div>
-    <div class="section">
-      <h2>월별 캘린더</h2>
-      <div id="calendar"><div class="spin">로딩 중…</div></div>
+    <div class="section" id="recent-past-sec" style="display:none">
+      <h2>최근 종료된 행사<span class="sub">클릭 = 요약·전문 보기</span></h2>
+      <div class="grid" id="recent-past" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
     </div>
     <div class="section">
-      <h2>종료된 행사</h2>
-      <div id="past" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+      <div class="wk-section" id="cal-sec">
+        <div class="wk-head" onclick="document.getElementById('cal-sec').classList.toggle('open')">
+          <div><span class="wk-title">월별 캘린더</span>
+            <div class="wk-meta" id="cal-meta"></div></div>
+          <span class="wk-chevron">▸</span>
+        </div>
+        <div class="wk-body" id="calendar"><div class="spin">로딩 중…</div></div>
+      </div>
+      <div class="wk-section" id="past-sec">
+        <div class="wk-head" onclick="document.getElementById('past-sec').classList.toggle('open')">
+          <div><span class="wk-title">종료된 행사 전체</span>
+            <div class="wk-meta" id="past-meta"></div></div>
+          <span class="wk-chevron">▸</span>
+        </div>
+        <div class="wk-body">
+          <div id="past" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -101,8 +117,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260705"></script>
-<script src="stocks-common.js?v=20260705"></script>
+<script src="theme.js?v=20260705b"></script>
+<script src="stocks-common.js?v=20260705b"></script>
 <script>
 var EV = null, PP = null;
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -182,13 +198,21 @@ function renderEvents() {
   var up = dated.slice(0, 3);
   $q("#upcoming").innerHTML = up.length ? up.map(evCard).join("") : '<div class="empty">예정 행사 없음</div>';
 
-  // 월별 캘린더
+  // 최근 종료된 행사: 종료 행사 중 최신 3개 (있을 때만 섹션 표시)
+  var recent = past.slice(0, 3);
+  $q("#recent-past-sec").style.display = recent.length ? "" : "none";
+  $q("#recent-past").innerHTML = recent.map(evCard).join("");
+
+  // 월별 캘린더 (접힘 — 헤더에 요약 표시)
   var byMonth = {};
   future.forEach(function (e) {
     var m = e.month || (e.date_start ? e.date_start.slice(0, 7) : "미정");
     (byMonth[m] = byMonth[m] || []).push(e);
   });
   var months = Object.keys(byMonth).sort();
+  $q("#cal-meta").textContent = months.length
+    ? months[0] + " ~ " + months[months.length - 1] + " · 예정 행사 " + future.length + "건"
+    : "등록된 행사 없음";
   $q("#calendar").innerHTML = months.length ? months.map(function (m) {
     var list = byMonth[m].sort(function (a, b) {
       return String(a.date_start || "9999").localeCompare(String(b.date_start || "9999"));
@@ -197,6 +221,8 @@ function renderEvents() {
       '<div class="mbody">' + list.map(evCard).join("") + "</div></div>";
   }).join("") : '<div class="empty">등록된 행사 없음 — docs/events.json에 추가하세요</div>';
 
+  // 종료된 행사 전체 (접힘)
+  $q("#past-meta").textContent = past.length ? "총 " + past.length + "건 · 최신순" : "아직 없음";
   $q("#past").innerHTML = past.length ? past.map(evCard).join("") : '<div class="empty">종료된 행사 없음</div>';
 
   $qa(".ev-card").forEach(function (c) {

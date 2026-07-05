@@ -421,6 +421,106 @@ function downloadChartPNG(blob) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
 }
+/* ---------- 스퀘리파이드 트리맵 ----------
+   items: [{key, label, value(면적 가중치), ret(색), group}] — group이 있으면 그룹별로 먼저 분할.
+   반환: [{key, label, ret, x, y, w, h}] (0~1 정규화 좌표) */
+function squarify(items, x, y, w, h) {
+  var out = [];
+  var list = items.slice().sort(function (a, b) { return b.value - a.value; });
+  var total = list.reduce(function (s, it) { return s + it.value; }, 0);
+  if (!total) return out;
+  function worst(row, side) {
+    var sum = row.reduce(function (s, r) { return s + r.area; }, 0);
+    var mx = Math.max.apply(null, row.map(function (r) { return r.area; }));
+    var mn = Math.min.apply(null, row.map(function (r) { return r.area; }));
+    var s2 = sum * sum, side2 = side * side;
+    return Math.max((side2 * mx) / s2, s2 / (side2 * mn));
+  }
+  function layoutRow(row, rect) {
+    var sum = row.reduce(function (s, r) { return s + r.area; }, 0);
+    var horiz = rect.w >= rect.h;
+    var side = horiz ? rect.h : rect.w;
+    var thick = sum / side;
+    var off = 0;
+    row.forEach(function (r) {
+      var len = r.area / thick;
+      if (horiz) out.push({ it: r.it, x: rect.x, y: rect.y + off, w: thick, h: len });
+      else out.push({ it: r.it, x: rect.x + off, y: rect.y, w: len, h: thick });
+      off += len;
+    });
+    if (horiz) return { x: rect.x + thick, y: rect.y, w: rect.w - thick, h: rect.h };
+    return { x: rect.x, y: rect.y + thick, w: rect.w, h: rect.h - thick };
+  }
+  var rect = { x: x, y: y, w: w, h: h };
+  var row = [], areaScale = (w * h) / total;
+  list.forEach(function (it) {
+    var r = { it: it, area: it.value * areaScale };
+    var side = Math.min(rect.w, rect.h);
+    if (!row.length) { row.push(r); return; }
+    var before = worst(row, side);
+    row.push(r);
+    if (worst(row, side) > before) {
+      row.pop();
+      rect = layoutRow(row, rect);
+      row = [r];
+    }
+  });
+  if (row.length) layoutRow(row, rect);
+  return out.map(function (o) {
+    return { key: o.it.key, label: o.it.label, ret: o.it.ret, x: o.x, y: o.y, w: o.w, h: o.h };
+  });
+}
+
+/* 수익률 → 트리맵 셀 색 (한국식: 상승 빨강 / 하락 파랑, 강도 스케일) */
+function treemapColor(v, cap) {
+  v = num(v); cap = cap || 6;
+  var t = Math.max(-1, Math.min(1, v / cap));
+  var a = 0.25 + Math.abs(t) * 0.6;
+  if (t > 0) return "rgba(200,45,65," + a.toFixed(3) + ")";
+  if (t < 0) return "rgba(40,95,220," + a.toFixed(3) + ")";
+  return "rgba(90,98,115,0.35)";
+}
+
+/* 그룹(섹터) → 종목 2단 트리맵을 container(#treemap-box 등)에 렌더.
+   stocks: [{ticker,label,mcap,ret,group}], onClick(ticker) */
+function renderTreemap(container, stocks, cap, onClick) {
+  var byGroup = {};
+  stocks.forEach(function (s) {
+    (byGroup[s.group] = byGroup[s.group] || []).push(s);
+  });
+  var groups = Object.keys(byGroup).map(function (g) {
+    return { key: g, label: g, ret: 0, value: byGroup[g].reduce(function (t, s) { return t + s.mcap; }, 0) };
+  });
+  var W = container.clientWidth || 1200, H = container.clientHeight || 460;
+  var gRects = squarify(groups, 0, 0, W, H);
+  var html = "";
+  gRects.forEach(function (gr) {
+    var inner = byGroup[gr.key].map(function (s) {
+      return { key: s.ticker, label: s.label, ret: s.ret, value: s.mcap };
+    });
+    var cells = squarify(inner, gr.x, gr.y, gr.w, gr.h);
+    cells.forEach(function (c) {
+      var showTk = c.w > 42 && c.h > 26;
+      var showRet = c.w > 52 && c.h > 40;
+      var fs = Math.max(9, Math.min(16, Math.sqrt(c.w * c.h) / 6));
+      html += '<div class="tm-cell" data-t="' + escapeHtml(c.key) + '" title="' + escapeHtml(c.label) +
+        " " + fmtPct(c.ret) + '" style="left:' + c.x.toFixed(1) + "px;top:" + c.y.toFixed(1) +
+        "px;width:" + c.w.toFixed(1) + "px;height:" + c.h.toFixed(1) + "px;background:" + treemapColor(c.ret, cap) + '">' +
+        (showTk ? '<span class="tm-tk" style="font-size:' + fs.toFixed(0) + 'px">' + escapeHtml(c.key.replace(/\.K[SQ]$/, "").replace(/\.[A-Z]+$/, "")) + "</span>" : "") +
+        (showRet ? '<span class="tm-ret" style="font-size:' + Math.max(8, fs - 3).toFixed(0) + 'px">' + fmtPct(c.ret, 1) + "</span>" : "") +
+        "</div>";
+    });
+    if (gr.w > 70 && gr.h > 30) {
+      html += '<span class="tm-sector-label" style="left:' + gr.x.toFixed(1) + "px;top:" + gr.y.toFixed(1) + 'px">' +
+        escapeHtml(gr.label) + "</span>";
+    }
+  });
+  container.innerHTML = html;
+  $qa(".tm-cell", container).forEach(function (c) {
+    c.onclick = function () { if (onClick) onClick(c.dataset.t); };
+  });
+}
+
 /* ---------- ETF 상세 모달 (공용: data.json의 etf 객체 하나를 받아 통계모달을 연다) ---------- */
 function openEtfDetailModal(e, tk) {
   var ccy = /\.K[SQ]$/.test(tk) ? "₩" : "$";

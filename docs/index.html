@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글로벌 섹터 ETF 자금 흐름</title>
-<link rel="stylesheet" href="theme.css?v=20260705">
+<link rel="stylesheet" href="theme.css?v=20260705b">
 </head>
 <body>
 <header id="topnav"></header>
@@ -22,7 +22,12 @@
 
   <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px">
     <div class="toggle" id="period-toggle"></div>
-    <span class="muted small">기간 선택 = 시그널·막대·히트맵·표 전체에 적용</span>
+    <span class="muted small">기간 선택 = 아래 전체 섹션에 적용</span>
+  </div>
+
+  <div class="section">
+    <h2>시장 체력<span class="sub">추적 ETF 기준 · 선택 기간</span></h2>
+    <div class="breadth-grid" id="breadth"></div>
   </div>
 
   <div class="section">
@@ -75,8 +80,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260705"></script>
-<script src="stocks-common.js?v=20260705"></script>
+<script src="theme.js?v=20260705b"></script>
+<script src="stocks-common.js?v=20260705b"></script>
 <script>
 var DATA = null;
 var PERIODS = [["1D","r1d"],["1W","r1w"],["1M","r1m"],["3M","r3m"],["YTD","ytd"]];
@@ -105,7 +110,7 @@ function renderToggles() {
     return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
   }).join("");
   $qa("#period-toggle button").forEach(function (b) {
-    b.onclick = function () { curPeriod = b.dataset.k; renderToggles(); renderSignals(); renderBars(); renderHeatmap(); };
+    b.onclick = function () { curPeriod = b.dataset.k; renderToggles(); renderBreadth(); renderSignals(); renderBars(); renderHeatmap(); };
   });
   $q("#trend-period").innerHTML = TREND_PERIODS.map(function (p) {
     return '<button data-k="' + p[1] + '" class="' + (p[1] === curTrend ? "on" : "") + '">' + p[0] + "</button>";
@@ -122,6 +127,37 @@ function renderToggles() {
   $qa("#group-chips .chip").forEach(function (c) {
     c.onclick = function () { curGroup = c.dataset.g; renderToggles(); renderTrend(); };
   });
+}
+
+/* ---------- 시장 체력(breadth) 타일 ---------- */
+function renderBreadth() {
+  var pool = etfList().filter(function (e) { return e.ticker !== DATA.benchmark; });
+  var upN = pool.filter(function (e) { return num(e[curPeriod]) > 0; }).length;
+  var dnN = pool.filter(function (e) { return num(e[curPeriod]) < 0; }).length;
+  var beatN = pool.filter(function (e) { return relOf(e, curPeriod) > 0; }).length;
+  var hotVol = pool.filter(function (e) { return num(e.vol_ratio) > 1.2; }).length;
+  var sorted = pool.slice().sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); });
+  var best = sorted[0], worst = sorted[sorted.length - 1];
+  var upPct = pool.length ? Math.round((upN / pool.length) * 100) : 0;
+  var tone = upN > dnN ? "up" : upN < dnN ? "dn" : "flat";
+  $q("#breadth").innerHTML =
+    '<div class="breadth"><div class="b-label">상승 / 하락</div>' +
+    '<div class="b-val"><span class="up">' + upN + '</span> <span class="muted">/</span> <span class="dn">' + dnN + "</span></div>" +
+    '<div class="b-bar"><div class="up-w" style="width:' + upPct + '%"></div><div class="dn-w" style="flex:1"></div></div>' +
+    '<div class="b-sub">추적 ' + pool.length + "종 중 " + upPct + "% 상승</div></div>" +
+
+    '<div class="breadth"><div class="b-label">ACWI 초과 비율</div>' +
+    '<div class="b-val ' + (beatN > pool.length / 2 ? "up" : "dn") + '">' + Math.round((beatN / pool.length) * 100) + "%</div>" +
+    '<div class="b-sub">' + beatN + "종이 벤치마크를 상회</div></div>" +
+
+    '<div class="breadth"><div class="b-label">거래대금 확대</div>' +
+    '<div class="b-val ' + (hotVol > 0 ? "up" : "flat") + '">' + hotVol + "종</div>" +
+    '<div class="b-sub">5일 거래대금이 20일 평균의 1.2배 초과</div></div>' +
+
+    '<div class="breadth"><div class="b-label">최강 / 최약</div>' +
+    '<div class="b-val" style="font-size:14px;line-height:1.5">' +
+    '<span class="up">' + escapeHtml(best ? best.name : "-") + " " + fmtPct(best ? best[curPeriod] : 0, 1) + "</span><br>" +
+    '<span class="dn">' + escapeHtml(worst ? worst.name : "-") + " " + fmtPct(worst ? worst[curPeriod] : 0, 1) + "</span></div></div>";
 }
 
 /* ---------- 자금 유입 시그널 ---------- */
@@ -256,6 +292,7 @@ fetchJSON("data.json").then(function (d) {
   DATA = d;
   $q("#updated").textContent = "기준: " + (d.updated || "-") + " · 벤치마크 " + (d.benchmark || "ACWI");
   renderToggles();
+  renderBreadth();
   renderSignals();
   renderBars();
   renderTrend();

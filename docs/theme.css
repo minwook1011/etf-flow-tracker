@@ -59,6 +59,59 @@ a:hover { text-decoration: underline; }
 #topnav a.navlink:hover { color: var(--text); text-decoration: none; background: var(--card); }
 #topnav a.navlink.active { color: var(--text); background: var(--card); box-shadow: inset 0 -2px 0 var(--accent); }
 
+/* ---------- 티커 테이프 (전 페이지 상단) ---------- */
+#tape {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  overflow: hidden; white-space: nowrap; height: 34px; position: relative;
+}
+#tape .tape-track {
+  display: inline-flex; align-items: center; height: 34px;
+  animation: tape-scroll 60s linear infinite; will-change: transform;
+}
+#tape:hover .tape-track { animation-play-state: paused; }
+@keyframes tape-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.tape-item {
+  display: inline-flex; align-items: baseline; gap: 6px; padding: 0 18px;
+  font-family: var(--mono); font-size: 12px; cursor: pointer; color: var(--text);
+  border-right: 1px solid var(--border); text-decoration: none;
+}
+.tape-item:hover { background: var(--card); text-decoration: none; }
+.tape-item .t-nm { font-family: var(--sans); font-weight: 700; font-size: 12px; }
+.tape-item .t-px { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { #tape .tape-track { animation: none; } }
+
+/* ---------- 시장 체력(breadth) 타일 ---------- */
+.breadth-grid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.breadth {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 11px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+}
+.breadth .b-label { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 700; }
+.breadth .b-val { font-family: var(--mono); font-size: 19px; font-weight: 800; margin-top: 3px; }
+.breadth .b-sub { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+.breadth .b-bar { height: 5px; border-radius: 3px; background: var(--bg2); margin-top: 7px; overflow: hidden; display: flex; }
+.breadth .b-bar .up-w { background: var(--up); }
+.breadth .b-bar .dn-w { background: var(--dn); }
+
+/* ---------- 트리맵 ---------- */
+#treemap-box { position: relative; width: 100%; height: 460px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+.tm-cell {
+  position: absolute; overflow: hidden; cursor: pointer;
+  border: 1px solid rgba(11,14,20,0.85); box-sizing: border-box;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  transition: filter .1s ease;
+}
+.tm-cell:hover { filter: brightness(1.25); z-index: 5; }
+.tm-cell .tm-tk { font-family: var(--mono); font-weight: 800; color: rgba(255,255,255,0.92); line-height: 1.1; }
+.tm-cell .tm-ret { font-family: var(--mono); font-weight: 600; color: rgba(255,255,255,0.75); line-height: 1.2; }
+.tm-sector-label {
+  position: absolute; z-index: 4; pointer-events: none;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: rgba(255,255,255,0.88);
+  background: rgba(11,14,20,0.72); padding: 1px 6px; border-radius: 0 0 5px 0;
+  max-width: 96%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+@media (max-width: 720px) { #treemap-box { height: 380px; } }
+
 /* ---------- 레이아웃 ---------- */
 .container { max-width: 1280px; margin: 0 auto; padding: 8px 16px 60px; }
 .kicker {
