@@ -295,6 +295,23 @@ table.tbl tbody tr:hover { background: var(--card-hover); cursor: pointer; }
 .hold svg { display: block; width: 100%; height: 20px; }
 .hold .h-sub { font-size: 10.5px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
 
+/* ---------- 기술적 분석 지표 breakdown ---------- */
+.ta-list { display: flex; flex-direction: column; gap: 4px; }
+.ta-row { display: grid; grid-template-columns: 108px 1fr 30px; grid-template-areas: "lbl bar sc" "det det det"; align-items: center; gap: 3px 8px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.ta-row:last-child { border-bottom: 0; }
+.ta-lbl { grid-area: lbl; font-size: 12px; font-weight: 700; }
+.ta-bar { grid-area: bar; height: 9px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.ta-fill { height: 100%; border-radius: 3px; min-width: 2px; transition: width .2s ease; }
+.ta-sc { grid-area: sc; font-family: var(--mono); font-size: 12px; font-weight: 800; text-align: right; }
+.ta-det { grid-area: det; font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
+.ta-score-badge { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-weight: 800; }
+.ta-score-badge .tsb-num { font-size: 15px; }
+/* Bottom-up 카드의 점수 게이지 */
+.stock-card .tscore { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.stock-card .tscore .tsc-bar { flex: 1; height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.stock-card .tscore .tsc-fill { height: 100%; border-radius: 3px; }
+.stock-card .tscore .tsc-n { font-family: var(--mono); font-size: 12px; font-weight: 800; }
+
 /* ---------- 마크다운 ---------- */
 .md h1, .md h2, .md h3 { margin: 14px 0 6px; font-size: 15px; }
 .md h1 { font-size: 16.5px; }

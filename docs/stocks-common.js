@@ -263,6 +263,201 @@ function makeSortable(table, rows, renderRows) {
   });
 }
 
+/* ================= 기술적 분석 (megacap.json 캔들에서 클라이언트 계산) =================
+   재승씨식 거래량+이동평균선 중심 + 대중이 많이 보는 순서(이평선→거래량→지지·이격→RSI→MACD→
+   볼린저→일목→삼각수렴·돌파)로 각 지표를 0~100 점으로 환산해 가중합(technical score).
+   캔들은 최근 ~380일이 일봉, 그 이전은 주봉으로 섞여 있어 '일봉 구간'만 잘라 계산한다. */
+function _sma(arr, p, endIdx) {
+  if (endIdx == null) endIdx = arr.length - 1;
+  if (endIdx - p + 1 < 0) return null;
+  var s = 0;
+  for (var i = endIdx - p + 1; i <= endIdx; i++) s += arr[i];
+  return s / p;
+}
+function _emaSeries(arr, p) {
+  if (!arr.length) return [];
+  var k = 2 / (p + 1), out = [arr[0]];
+  for (var i = 1; i < arr.length; i++) out.push(arr[i] * k + out[i - 1] * (1 - k));
+  return out;
+}
+function _rsi(closes, p) {
+  if (closes.length < p + 1) return null;
+  var gain = 0, loss = 0;
+  for (var i = closes.length - p; i < closes.length; i++) {
+    var ch = closes[i] - closes[i - 1];
+    if (ch >= 0) gain += ch; else loss -= ch;
+  }
+  if (loss === 0) return 100;
+  var rs = (gain / p) / (loss / p);
+  return 100 - 100 / (1 + rs);
+}
+/* 최근 ~400일(일봉 구간)만 반환 */
+function _dailyTail(candles) {
+  if (!candles || !candles.length) return [];
+  var last = new Date(candles[candles.length - 1].d).getTime();
+  var cut = last - 400 * 86400000;
+  return candles.filter(function (c) { return new Date(c.d).getTime() >= cut; });
+}
+function _clamp(v) { return v < 0 ? 0 : v > 100 ? 100 : v; }
+
+function computeTA(candles) {
+  var d = _dailyTail(candles);
+  if (d.length < 30) return null;
+  var closes = d.map(function (c) { return c.c; });
+  var highs = d.map(function (c) { return c.h; });
+  var lows = d.map(function (c) { return c.l; });
+  var vols = d.map(function (c) { return c.v || 0; });
+  var n = closes.length, px = closes[n - 1];
+  var ma5 = _sma(closes, 5), ma20 = _sma(closes, 20), ma60 = _sma(closes, 60), ma120 = _sma(closes, 120);
+  var subs = [];
+
+  // 1) 이동평균선 정배열 (가장 대중적) — MA5>20>60>120 + 종가>MA20
+  (function () {
+    var ok = 0, tot = 0;
+    if (ma5 != null && ma20 != null) { tot++; if (ma5 > ma20) ok++; }
+    if (ma20 != null && ma60 != null) { tot++; if (ma20 > ma60) ok++; }
+    if (ma60 != null && ma120 != null) { tot++; if (ma60 > ma120) ok++; }
+    var align = tot ? (ok / tot) * 85 : 42;
+    if (ma20 != null && px > ma20) align += 15;
+    var detail = ma5 != null && ma20 != null && ma60 != null
+      ? (ok === tot && tot === 3 ? "완전 정배열" : ok >= 2 ? "부분 정배열" : "역배열 성격")
+      : "데이터 부족";
+    subs.push({ key: "ma", label: "이동평균선 정배열", score: _clamp(align), detail: detail, weight: 24 });
+  })();
+
+  // 2) 거래량 — 최근 5일 평균 / 그 이전 20일 평균 (재승씨: 거래량 동반)
+  (function () {
+    var v5 = _sma(vols, 5), v20 = _sma(vols, 20, n - 6);
+    if (!v5 || !v20) { subs.push({ key: "vol", label: "거래량", score: 50, detail: "데이터 부족", weight: 18 }); return; }
+    var ratio = v5 / v20;
+    // 상승과 동반된 거래량 증가에 가점 (최근 5일 수익률 부호 반영)
+    var r5 = closes[n - 6] ? (px / closes[n - 6] - 1) : 0;
+    var sc = _clamp(40 + (ratio - 1) * 50 + (r5 > 0 ? 10 : -10));
+    subs.push({ key: "vol", label: "거래량", score: sc, detail: "5일/20일 " + ratio.toFixed(2) + "배" + (r5 > 0 ? " · 상승 동반" : ""), weight: 18 });
+  })();
+
+  // 3) 이평선 지지·이격도 — 상승 MA20 위 0~7% = 이상적 눌림목 지지
+  (function () {
+    if (ma20 == null) { subs.push({ key: "sup", label: "이평선 지지·이격도", score: 50, detail: "-", weight: 14 }); return; }
+    var gap = (px / ma20 - 1) * 100;
+    var rising = ma5 != null && ma20 != null && ma5 > ma20;
+    var sc;
+    if (gap < -8) sc = 25;                       // 20일선 크게 이탈
+    else if (gap < 0) sc = 55 + gap * 2;         // 살짝 아래
+    else if (gap <= 7) sc = 100 - gap * 2;       // 이상적 지지 구간
+    else sc = _clamp(86 - (gap - 7) * 3);        // 과열(이격 과다)
+    if (rising) sc += 6;
+    subs.push({ key: "sup", label: "이평선 지지·이격도", score: _clamp(sc), detail: "20일선 대비 " + (gap >= 0 ? "+" : "") + gap.toFixed(1) + "%", weight: 14 });
+  })();
+
+  // 4) RSI(14) — 50~65 건강한 상승, 70+ 과열, 30- 침체
+  (function () {
+    var r = _rsi(closes, 14);
+    if (r == null) { subs.push({ key: "rsi", label: "RSI(14)", score: 50, detail: "-", weight: 10 }); return; }
+    var sc;
+    if (r >= 50 && r <= 65) sc = 100;
+    else if (r > 65) sc = _clamp(100 - (r - 65) * 3);   // 과열 감점
+    else if (r >= 40) sc = 60 + (r - 40) * 4;
+    else sc = _clamp(r * 1.2);                            // 침체
+    subs.push({ key: "rsi", label: "RSI(14)", score: _clamp(sc), detail: r.toFixed(0) + (r > 70 ? " (과열)" : r < 30 ? " (침체)" : ""), weight: 10 });
+  })();
+
+  // 5) MACD(12,26,9) — MACD>Signal & MACD>0 강세
+  (function () {
+    if (n < 35) { subs.push({ key: "macd", label: "MACD", score: 50, detail: "-", weight: 10 }); return; }
+    var e12 = _emaSeries(closes, 12), e26 = _emaSeries(closes, 26);
+    var macdLine = closes.map(function (_, i) { return e12[i] - e26[i]; });
+    var sig = _emaSeries(macdLine, 9);
+    var m = macdLine[n - 1], s = sig[n - 1];
+    var sc = 50 + (m > s ? 25 : -20) + (m > 0 ? 20 : -15);
+    subs.push({ key: "macd", label: "MACD", score: _clamp(sc), detail: (m > s ? "골든크로스 상태" : "데드크로스 상태") + (m > 0 ? " · 0선 위" : " · 0선 아래"), weight: 10 });
+  })();
+
+  // 6) 볼린저밴드 %B (20,2)
+  (function () {
+    if (n < 20) { subs.push({ key: "boll", label: "볼린저밴드", score: 50, detail: "-", weight: 6 }); return; }
+    var mid = _sma(closes, 20), sd = 0;
+    for (var i = n - 20; i < n; i++) sd += Math.pow(closes[i] - mid, 2);
+    sd = Math.sqrt(sd / 20);
+    var up = mid + 2 * sd, lo = mid - 2 * sd;
+    var pctB = up === lo ? 0.5 : (px - lo) / (up - lo);
+    var sc = pctB >= 0.5 && pctB <= 0.9 ? 100 : pctB > 0.9 ? _clamp(100 - (pctB - 0.9) * 200) : _clamp(pctB * 120);
+    subs.push({ key: "boll", label: "볼린저밴드 %B", score: _clamp(sc), detail: "%B " + pctB.toFixed(2) + (pctB > 1 ? " (상단 돌파)" : ""), weight: 6 });
+  })();
+
+  // 7) 일목균형표 구름대 — 종가 vs 선행스팬A/B (라라리엔 참고: 구름대 지지)
+  (function () {
+    if (n < 52) { subs.push({ key: "ichi", label: "일목균형표 구름대", score: 50, detail: "데이터 부족", weight: 8 }); return; }
+    function hh(a, p, e) { var m = -Infinity; for (var i = e - p + 1; i <= e; i++) m = Math.max(m, a[i]); return m; }
+    function ll(a, p, e) { var m = Infinity; for (var i = e - p + 1; i <= e; i++) m = Math.min(m, a[i]); return m; }
+    var e = n - 1;
+    var tenkan = (hh(highs, 9, e) + ll(lows, 9, e)) / 2;
+    var kijun = (hh(highs, 26, e) + ll(lows, 26, e)) / 2;
+    // 현재 시점 위에 걸린 구름(26일 전에 산출된 선행스팬)
+    var e26 = e - 26;
+    var spanA = null, spanB = null;
+    if (e26 - 52 + 1 >= 0) {
+      spanA = ((hh(highs, 9, e26) + ll(lows, 9, e26)) / 2 + (hh(highs, 26, e26) + ll(lows, 26, e26)) / 2) / 2;
+      spanB = (hh(highs, 52, e26) + ll(lows, 52, e26)) / 2;
+    }
+    var sc = 50, det = "";
+    if (spanA != null) {
+      var top = Math.max(spanA, spanB), bot = Math.min(spanA, spanB);
+      if (px > top) { sc = 90; det = "구름대 위(강세)"; }
+      else if (px < bot) { sc = 20; det = "구름대 아래(약세)"; }
+      else { sc = 50; det = "구름대 안(중립)"; }
+      if (tenkan > kijun) sc += 8;
+    } else { det = "산출 불가"; }
+    subs.push({ key: "ichi", label: "일목균형표 구름대", score: _clamp(sc), detail: det, weight: 8 });
+  })();
+
+  // 8) 삼각수렴·돌파 — 변동성 수축 후 최근 고점 돌파 (라라리엔 참고: 돌파방향 매매)
+  (function () {
+    if (n < 40) { subs.push({ key: "brk", label: "삼각수렴·돌파", score: 50, detail: "-", weight: 10 }); return; }
+    function rangePct(fromIdx, toIdx) {
+      var hi = -Infinity, lo = Infinity;
+      for (var i = fromIdx; i <= toIdx; i++) { hi = Math.max(hi, highs[i]); lo = Math.min(lo, lows[i]); }
+      return (hi - lo) / lo * 100;
+    }
+    var recentRange = rangePct(n - 20, n - 1);
+    var priorRange = rangePct(n - 40, n - 21);
+    var contracting = recentRange < priorRange * 0.85;   // 변동성 수축(수렴)
+    var hi20 = -Infinity;
+    for (var i = n - 21; i < n - 1; i++) hi20 = Math.max(hi20, highs[i]);
+    var breakout = px > hi20;                              // 직전 20일 고점 돌파
+    var sc = 50;
+    var det;
+    if (contracting && breakout) { sc = 92; det = "수렴 후 상방 돌파"; }
+    else if (breakout) { sc = 74; det = "신고가(20일) 돌파"; }
+    else if (contracting) { sc = 60; det = "변동성 수축(대기)"; }
+    else { sc = 45; det = "특이 신호 없음"; }
+    subs.push({ key: "brk", label: "삼각수렴·돌파", score: sc, detail: det, weight: 10 });
+  })();
+
+  var wsum = 0, acc = 0;
+  subs.forEach(function (s) { wsum += s.weight; acc += s.score * s.weight; });
+  var total = wsum ? Math.round(acc / wsum) : 50;
+  return { score: total, subs: subs, maStack: { ma5: ma5, ma20: ma20, ma60: ma60, ma120: ma120, px: px } };
+}
+/* TA 점수 → 색(빨강=강, 파랑=약; 한국식) */
+function taScoreColor(sc) {
+  if (sc >= 75) return "var(--up)";
+  if (sc >= 60) return "#f0894a";
+  if (sc >= 45) return "var(--muted)";
+  if (sc >= 30) return "#6fa1ff";
+  return "var(--dn)";
+}
+/* TA 지표 breakdown HTML (대중 인기 순서 그대로) */
+function taBreakdownHTML(ta) {
+  if (!ta) return '<div class="empty">기술적 지표를 계산할 데이터가 부족합니다.</div>';
+  return '<div class="ta-list">' + ta.subs.map(function (s) {
+    return '<div class="ta-row"><div class="ta-lbl">' + escapeHtml(s.label) + '</div>' +
+      '<div class="ta-bar"><div class="ta-fill" style="width:' + s.score.toFixed(0) + '%;background:' + taScoreColor(s.score) + '"></div></div>' +
+      '<div class="ta-sc" style="color:' + taScoreColor(s.score) + '">' + s.score.toFixed(0) + '</div>' +
+      '<div class="ta-det">' + escapeHtml(s.detail) + "</div></div>";
+  }).join("") + "</div>";
+}
+
 var PALETTE = ["#5b8cff", "#f0475a", "#f0b429", "#34d399", "#c084fc", "#22d3ee",
   "#fb923c", "#a3e635", "#f472b6", "#94a3b8", "#eab308", "#60a5fa"];
 
@@ -345,9 +540,16 @@ function statModalBody(cfg) {
     (cfg.intro ? '<p class="note" style="margin:0 0 12px;max-width:none">' + escapeHtml(cfg.intro) + "</p>" : "") +
     '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
     chartHtml +
+    (cfg.ta ? statTaSectionHTML(cfg.ta) : "") +
     statFinSectionHTML(cfg) +
     (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle, !!cfg.onHoldingClick) : "") +
     (cfg.news !== undefined ? newsListHTML(cfg.news) : "");
+}
+function statTaSectionHTML(ta) {
+  if (!ta) return "";
+  return '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:18px 0 8px;font-weight:800">기술적 분석 ' +
+    '<span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">대중이 많이 보는 순서 · 종합 <b style="color:' + taScoreColor(ta.score) + '">' + ta.score + '점</b>/100</span></h4>' +
+    taBreakdownHTML(ta);
 }
 function wireHoldingClicks(cfg) {
   if (!cfg.onHoldingClick) return;
@@ -655,7 +857,8 @@ function openMegaStockModal(tk, mega, fin) {
   openStatModal({
     name: mega.name, sub: tk.replace(/\.[A-Z]+$/, "") + (mega.sector ? " · " + mega.sector : ""),
     price: mega.price, priceCcy: megaCcySym(tk), r1d: megaDayRet(mega),
-    chips: chips, candles: mega.candles, news: mega.news, financials: fin
+    chips: chips, candles: mega.candles, news: mega.news, financials: fin,
+    ta: computeTA(mega.candles)
   });
 }
 

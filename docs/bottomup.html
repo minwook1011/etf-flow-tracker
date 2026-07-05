@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bottom-up 종목 발굴 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706c">
+<link rel="stylesheet" href="theme.css?v=20260706e">
 <style>
 .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 6px; }
 .uni-wrap { display: flex; align-items: center; gap: 8px; }
@@ -24,22 +24,24 @@
     <span class="upd" id="updated"></span>
   </div>
   <p class="note">
-    섹터(Top-down)가 아니라 <b>개별 종목의 주가 흐름</b>에서 출발합니다. 글로벌 메가캡 300개 전체를
-    섹터 구분 없이 흐름이 좋은 순서로 세워, <b>강한 종목을 초기에 포착</b>하는 것이 목적입니다.
-    카드를 클릭하면 일봉 차트·수익률·뉴스가 열립니다.
+    섹터(Top-down)가 아니라 <b>개별 종목의 차트·기술적 신호</b>에서 출발합니다. 글로벌 메가캡 300개 전체를
+    섹터 구분 없이 <b>기술점수 순</b>으로 세워, <b>강한 종목을 초기에 포착</b>하는 것이 목적입니다.
+    카드를 클릭하면 일봉 차트·지표별 기술점수·재무·뉴스가 열립니다.
   </p>
   <div class="wip-banner" id="wip-banner">
-    ⚙️ <b>현재는 임시 정렬</b>입니다 — 선택한 기간의 단순 수익률순으로 세워둔 상태입니다.
-    최종적으로는 <b>기술적 분석 기반의 순위 산정</b>으로 교체할 예정이며, 그 방법론은 학습 후 반영됩니다.
+    📊 <b>기술점수</b> = 이동평균선(정배열)·거래량·이평선 지지·RSI·MACD·볼린저·일목균형표·삼각수렴/돌파를
+    대중이 많이 보는 순서로 0~100점 환산해 가중합한 값입니다. 매일 갱신되는 5년치 일봉에서 자동 계산되며,
+    카드를 클릭하면 지표별 점수를 볼 수 있습니다. <span class="muted">거래량+이동평균선 중심(재승씨식) · 참고용이며 투자 권유 아님.</span>
   </div>
 
   <div class="controls">
-    <div class="toggle" id="period-toggle"></div>
+    <div class="uni-wrap"><span class="lbl">정렬</span><div class="toggle" id="sort-toggle"></div></div>
+    <div class="uni-wrap"><span class="lbl">기간(수익률순일 때)</span><div class="toggle" id="period-toggle"></div></div>
     <div class="uni-wrap"><span class="lbl">범위</span><div class="toggle" id="universe-toggle"></div></div>
   </div>
 
   <div class="section">
-    <h2>흐름 강한 종목 순위<span class="sub" id="bu-sub">선택 기간 수익률 상위 · 카드 클릭 = 상세</span></h2>
+    <h2>흐름 강한 종목 순위<span class="sub" id="bu-sub">기술점수 상위 · 카드 클릭 = 상세</span></h2>
     <div class="grid" id="bottomup-board" style="grid-template-columns:repeat(auto-fill,minmax(158px,1fr))"><div class="spin">로딩 중…</div></div>
     <button class="more-btn" id="bu-more" style="display:none;margin-top:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 16px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">더 보기</button>
   </div>
@@ -47,12 +49,15 @@
 
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
-<script src="theme.js?v=20260706c"></script>
-<script src="stocks-common.js?v=20260706c"></script>
+<script src="theme.js?v=20260706e"></script>
+<script src="stocks-common.js?v=20260706e"></script>
 <script>
 var DATA = null, PROFILES = {}, FIN = {};
+var TA = {};   // ticker -> computeTA 결과 (캔들에서 계산, 캐시)
 var PERIODS = [["1W", "r1w"], ["1M", "r1m"], ["3M", "r3m"], ["YTD", "ytd"]];
 var curPeriod = "r1m";
+var SORTS = [["기술점수순", "ta"], ["수익률순", "ret"]];
+var sortMode = "ta";
 var UNIVERSES = [100, 300];
 var universeN = 300;
 var SHOWN = 30;
@@ -63,8 +68,19 @@ function scoped() { return (DATA.stocks || []).filter(inScope); }
 function ccyOf(ticker) {
   return /\.K[SQ]$/.test(ticker) ? "₩" : /\.(T|TW|HK|NS|SR|L|PA|DE|AS|SW|MI|MC|ST|OL|CO)$/.test(ticker) ? "" : "$";
 }
+function taOf(s) {
+  if (!(s.ticker in TA)) TA[s.ticker] = computeTA(s.candles);
+  return TA[s.ticker];
+}
+function taScore(s) { var t = taOf(s); return t ? t.score : -1; }
 
 function renderToggle() {
+  $q("#sort-toggle").innerHTML = SORTS.map(function (p) {
+    return '<button data-s="' + p[1] + '" class="' + (p[1] === sortMode ? "on" : "") + '">' + p[0] + "</button>";
+  }).join("");
+  $qa("#sort-toggle button").forEach(function (b) {
+    b.onclick = function () { sortMode = b.dataset.s; SHOWN = 30; renderToggle(); renderBottomUp(); };
+  });
   $q("#period-toggle").innerHTML = PERIODS.map(function (p) {
     return '<button data-k="' + p[1] + '" class="' + (p[1] === curPeriod ? "on" : "") + '">' + p[0] + "</button>";
   }).join("");
@@ -83,21 +99,30 @@ function renderToggle() {
   });
 }
 
-/* 카드 상단 배지는 순위 산정 기준값(선택 기간 수익률) 자체를 보여준다. */
 function bottomUpCard(s, rank) {
   var v = num(s[curPeriod]);
+  var t = taOf(s);
+  var scoreBlock = t
+    ? '<div class="tscore"><span class="tsc-n" style="color:' + taScoreColor(t.score) + '">' + t.score + '</span>' +
+      '<div class="tsc-bar"><div class="tsc-fill" style="width:' + t.score + '%;background:' + taScoreColor(t.score) + '"></div></div></div>'
+    : '<div class="tscore"><span class="muted small">기술점수 계산불가</span></div>';
+  var metricRight = sortMode === "ta"
+    ? (t ? '<span class="sc-today" style="color:' + taScoreColor(t.score) + '">' + t.score + '점</span>' : '<span class="muted">–</span>')
+    : '<span class="sc-today ' + pctClass(v) + '">' + fmtPct(v) + "</span>";
   return '<div class="stock-card' + (rank === 1 ? " lead" : "") + '" data-t="' + s.ticker + '">' +
-    '<div class="sc-top"><span class="sc-nm">' + escapeHtml(s.name) + '</span><span class="sc-today ' + pctClass(v) + '">' + fmtPct(v) + "</span></div>" +
+    '<div class="sc-top"><span class="sc-nm">' + escapeHtml(s.name) + '</span>' + metricRight + "</div>" +
     '<div class="sc-tk bu-rank-tk"><span class="rk-no">' + rank + "위</span> " + s.ticker.replace(/\.[A-Z]+$/, "") + " · " + escapeHtml(s.sector) + "</div>" +
     sparklineSVG(s.spark, 130, 32) +
-    '<div class="sc-px">' + fmtPrice(s.price, ccyOf(s.ticker)) + '</div>' +
-    '<div class="sc-sub"><span>오늘</span> <b class="' + pctClass(s.r1d) + '">' + fmtPct(s.r1d) + "</b></div></div>";
+    scoreBlock +
+    '<div class="sc-sub" style="margin-top:5px">' + fmtPrice(s.price, ccyOf(s.ticker)) + ' <span class="' + pctClass(s.r1d) + '">' + fmtPct(s.r1d) + "</span></div></div>";
 }
 function renderBottomUp() {
-  var all = scoped().slice().sort(function (a, b) { return num(b[curPeriod]) - num(a[curPeriod]); });
+  var all = scoped().slice().sort(function (a, b) {
+    return sortMode === "ta" ? taScore(b) - taScore(a) : num(b[curPeriod]) - num(a[curPeriod]);
+  });
   var shown = all.slice(0, SHOWN);
   var periodLabel = PERIODS.filter(function (p) { return p[1] === curPeriod; })[0][0];
-  $q("#bu-sub").textContent = periodLabel + " 수익률 상위 · TOP" + universeN + " 중 · 카드 클릭 = 상세";
+  $q("#bu-sub").textContent = (sortMode === "ta" ? "기술점수(0~100) 상위" : periodLabel + " 수익률 상위") + " · TOP" + universeN + " 중 · 카드 클릭 = 상세";
   $q("#bottomup-board").innerHTML = shown.map(function (s, i) { return bottomUpCard(s, i + 1); }).join("")
     || '<div class="empty">데이터 없음</div>';
   $q("#bu-more").style.display = all.length > SHOWN ? "" : "none";
@@ -130,7 +155,7 @@ function openStockModal(ticker) {
     price: s.price, priceCcy: ccyOf(s.ticker), r1d: s.r1d,
     chips: chips,
     intro: profile ? profile.biz : "회사 개요가 아직 준비되지 않았습니다 (최근 명단에 새로 편입된 종목일 수 있습니다).",
-    candles: s.candles, news: s.news, financials: FIN[ticker]
+    candles: s.candles, news: s.news, financials: FIN[ticker], ta: taOf(s)
   });
 }
 
