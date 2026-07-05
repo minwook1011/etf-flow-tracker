@@ -48,6 +48,29 @@
 .wk-section.open .wk-head .wk-chevron { transform: rotate(90deg); }
 .wk-body { display: none; padding-top: 10px; }
 .wk-section.open .wk-body { display: block; }
+/* ---------- 인사이트 리서치 ---------- */
+.insight-box {
+  margin-top: 8px; padding: 7px 9px; border-radius: 0 6px 6px 0; cursor: pointer;
+  background: rgba(192,132,252,0.08); border-left: 2px solid #c084fc; color: #c084fc;
+  font-size: 12px; font-weight: 700; transition: background-color .15s ease;
+}
+.insight-box:hover { background: rgba(192,132,252,0.16); }
+.insight-hero { font-family: var(--serif); font-size: 13.5px; line-height: 1.5; color: var(--gold);
+  background: rgba(240,180,41,0.07); border-left: 2px solid var(--gold); padding: 8px 10px; border-radius: 0 6px 6px 0; margin-bottom: 12px; }
+.ins-chart { border: 1px solid var(--border); border-radius: 9px; padding: 12px 14px; margin: 10px 0; background: var(--bg2); }
+.ins-chart-title { font-weight: 800; font-size: 13px; margin-bottom: 10px; }
+.ins-cat-group { margin-bottom: 10px; }
+.ins-cat-group:last-child { margin-bottom: 0; }
+.ins-cat-lbl { font-size: 11.5px; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+.ins-bar-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 12px; }
+.ins-bar-lbl { flex: 0 0 84px; color: var(--muted); }
+.ins-bar-track { flex: 1; height: 13px; background: var(--card); border-radius: 3px; overflow: hidden; }
+.ins-bar-fill { height: 100%; border-radius: 3px; min-width: 2px; }
+.ins-bar-val { flex: 0 0 auto; font-family: var(--mono); font-size: 11.5px; min-width: 64px; text-align: right; }
+.ins-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; font-size: 11.5px; color: var(--muted); }
+.ins-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+.ins-sources { margin-top: 10px; font-size: 12px; }
+.ins-sources a { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -59,12 +82,13 @@
     <span class="upd" id="updated"></span>
   </div>
   <p class="note">
-    투자에 영향을 주는 주요 행사 일정과, 핵심 인물의 발언을 한곳에서 추적합니다.
+    혁신과 변화, 기회의 포착은 언제나 주요 행사와 핵심 인물의 발언에서부터 시작됩니다.
+    시장을 움직이는 신호를 가장 먼저 읽어내기 위해 일정과 인물을 한곳에서 추적합니다.
     <b>행사 카드 클릭 = 요약·전문 상세, 발언 클릭 = 상세 분석 펼치기.</b>
   </p>
   <div class="subtabs">
     <button id="tab-ev" class="on">주요 일정</button>
-    <button id="tab-pp">핵심 인력</button>
+    <button id="tab-pp">핵심 인물</button>
   </div>
 
   <!-- ===== 서브탭 1: 주요 일정 ===== -->
@@ -99,7 +123,7 @@
     </div>
   </div>
 
-  <!-- ===== 서브탭 2: 핵심 인력 ===== -->
+  <!-- ===== 서브탭 2: 핵심 인물 ===== -->
   <div id="pane-pp" style="display:none">
     <div class="section">
       <input class="search" id="kw-search" placeholder="키워드 검색 — 발언·시사점·분석·태그 전체에서 필터 (예: 원자력, 금리, HBM)">
@@ -120,7 +144,7 @@
 <script src="theme.js?v=20260705b"></script>
 <script src="stocks-common.js?v=20260705b"></script>
 <script>
-var EV = null, PP = null;
+var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
 var TYPE_ORDER = ["tech", "investor", "policy", "corp"];
 var selPerson = null;   // 인물 칩 필터
@@ -142,6 +166,60 @@ function switchTab(t) {
   $q("#tab-pp").classList.toggle("on", t === "pp");
   $q("#pane-ev").style.display = t === "ev" ? "" : "none";
   $q("#pane-pp").style.display = t === "pp" ? "" : "none";
+}
+
+/* ============ 인사이트 리서치 ============ */
+function insightsForEvent(eventId) {
+  return INSIGHTS.filter(function (x) { return (x.linked_event_ids || []).indexOf(eventId) >= 0; });
+}
+function insightsForStatement(personId, date) {
+  var key = personId + "::" + date;
+  return INSIGHTS.filter(function (x) { return (x.linked_statement_keys || []).indexOf(key) >= 0; });
+}
+function insightBoxHTML(list) {
+  if (!list.length) return "";
+  return list.map(function (x) {
+    return '<div class="insight-box" data-insight="' + escapeHtml(x.id) + '">🔎 인사이트 리서치 — ' + escapeHtml(x.title) + " →</div>";
+  }).join("");
+}
+function insightById(id) {
+  return INSIGHTS.filter(function (x) { return x.id === id; })[0];
+}
+function insightChartHTML(ch) {
+  var colors = ["var(--accent)", "var(--gold)", "#34d399", "#c084fc", "#f0475a"];
+  var allVals = [];
+  (ch.series || []).forEach(function (s) { (s.values || []).forEach(function (v) { if (v != null) allVals.push(Math.abs(v)); }); });
+  var maxV = Math.max.apply(null, allVals.concat([1]));
+  var legend = '<div class="ins-legend">' + (ch.series || []).map(function (s, i) {
+    return '<span><i style="background:' + colors[i % colors.length] + '"></i>' + escapeHtml(s.name) + "</span>";
+  }).join("") + "</div>";
+  var groups = (ch.categories || []).map(function (cat, ci) {
+    var bars = (ch.series || []).map(function (s, si) {
+      var v = (s.values || [])[ci];
+      var w = v == null ? 0 : Math.max(2, Math.abs(v) / maxV * 100);
+      return '<div class="ins-bar-row"><span class="ins-bar-lbl">' + escapeHtml(s.name) + '</span>' +
+        '<div class="ins-bar-track"><div class="ins-bar-fill" style="width:' + w.toFixed(1) + '%;background:' + colors[si % colors.length] + '"></div></div>' +
+        '<span class="ins-bar-val">' + (v == null ? "–" : v.toLocaleString()) + (ch.unit ? " " + ch.unit : "") + "</span></div>";
+    }).join("");
+    return '<div class="ins-cat-group"><div class="ins-cat-lbl">' + escapeHtml(cat) + "</div>" + bars + "</div>";
+  }).join("");
+  return '<div class="ins-chart"><div class="ins-chart-title">' + escapeHtml(ch.title) + "</div>" + legend + groups +
+    (ch.note ? '<div class="muted small" style="margin-top:8px">' + escapeHtml(ch.note) + "</div>" : "") + "</div>";
+}
+function openInsightModal(id) {
+  var x = insightById(id);
+  if (!x) return;
+  var body = "";
+  if (x.trigger) body += '<div class="insight-hero">' + escapeHtml(x.trigger) + "</div>";
+  body += mdRender(x.body || x.summary || "");
+  body += (x.charts || []).map(insightChartHTML).join("");
+  if (x.tags && x.tags.length) body += '<div class="tags" style="margin-top:12px">' + x.tags.map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>";
+  if (x.sources && x.sources.length) {
+    body += '<div class="ins-sources"><b>출처</b><br>' + x.sources.map(function (s) {
+      return '<div>· <a href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">' + escapeHtml(s.label || s.url) + "</a></div>";
+    }).join("") + "</div>";
+  }
+  openModal("🔎 " + escapeHtml(x.title), body);
 }
 
 /* ============ 주요 일정 ============ */
@@ -173,6 +251,7 @@ function evCard(e) {
     '<div class="muted small">' + escapeHtml(e.org) + " · " + evDateLabel(e) + "</div>" +
     '<div class="small" style="margin-top:4px">' + escapeHtml(e.desc) + "</div>" +
     (e.preview ? '<div class="prev">' + escapeHtml(e.preview) + "</div>" : "") +
+    insightBoxHTML(insightsForEvent(e.id)) +
     "</div>";
 }
 function openEvModal(e) {
@@ -226,14 +305,16 @@ function renderEvents() {
   $q("#past").innerHTML = past.length ? past.map(evCard).join("") : '<div class="empty">종료된 행사 없음</div>';
 
   $qa(".ev-card").forEach(function (c) {
-    c.onclick = function () {
+    c.onclick = function (ev) {
+      var box = ev.target.closest(".insight-box");
+      if (box) { openInsightModal(box.dataset.insight); return; }
       var e = evs.filter(function (x) { return x.id === c.dataset.id; })[0];
       if (e) openEvModal(e);
     };
   });
 }
 
-/* ============ 핵심 인력 ============ */
+/* ============ 핵심 인물 ============ */
 function personById(id) {
   return (PP.people || []).filter(function (p) { return p.id === id; })[0];
 }
@@ -340,6 +421,7 @@ function renderStatements() {
         '<div class="impl"><b>핵심 시사점:</b> ' + escapeHtml(s.implication) + "</div>" +
         (s.tags && s.tags.length ? '<div class="tags">' + s.tags.map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>" : "") +
         (hasAn ? '<div class="analysis">' + mdRender(s.analysis) + "</div>" : "") +
+        insightBoxHTML(insightsForStatement(s.person_id, s.date)) +
         "</div>";
     }).join("");
     var hasNew = list.some(function (s) { return isNew(s.added); });
@@ -361,9 +443,11 @@ $q("#pp-search").addEventListener("input", function () { ppName = this.value; re
 /* ============ 로드 ============ */
 Promise.all([
   fetchJSON("events.json").catch(function () { return { updated: "", events: [] }; }),
-  fetchJSON("people.json").catch(function () { return { updated: "", people: [], weeks: [] }; })
+  fetchJSON("people.json").catch(function () { return { updated: "", people: [], weeks: [] }; }),
+  fetchJSON("insights.json").catch(function () { return { insights: [] }; })
 ]).then(function (rs) {
   EV = rs[0]; PP = rs[1];
+  INSIGHTS = rs[2].insights || [];
   $q("#updated").textContent = "행사 갱신: " + (EV.updated || "-") + " · 인물/발언 갱신: " + (PP.updated || "-");
   renderEvents();
   renderDirectory();
