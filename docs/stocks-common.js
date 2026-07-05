@@ -266,12 +266,13 @@ function makeSortable(table, rows, renderRows) {
 var PALETTE = ["#5b8cff", "#f0475a", "#f0b429", "#34d399", "#c084fc", "#22d3ee",
   "#fb923c", "#a3e635", "#f472b6", "#94a3b8", "#eab308", "#60a5fa"];
 
-/* ---------- 구성종목/보유 카드 그리드 (일간 등락순) ---------- */
-function holdingsGridHTML(holdings, title) {
+/* ---------- 구성종목/보유 카드 그리드 (일간 등락순) ----------
+   clickable=true면 카드에 data-tk를 달고 커서를 포인터로 — 클릭 시 wireHoldingClicks()가 처리 */
+function holdingsGridHTML(holdings, title, clickable) {
   var list = (holdings || []).slice().sort(function (a, b) { return num(b.r1d) - num(a.r1d); });
   if (!list.length) return "";
   var cards = list.map(function (h) {
-    return '<div class="hold" title="' + escapeHtml(h.name) + " " + escapeHtml(h.ticker) + '">' +
+    return '<div class="hold' + (clickable ? " clickable" : "") + '" data-tk="' + escapeHtml(h.ticker) + '" title="' + escapeHtml(h.name) + " " + escapeHtml(h.ticker) + '">' +
       '<div class="h-top"><span class="h-tk">' + escapeHtml(h.ticker.replace(/\.K[SQ]$/, "")) + '</span>' +
       '<span class="h-ret ' + pctClass(h.r1d) + '">' + fmtPct(h.r1d) + "</span></div>" +
       '<div class="h-nm">' + escapeHtml(h.name) + "</div>" +
@@ -279,7 +280,8 @@ function holdingsGridHTML(holdings, title) {
       '<div class="h-sub">' + fmtPrice(h.price, h.ccy) + "</div></div>";
   }).join("");
   return '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:18px 0 8px;font-weight:800">' +
-    (title || "대표 종목") + ' <span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">일간 등락순</span></h4>' +
+    (title || "대표 종목") + ' <span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">일간 등락순' +
+    (clickable ? " · 클릭 = 개별 종목 보기" : "") + "</span></h4>" +
     '<div class="hold-grid">' + cards + "</div>";
 }
 
@@ -318,8 +320,14 @@ function statModalBody(cfg) {
     (cfg.intro ? '<p class="note" style="margin:0 0 12px;max-width:none">' + escapeHtml(cfg.intro) + "</p>" : "") +
     '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
     chartHtml +
-    (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle) : "") +
+    (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle, !!cfg.onHoldingClick) : "") +
     (cfg.news !== undefined ? newsListHTML(cfg.news) : "");
+}
+function wireHoldingClicks(cfg) {
+  if (!cfg.onHoldingClick) return;
+  $qa("#modal-back .m-body .hold[data-tk]").forEach(function (h) {
+    h.onclick = function () { cfg.onHoldingClick(h.dataset.tk); };
+  });
 }
 function openStatModal(cfg) {
   _statModalCfg = cfg;
@@ -335,6 +343,7 @@ function openStatModal(cfg) {
   $qa("[data-swin]").forEach(function (b) {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
+  wireHoldingClicks(cfg);
 }
 function rerenderStatModal() {
   if (!_statModalCfg) return;
@@ -343,6 +352,7 @@ function rerenderStatModal() {
   $qa("[data-swin]").forEach(function (b) {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
+  wireHoldingClicks(_statModalCfg);
 }
 
 /* ---------- 차트 클립보드 복사 ----------
@@ -556,8 +566,9 @@ function financialsHTML(rows, isQuarter, ccy) {
     "</table></div>";
 }
 
-/* ---------- ETF 상세 모달 (공용: data.json의 etf 객체 하나를 받아 통계모달을 연다) ---------- */
-function openEtfDetailModal(e, tk) {
+/* ---------- ETF 상세 모달 (공용: data.json의 etf 객체 하나를 받아 통계모달을 연다) ----------
+   onHoldingClick(ticker)를 넘기면 대표 구성종목 카드가 클릭 가능해지고, 클릭 시 이 콜백이 호출된다. */
+function openEtfDetailModal(e, tk, onHoldingClick) {
   var ccy = /\.K[SQ]$/.test(tk) ? "₩" : "$";
   openStatModal({
     name: e.name,
@@ -571,7 +582,36 @@ function openEtfDetailModal(e, tk) {
       { label: "거래대금", value: "×" + num(e.vol_ratio).toFixed(2), cls: e.vol_ratio > 1.2 ? "up" : "" },
       { label: "52주 고점대비", value: fmtPct(e.from_high, 1), cls: pctClass(e.from_high) }
     ],
-    candles: e.candles, holdings: e.holdings, holdingsTitle: "대표 구성종목", news: e.news
+    candles: e.candles, holdings: e.holdings, holdingsTitle: "대표 구성종목", news: e.news,
+    onHoldingClick: onHoldingClick
+  });
+}
+
+/* ---------- 메가캡 개별 종목 모달 (공용: megacap.json의 종목 객체 하나로 통계모달을 연다) ---------- */
+function megaCcySym(tk) { return /\.K[SQ]$/.test(tk) ? "₩" : /\.(T|TW|HK|NS|SR|L|PA|DE|AS|SW|MI|MC|ST|OL|CO)$/.test(tk) ? "" : "$"; }
+function megaDayRet(s) {
+  if (s && typeof s.r1d === "number" && s.r1d !== 0) return s.r1d;
+  var c = s && s.candles;
+  if (c && c.length >= 2) { var a = c[c.length - 1].c, b = c[c.length - 2].c; return b ? +((a / b - 1) * 100).toFixed(2) : 0; }
+  return 0;
+}
+function openMegaStockModal(tk, mega) {
+  if (!mega) return;
+  var chips = [
+    { label: "1주", value: fmtPct(mega.r1w), cls: pctClass(mega.r1w) },
+    { label: "1개월", value: fmtPct(mega.r1m), cls: pctClass(mega.r1m) },
+    { label: "YTD", value: fmtPct(mega.ytd), cls: pctClass(mega.ytd) },
+    { label: "52주 고점대비", value: fmtPct(mega.from_high, 1), cls: pctClass(mega.from_high) }
+  ];
+  if (mega.mcap_usd) chips.push({ label: "시총", value: fmtMcap(mega.mcap_usd), cls: "" });
+  if (mega.pe_now != null || mega.pe_next != null) {
+    chips.push({ label: "선행PER", per: true, cls: "",
+      value: (mega.pe_now != null ? "올해 " + mega.pe_now : "") + (mega.pe_now != null && mega.pe_next != null ? " → " : "") + (mega.pe_next != null ? "내년 " + mega.pe_next : "") });
+  }
+  openStatModal({
+    name: mega.name, sub: tk.replace(/\.[A-Z]+$/, "") + (mega.sector ? " · " + mega.sector : ""),
+    price: mega.price, priceCcy: megaCcySym(tk), r1d: megaDayRet(mega),
+    chips: chips, candles: mega.candles, news: mega.news
   });
 }
 

@@ -277,7 +277,14 @@ function renderBoard() {
     c.onclick = function () { openThesisTickerModal(c.dataset.t, c.dataset.kr === "1", w.date); };
   });
   $qa(".rel-etf").forEach(function (c) {
-    c.onclick = function () { var e = DATA.etfs[c.dataset.t]; if (e) openEtfDetailModal(e, c.dataset.t); };
+    c.onclick = function () {
+      var e = DATA.etfs[c.dataset.t];
+      if (e) openEtfDetailModal(e, c.dataset.t, function (holdTk) {
+        var m = MEGA && MEGA[holdTk];
+        if (m) openMegaStockModal(holdTk, m);
+        else openModal(escapeHtml(holdTk), '<div class="empty">이 종목은 메가캡 TOP300 명단에 없어 상세 정보가 없습니다.</div>');
+      });
+    };
   });
   $qa(".fold-btn").forEach(function (b) {
     b.onclick = function () { document.getElementById(b.dataset.card).classList.toggle("open"); };

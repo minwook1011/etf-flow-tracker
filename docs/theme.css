@@ -286,6 +286,8 @@ table.tbl tbody tr:hover { background: var(--card-hover); cursor: pointer; }
 .hold {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px 6px;
 }
+.hold.clickable { cursor: pointer; }
+.hold.clickable:hover { border-color: var(--accent); background: var(--card-hover); }
 .hold .h-top { display: flex; justify-content: space-between; align-items: baseline; }
 .hold .h-tk { font-weight: 700; font-size: 12.5px; font-family: var(--mono); }
 .hold .h-ret { font-weight: 700; font-size: 12px; font-family: var(--mono); }
