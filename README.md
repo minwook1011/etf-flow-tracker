@@ -13,7 +13,7 @@ API 키·pip 의존성·빌드 도구 없음. GitHub Pages(`docs/`)로 서빙.
 | `perspective.html` 핵심 테제 트래킹 | 주차 탭, 테제별 종목 카드+관련 ETF 자동매칭, 등록일 이후 평균 수익률(테제 스코어) | `theses.json` (수동) + `data.json`/`megacap.json`의 시세 |
 | `worldflow.html` 세상 흐름 파악 | [주요 일정] 다가오는·최근 종료 행사 + 월별 캘린더(접힘) / [핵심 인물] 키워드 검색·인물 디렉토리·주차별 발언 + 인사이트 리서치(행사·발언에서 파생된 심층 분석) | `events.json`, `people.json`, `insights.json` (반자동) |
 | `earnings.html` 미국 주요 실적 정리 | 최근 발표 실적(매출·EPS 컨센서스 서프라이즈, 접힘) + 예정된 실적 발표 캘린더(섹터 필터) + 섹터별 비트율 + 기업별 재무 열람(5개년/8분기 매출·YoY·영업이익·OPM, 분기는 QoQ) | `financials.json`·`earnings_calendar.json`(자동) + `earnings.json`(수동 큐레이션) + `megacap.json` |
-| `macro.html` 매크로 및 투자전략 | 자체 산출 공포·탐욕 프록시 지수(1D/1W/1M/YTD) + 역사적 조정 국면(15%+ 전부, 심각도별 음영) + 2022년 약세장 케이스 스터디 + 매크로 지표 10종(중요도순, 나스닥과 겹쳐보기) + 현재 시장 분석 리포트 | `macro.json` (자동 — 야후+FRED) |
+| `macro.html` 매크로 및 투자전략 | S&P500 밸류에이션(후행 P/E×지수 + 현재 포워드 P/E) + 자체 산출 공포·탐욕 프록시 지수(1D/1W/1M/YTD) + 역사적 조정 국면(15%+ 전부, 심각도별 음영) + 2022년 약세장 케이스 스터디 + 매크로 지표 10종(중요도순, 나스닥과 이중축 겹쳐보기) + 현재 시장 분석 리포트 | `macro.json`·`valuation.json` (자동 — 야후+FRED+multpl) |
 
 ## 로컬 실행법
 
@@ -25,6 +25,7 @@ python fetch_megacap.py     # 명단 시세+PER+캔들+뉴스 갱신 → docs/me
 python fetch_financials.py  # 메가캡 매출·영업이익 시계열 → docs/financials.json (약 4분, 매 실행마다 기존 파일에 누적)
 python fetch_earnings_calendar.py  # 실적 발표일·컨센서스·EPS 서프라이즈 → docs/earnings_calendar.json (약 4분, 매 실행마다 누적)
 python fetch_macro.py       # 공포·탐욕 프록시 지수 + 매크로 지표(야후+FRED) → docs/macro.json (약 1분)
+python fetch_valuation.py   # S&P500 후행P/E·CAPE(multpl) + 시총가중 포워드P/E(megacap) → docs/valuation.json (약 15초, 포워드는 누적)
 
 # 2) 로컬 서버
 python -m http.server 8000 -d docs

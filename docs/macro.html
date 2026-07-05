@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>매크로 및 투자전략 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706c">
+<link rel="stylesheet" href="theme.css?v=20260706d">
 <style>
 .gauge-wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
 .gauge-box { flex: 0 0 auto; text-align: center; }
@@ -52,6 +52,14 @@
   </p>
 
   <div class="section">
+    <h2>S&amp;P500 밸류에이션<span class="sub">시장 P/E vs 지수 겹쳐보기 · 지금이 역사적으로 비싼가</span></h2>
+    <div class="stat-chip-row" id="val-chips"></div>
+    <div class="ins-legend" id="val-legend" style="margin-bottom:6px"></div>
+    <div class="card chart-hover-root" id="val-chart"><div class="spin">로딩 중…</div></div>
+    <div class="methodology-note" id="val-note"></div>
+  </div>
+
+  <div class="section">
     <h2>공포·탐욕 게이지<span class="sub">자체 산출 프록시 · 1D/1W/1M/YTD 추이</span></h2>
     <div class="card gauge-wrap" id="gauge-card"><div class="spin">로딩 중…</div></div>
     <div class="methodology-note" id="methodology-note"></div>
@@ -86,10 +94,64 @@
 
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
-<script src="theme.js?v=20260706c"></script>
-<script src="stocks-common.js?v=20260706c"></script>
+<script src="theme.js?v=20260706d"></script>
+<script src="stocks-common.js?v=20260706d"></script>
 <script>
-var MACRO = null;
+var MACRO = null, VAL = null;
+
+/* ---------- S&P500 밸류에이션 (후행 P/E 히스토리 × 지수 + 현재 포워드 P/E) ---------- */
+function renderValuation() {
+  if (!VAL || !VAL.trailing_pe || !VAL.trailing_pe.length) {
+    $q("#val-chart").innerHTML = '<div class="empty">밸류에이션 데이터가 아직 없습니다.</div>';
+    return;
+  }
+  var f = VAL.current_fwd_pe || {};
+  var trailingNow = VAL.trailing_pe[0] ? VAL.trailing_pe[0].value : null;
+  var capeNow = (VAL.cape && VAL.cape[0]) ? VAL.cape[0].value : null;
+  $q("#val-chips").innerHTML =
+    '<span class="chip">포워드 P/E(올해) <b>' + (f.this != null ? f.this.toFixed(1) + "배" : "–") + "</b></span>" +
+    '<span class="chip">포워드 P/E(내년) <b>' + (f.next != null ? f.next.toFixed(1) + "배" : "–") + "</b></span>" +
+    '<span class="chip">후행 P/E <b>' + (trailingNow != null ? trailingNow.toFixed(1) + "배" : "–") + "</b></span>" +
+    '<span class="chip">CAPE(경기조정) <b>' + (capeNow != null ? capeNow.toFixed(1) + "배" : "–") + "</b></span>";
+
+  // 후행 P/E(월별, 오래된→최신)를 매크로 주별 S&P 지수에 정렬
+  var weekly = MACRO && MACRO.weekly;
+  var pts = VAL.trailing_pe.slice().reverse();  // 오래된→최신
+  var start = weekly ? weekly.dates[0] : pts[0].date;
+  pts = pts.filter(function (p) { return p.date >= start; });
+  var PE_CAP = 50;  // 2009년 이익 급감기 후행 P/E가 120배+로 치솟아 정상 구간을 눌러버려 표시 상한을 둔다
+  var capped = false;
+  var dates = [], peVals = [], spxVals = [];
+  pts.forEach(function (p) {
+    var spx = null;
+    if (weekly) {
+      var idx = weekly.dates.findIndex(function (d) { return d >= p.date; });
+      if (idx < 0) idx = weekly.dates.length - 1;
+      spx = weekly.spx[idx];
+    }
+    if (spx == null) return;
+    var v = p.value;
+    if (v > PE_CAP) { v = PE_CAP; capped = true; }
+    dates.push(p.date); peVals.push(v); spxVals.push(spx);
+  });
+  $q("#val-legend").innerHTML =
+    '<span data-line-idx="0"><i style="background:#f0b429"></i>후행 P/E (좌축, 배)</span>' +
+    '<span data-line-idx="1"><i style="background:#5b8cff"></i>S&amp;P500 지수 (우축)</span>';
+  $q("#val-chart").innerHTML = dualAxisChartSVG(dates,
+    { name: "후행 P/E", values: peVals }, { name: "S&P500", values: spxVals });
+  wireLineHover($q("#val-chart"));
+
+  var pctRank = null;
+  if (trailingNow != null) {
+    var allv = VAL.trailing_pe.map(function (p) { return p.value; }).filter(function (v) { return v != null; });
+    var below = allv.filter(function (v) { return v <= trailingNow; }).length;
+    pctRank = Math.round(below / allv.length * 100);
+  }
+  $q("#val-note").innerHTML = escapeHtml(VAL.note || "") +
+    (pctRank != null ? "<br><b>현재 후행 P/E는 최근 31년 중 상위 " + (100 - pctRank) + "% 수준(백분위 " + pctRank + ")입니다.</b> 포워드 P/E(올해 " +
+      (f.this != null ? f.this.toFixed(1) : "–") + "배)가 후행보다 낮은 것은 향후 이익 성장을 반영한 것이며, 성장이 실현되지 않으면 실제 밸류에이션은 더 비싼 셈이 됩니다." : "") +
+    (capped ? "<br>※ 2008~2009년 이익 급감으로 후행 P/E가 일시적으로 120배 이상 치솟은 구간은 가독성을 위해 " + PE_CAP + "배로 표시를 제한했습니다." : "");
+}
 
 /* ---------- 유틸 ---------- */
 function fmtDate(d) { return d || "-"; }
@@ -434,9 +496,14 @@ function renderReport() {
   $q("#report").innerHTML = html;
 }
 
-fetchJSON("macro.json").then(function (d) {
-  MACRO = d;
-  $q("#updated").textContent = "기준: " + (d.updated || "-");
+Promise.all([
+  fetchJSON("macro.json"),
+  fetchJSON("valuation.json").catch(function () { return null; })
+]).then(function (rs) {
+  MACRO = rs[0];
+  VAL = rs[1];
+  $q("#updated").textContent = "기준: " + (MACRO.updated || "-");
+  renderValuation();
   renderGauge();
   renderDrawdownHistory();
   render2022Case();
