@@ -311,6 +311,22 @@ var STAT_WINDOWS = [
 ];
 var _statModalWin = 90;
 var _statModalCfg = null;
+var _statFinMode = "annual";  // 모달 내 재무 연간/분기 토글 상태
+/* 재무 추이 섹션(연간/분기 토글 + 표). cfg.financials = {annual:[], quarterly:[]} 있을 때만 노출. */
+function statFinSectionHTML(cfg) {
+  var fin = cfg.financials;
+  if (!fin || (!(fin.annual && fin.annual.length) && !(fin.quarterly && fin.quarterly.length))) return "";
+  var isQ = _statFinMode === "quarterly";
+  var rows = isQ ? fin.quarterly : fin.annual;
+  if (!rows || !rows.length) { isQ = !isQ; rows = isQ ? fin.quarterly : fin.annual; }
+  var ccy = (rows && rows[0] && rows[0].ccy) || "USD";
+  return '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:18px 0 8px;font-weight:800">재무 추이 ' +
+    '<span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">매출·영업이익·OPM·증가율</span></h4>' +
+    '<div class="toggle" style="margin-bottom:8px">' +
+    '<button data-sfin="annual" class="' + (!isQ ? "on" : "") + '">연간(' + ((fin.annual || []).length) + ')</button>' +
+    '<button data-sfin="quarterly" class="' + (isQ ? "on" : "") + '">분기(' + ((fin.quarterly || []).length) + ')</button></div>' +
+    '<div id="stat-fin-holder">' + financialsHTML(rows, isQ, ccy) + "</div>";
+}
 function statModalBody(cfg) {
   var chipsHtml = (cfg.chips || []).map(function (c) {
     return '<span class="chip' + (c.per ? " per" : "") + '">' + escapeHtml(c.label) +
@@ -329,6 +345,7 @@ function statModalBody(cfg) {
     (cfg.intro ? '<p class="note" style="margin:0 0 12px;max-width:none">' + escapeHtml(cfg.intro) + "</p>" : "") +
     '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
     chartHtml +
+    statFinSectionHTML(cfg) +
     (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle, !!cfg.onHoldingClick) : "") +
     (cfg.news !== undefined ? newsListHTML(cfg.news) : "");
 }
@@ -338,9 +355,25 @@ function wireHoldingClicks(cfg) {
     h.onclick = function () { cfg.onHoldingClick(h.dataset.tk); };
   });
 }
+function wireStatFinToggle() {
+  $qa("#modal-back [data-sfin]").forEach(function (b) {
+    b.onclick = function () {
+      _statFinMode = b.dataset.sfin;
+      var fin = _statModalCfg && _statModalCfg.financials;
+      if (!fin) return;
+      var isQ = _statFinMode === "quarterly";
+      var rows = isQ ? fin.quarterly : fin.annual;
+      var ccy = (rows && rows[0] && rows[0].ccy) || "USD";
+      var holder = document.querySelector("#modal-back #stat-fin-holder");
+      if (holder) holder.innerHTML = financialsHTML(rows, isQ, ccy);
+      $qa("#modal-back [data-sfin]").forEach(function (x) { x.classList.toggle("on", x.dataset.sfin === _statFinMode); });
+    };
+  });
+}
 function openStatModal(cfg) {
   _statModalCfg = cfg;
   _statModalWin = 90;
+  _statFinMode = "annual";
   var priceHtml = '<span class="px">' + fmtPrice(cfg.price, cfg.priceCcy) + "</span>" +
     (cfg.r1d != null ? ' <span class="' + pctClass(cfg.r1d) + '" style="font-weight:700">' + fmtPct(cfg.r1d) + "</span>" : "") +
     '<button class="cap-btn" onclick="captureStatChart()" title="차트를 클립보드에 복사">복사</button>';
@@ -353,6 +386,7 @@ function openStatModal(cfg) {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
   wireHoldingClicks(cfg);
+  wireStatFinToggle();
 }
 function rerenderStatModal() {
   if (!_statModalCfg) return;
@@ -362,6 +396,7 @@ function rerenderStatModal() {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
   wireHoldingClicks(_statModalCfg);
+  wireStatFinToggle();
 }
 
 /* ---------- 차트 클립보드 복사 ----------
@@ -604,7 +639,7 @@ function megaDayRet(s) {
   if (c && c.length >= 2) { var a = c[c.length - 1].c, b = c[c.length - 2].c; return b ? +((a / b - 1) * 100).toFixed(2) : 0; }
   return 0;
 }
-function openMegaStockModal(tk, mega) {
+function openMegaStockModal(tk, mega, fin) {
   if (!mega) return;
   var chips = [
     { label: "1주", value: fmtPct(mega.r1w), cls: pctClass(mega.r1w) },
@@ -620,7 +655,7 @@ function openMegaStockModal(tk, mega) {
   openStatModal({
     name: mega.name, sub: tk.replace(/\.[A-Z]+$/, "") + (mega.sector ? " · " + mega.sector : ""),
     price: mega.price, priceCcy: megaCcySym(tk), r1d: megaDayRet(mega),
-    chips: chips, candles: mega.candles, news: mega.news
+    chips: chips, candles: mega.candles, news: mega.news, financials: fin
   });
 }
 

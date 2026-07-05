@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>미국 주요 실적 정리 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706b">
+<link rel="stylesheet" href="theme.css?v=20260706c">
 <style>
 .ern-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: border-color .15s ease, box-shadow .15s ease; }
 .ern-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
@@ -27,12 +27,27 @@
 .ern-sub-tab { border-top: 1px dashed var(--border); margin-top: 12px; padding-top: 10px; }
 .ern-sub-tab h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin: 0 0 6px; font-weight: 800; }
 .qa-list { font-size: 13px; line-height: 1.7; }
-.cal-lane { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
-.cal-cell { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
-.cal-cell:hover { border-color: var(--accent); }
+.cal-lane { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
+.cal-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: border-color .15s ease, box-shadow .15s ease; }
+.cal-cell:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
 .cal-cell .c-d { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-.cal-cell .c-nm { font-weight: 700; font-size: 13.5px; margin-top: 1px; }
+.cal-cell .c-nm { font-weight: 800; font-size: 14.5px; margin-top: 1px; }
 .cal-cell .c-q { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+/* 예정 실적 카드: 상단(이름+D-day) / 섹터칩 / 컨센 지표 2열 */
+.upc-cell .u-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.upc-cell .u-nm { font-weight: 800; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.upc-cell .u-date { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 0 0 auto; }
+.upc-cell .u-date b { color: var(--gold); }
+.upc-cell .u-sector { display: inline-block; margin-top: 6px; font-size: 11px; color: var(--muted); background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; }
+.upc-cell .u-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; margin-top: 9px; }
+.upc-cell .u-cons .lbl { font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: .03em; }
+.upc-cell .u-cons .val { font-size: 13px; font-weight: 700; font-family: var(--mono); }
+/* 기업 재무 열람 카드: 이름 크게 / 티커 뱃지+섹터 */
+.co-cell .co-nm { font-weight: 800; font-size: 14.5px; }
+.co-cell .co-meta { display: flex; align-items: center; gap: 7px; margin-top: 5px; flex-wrap: wrap; }
+.co-cell .co-tk { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(91,140,255,0.12); border-radius: 5px; padding: 1px 7px; }
+.co-cell .co-sec { font-size: 11.5px; color: var(--muted); }
+.co-cell .co-nofin { font-size: 10.5px; color: var(--faint); margin-left: auto; }
 .co-search { max-width: 420px; }
 .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
 .filter-row select { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; font-family: inherit; }
@@ -119,8 +134,8 @@
 
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
-<script src="theme.js?v=20260706b"></script>
-<script src="stocks-common.js?v=20260706b"></script>
+<script src="theme.js?v=20260706c"></script>
+<script src="stocks-common.js?v=20260706c"></script>
 <script>
 var MEGA = {}, FIN = {}, ERN = [], PROFILES = {}, CAL = {};
 var finMode = {};  // ticker -> 'annual'|'quarterly' (모달 내 토글 상태)
@@ -311,6 +326,11 @@ function upcomingTickers(query, sector) {
     .filter(function (tk) { return !q || ((MEGA[tk] ? MEGA[tk].name : tk) + " " + tk).toLowerCase().indexOf(q) >= 0; })
     .sort(function (a, b) { return String(CAL[a].next_earnings_date).localeCompare(String(CAL[b].next_earnings_date)); });
 }
+function ddayLabel(dateStr) {
+  var today = new Date(new Date().toISOString().slice(0, 10));
+  var d = Math.round((new Date(dateStr) - today) / 86400000);
+  return d === 0 ? "D-DAY" : d > 0 ? "D-" + d : "D+" + (-d);
+}
 function renderUpcoming() {
   var q = $q("#upc-search").value, sec = $q("#upc-sector").value;
   var list = upcomingTickers(q, sec);
@@ -318,10 +338,14 @@ function renderUpcoming() {
     var c = CAL[tk], s = MEGA[tk];
     var epsC = c.consensus_eps != null ? c.consensus_eps.toFixed(2) : "–";
     var revC = c.consensus_rev != null ? fmtBig(c.consensus_rev / 1e6, "USD") : "–";
-    return '<div class="cal-cell" data-t="' + escapeHtml(tk) + '">' +
-      '<div class="c-d">' + escapeHtml(c.next_earnings_date) + (c.is_estimate ? ' <span class="inl small">(추정)</span>' : "") + "</div>" +
-      '<div class="c-nm">' + escapeHtml((s && s.name) || c.name || tk) + "</div>" +
-      '<div class="c-q">' + escapeHtml((s && s.sector) || "") + " · 컨센 EPS " + epsC + " · 매출 " + revC + "</div></div>";
+    return '<div class="cal-cell upc-cell" data-t="' + escapeHtml(tk) + '">' +
+      '<div class="u-top"><span class="u-nm">' + escapeHtml((s && s.name) || c.name || tk) + '</span>' +
+      '<span class="u-date"><b>' + ddayLabel(c.next_earnings_date) + "</b></span></div>" +
+      '<div class="u-date" style="margin-top:2px">' + escapeHtml(c.next_earnings_date) + (c.is_estimate ? " (추정)" : "") + "</div>" +
+      ((s && s.sector) ? '<span class="u-sector">' + escapeHtml(s.sector) + "</span>" : "") +
+      '<div class="u-cons">' +
+      '<div><div class="lbl">컨센 EPS</div><div class="val">' + epsC + "</div></div>" +
+      '<div><div class="lbl">컨센 매출</div><div class="val">' + revC + "</div></div></div></div>";
   }).join("") || '<div class="empty">검색 결과 없음</div>';
   $q("#upc-more").style.display = list.length > UPC_SHOWN ? "" : "none";
   $qa("#upc-list .cal-cell").forEach(function (c) { c.onclick = function () { openEarningsModal(c.dataset.t); }; });
@@ -367,10 +391,11 @@ function renderCompanyGrid(filter) {
     .sort(function (a, b) { return (b.mcap_usd || 0) - (a.mcap_usd || 0); })
     .slice(0, q ? 60 : 40);
   $q("#co-grid").innerHTML = list.map(function (s) {
-    return '<div class="cal-cell" data-t="' + escapeHtml(s.ticker) + '">' +
-      '<div class="c-nm">' + escapeHtml(s.name) + '</div>' +
-      '<div class="c-d">' + escapeHtml(s.ticker.replace(/\.[A-Z]+$/, "")) + " · " + escapeHtml(s.sector) +
-      (FIN[s.ticker] ? "" : ' <span class="muted">· 재무없음</span>') + "</div></div>";
+    return '<div class="cal-cell co-cell" data-t="' + escapeHtml(s.ticker) + '">' +
+      '<div class="co-nm">' + escapeHtml(s.name) + '</div>' +
+      '<div class="co-meta"><span class="co-tk">' + escapeHtml(s.ticker.replace(/\.[A-Z]+$/, "")) + '</span>' +
+      '<span class="co-sec">' + escapeHtml(s.sector) + "</span>" +
+      (FIN[s.ticker] ? "" : '<span class="co-nofin">재무 준비중</span>') + "</div></div>";
   }).join("") || '<div class="empty">검색 결과 없음</div>';
   $qa("#co-grid .cal-cell").forEach(function (c) {
     c.onclick = function () { openCompanyModal(c.dataset.t); };

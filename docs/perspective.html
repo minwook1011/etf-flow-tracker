@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>핵심 테제 트래킹 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706b">
+<link rel="stylesheet" href="theme.css?v=20260706c">
 <style>
 .krtoggle-wrap { margin-left: auto; }
 .th-num { color: var(--accent); font-size: 12.5px; font-weight: 800; font-family: var(--mono); }
@@ -66,10 +66,10 @@
   <div id="board"><div class="spin">로딩 중…</div></div>
 </div>
 
-<script src="theme.js?v=20260706b"></script>
-<script src="stocks-common.js?v=20260706b"></script>
+<script src="theme.js?v=20260706c"></script>
+<script src="stocks-common.js?v=20260706c"></script>
 <script>
-var THESES = null, DATA = null, MEGA = null, META = {};
+var THESES = null, DATA = null, MEGA = null, META = {}, FIN = {};
 var QUOTES = {};
 var weeks = [];
 var curWeek = 0;
@@ -281,7 +281,7 @@ function renderBoard() {
       var e = DATA.etfs[c.dataset.t];
       if (e) openEtfDetailModal(e, c.dataset.t, function (holdTk) {
         var m = MEGA && MEGA[holdTk];
-        if (m) openMegaStockModal(holdTk, m);
+        if (m) openMegaStockModal(holdTk, m, FIN[holdTk]);
         else openModal(escapeHtml(holdTk), '<div class="empty">이 종목은 메가캡 TOP300 명단에 없어 상세 정보가 없습니다.</div>');
       });
     };
@@ -292,10 +292,11 @@ function renderBoard() {
   $qa(".trend-mini").forEach(function (el) { wireLineHover(el); });
 }
 
-function boot(theses, data, mega) {
+function boot(theses, data, mega, fin) {
   THESES = theses; DATA = data; MEGA = {};
   META = (theses && theses.meta) || {};
   QUOTES = (data && data.thesis_quotes) || {};
+  FIN = (fin && fin.financials) || {};
   if (mega && mega.stocks) mega.stocks.forEach(function (s) { MEGA[s.ticker] = s; });
   weeks = (theses.weeks || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
   curWeek = 0;
@@ -308,8 +309,9 @@ function boot(theses, data, mega) {
 Promise.all([
   fetchJSON("theses.json"),
   fetchJSON("data.json").catch(function () { return null; }),
-  fetchJSON("megacap.json").catch(function () { return null; })
-]).then(function (rs) { boot(rs[0], rs[1], rs[2]); })
+  fetchJSON("megacap.json").catch(function () { return null; }),
+  fetchJSON("financials.json").catch(function () { return null; })
+]).then(function (rs) { boot(rs[0], rs[1], rs[2], rs[3]); })
   .catch(function (err) {
     $q("#board").innerHTML = '<div class="empty">theses.json 로드 실패<br><span class="small">' + escapeHtml(err.message) + "</span></div>";
   });

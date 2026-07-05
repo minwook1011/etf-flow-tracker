@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글로벌 섹터 ETF 자금 흐름</title>
-<link rel="stylesheet" href="theme.css?v=20260706b">
+<link rel="stylesheet" href="theme.css?v=20260706c">
 </head>
 <body>
 <header id="topnav"></header>
@@ -80,11 +80,12 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260706b"></script>
-<script src="stocks-common.js?v=20260706b"></script>
+<script src="theme.js?v=20260706c"></script>
+<script src="stocks-common.js?v=20260706c"></script>
 <script>
 var DATA = null;
 var MEGA = {};  // megacap.json — 대표 구성종목 클릭 시 개별 종목 모달용(있으면 사용, 없어도 페이지는 정상 동작)
+var FIN = {};   // financials.json — 종목 모달의 재무 추이용
 var PERIODS = [["1D","r1d"],["1W","r1w"],["1M","r1m"],["3M","r3m"],["YTD","ytd"]];
 var curPeriod = "r1w";
 var TREND_PERIODS = [["1M","1m"],["3M","3m"],["6M","6m"]];
@@ -287,7 +288,7 @@ function openEtfModal(tk) {
   var e = DATA.etfs[tk];
   if (e) openEtfDetailModal(e, tk, function (holdTk) {
     var m = MEGA[holdTk];
-    if (m) openMegaStockModal(holdTk, m);
+    if (m) openMegaStockModal(holdTk, m, FIN[holdTk]);
     else openModal(escapeHtml(holdTk), '<div class="empty">이 종목은 메가캡 TOP300 명단에 없어 상세 정보가 없습니다.</div>');
   });
 }
@@ -295,11 +296,13 @@ function openEtfModal(tk) {
 /* ---------- 초기화 ---------- */
 Promise.all([
   fetchJSON("data.json"),
-  fetchJSON("megacap.json").catch(function () { return null; })
+  fetchJSON("megacap.json").catch(function () { return null; }),
+  fetchJSON("financials.json").catch(function () { return null; })
 ]).then(function (rs) {
   var d = rs[0];
   DATA = d;
   if (rs[1] && rs[1].stocks) rs[1].stocks.forEach(function (s) { MEGA[s.ticker] = s; });
+  FIN = (rs[2] && rs[2].financials) || {};
   $q("#updated").textContent = "기준: " + (d.updated || "-") + " · 벤치마크 " + (d.benchmark || "ACWI");
   renderToggles();
   renderBreadth();

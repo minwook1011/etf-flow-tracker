@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bottom-up 종목 발굴 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706b">
+<link rel="stylesheet" href="theme.css?v=20260706c">
 <style>
 .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 6px; }
 .uni-wrap { display: flex; align-items: center; gap: 8px; }
@@ -47,10 +47,10 @@
 
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
-<script src="theme.js?v=20260706b"></script>
-<script src="stocks-common.js?v=20260706b"></script>
+<script src="theme.js?v=20260706c"></script>
+<script src="stocks-common.js?v=20260706c"></script>
 <script>
-var DATA = null, PROFILES = {};
+var DATA = null, PROFILES = {}, FIN = {};
 var PERIODS = [["1W", "r1w"], ["1M", "r1m"], ["3M", "r3m"], ["YTD", "ytd"]];
 var curPeriod = "r1m";
 var UNIVERSES = [100, 300];
@@ -130,7 +130,7 @@ function openStockModal(ticker) {
     price: s.price, priceCcy: ccyOf(s.ticker), r1d: s.r1d,
     chips: chips,
     intro: profile ? profile.biz : "회사 개요가 아직 준비되지 않았습니다 (최근 명단에 새로 편입된 종목일 수 있습니다).",
-    candles: s.candles, news: s.news
+    candles: s.candles, news: s.news, financials: FIN[ticker]
   });
 }
 
@@ -138,10 +138,12 @@ $q("#bu-more").addEventListener("click", function () { SHOWN += 30; renderBottom
 
 Promise.all([
   fetchJSON("megacap.json"),
-  fetchJSON("megacap_profiles.json").catch(function () { return null; })
+  fetchJSON("megacap_profiles.json").catch(function () { return null; }),
+  fetchJSON("financials.json").catch(function () { return null; })
 ]).then(function (rs) {
   DATA = rs[0];
   PROFILES = (rs[1] && rs[1].profiles) || {};
+  FIN = (rs[2] && rs[2].financials) || {};
   var uni = DATA.universe_updated ? " · 명단 " + DATA.universe_updated.slice(0, 10) + " 기준(주 1회)" : "";
   $q("#updated").textContent = "시세 " + (DATA.updated || "-") + " · " + DATA.count + "종목" + uni;
   renderToggle();
