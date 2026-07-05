@@ -537,46 +537,23 @@ function financialsHTML(rows, isQuarter, ccy) {
   if (!rows || rows.length < 1) {
     return '<div class="empty">재무 데이터가 아직 없습니다 (다음 자동 갱신 때 수집됩니다).</div>';
   }
-  var maxRev = Math.max.apply(null, rows.map(function (r) { return Math.abs(num(r.rev)); })) || 1;
-  var maxOp = Math.max.apply(null, rows.map(function (r) { return Math.abs(num(r.op)); })) || 1;
   function label(d) { return isQuarter ? d.slice(2, 7).replace("-", "/") : d.slice(0, 4); }
-  // 막대 그래프 (매출=파랑톤, 영업이익=골드톤) — 좌우 정렬로 비교
-  var bars = rows.map(function (r) {
-    var rw = (num(r.rev) / maxRev) * 100;
-    var ow = (num(r.op) / maxOp) * 100;
-    return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px">' +
-      '<div style="flex:0 0 52px;text-align:right;font-family:var(--mono);color:var(--muted)">' + label(r.date) + "</div>" +
-      '<div style="flex:1"><div style="display:flex;align-items:center;gap:6px">' +
-      '<div style="height:11px;width:' + rw.toFixed(1) + '%;background:var(--accent);opacity:.85;border-radius:2px;min-width:1px"></div>' +
-      '<span style="font-family:var(--mono);font-size:11px">' + fmtBig(r.rev, ccy) + "</span>" +
-      (r.rev_yoy != null ? ' <span class="' + pctClass(r.rev_yoy) + '" style="font-size:10.5px">YoY ' + fmtPct(r.rev_yoy, 1) + "</span>" : "") +
-      "</div>" +
-      '<div style="display:flex;align-items:center;gap:6px;margin-top:2px">' +
-      '<div style="height:11px;width:' + ow.toFixed(1) + '%;background:var(--gold);opacity:.85;border-radius:2px;min-width:1px"></div>' +
-      '<span style="font-family:var(--mono);font-size:11px">' + fmtBig(r.op, ccy) + "</span>" +
-      (r.opm != null ? ' <span class="muted" style="font-size:10.5px">OPM ' + r.opm.toFixed(1) + "%</span>" : "") +
-      "</div></div></div>";
-  }).join("");
-  // 상세 표
-  var head = "<tr><th class='l'>기간</th><th>매출</th><th>매출 YoY</th>" +
-    (isQuarter ? "<th>매출 QoQ</th>" : "") +
-    "<th>영업이익</th><th>OPM</th><th>영업이익 YoY</th>" +
-    (isQuarter ? "<th>영업이익 QoQ</th>" : "") + "</tr>";
-  var body = rows.slice().reverse().map(function (r) {
-    return "<tr><td class='l'>" + label(r.date) + "</td>" +
-      "<td>" + fmtBig(r.rev, ccy) + "</td>" +
-      "<td>" + (r.rev_yoy != null ? pctSpan(r.rev_yoy, 1) : "–") + "</td>" +
-      (isQuarter ? "<td>" + (r.rev_qoq != null ? pctSpan(r.rev_qoq, 1) : "–") + "</td>" : "") +
-      "<td>" + fmtBig(r.op, ccy) + "</td>" +
-      "<td>" + (r.opm != null ? r.opm.toFixed(1) + "%" : "–") + "</td>" +
-      "<td>" + (r.op_yoy != null ? pctSpan(r.op_yoy, 1) : "–") + "</td>" +
-      (isQuarter ? "<td>" + (r.op_qoq != null ? pctSpan(r.op_qoq, 1) : "–") + "</td>" : "") +
-      "</tr>";
-  }).join("");
-  return '<div style="margin:4px 0 12px">' +
-    '<div class="muted small" style="margin-bottom:6px"><span style="color:var(--accent)">■</span> 매출 &nbsp; <span style="color:var(--gold)">■</span> 영업이익</div>' +
-    bars + "</div>" +
-    '<div class="tbl-wrap"><table class="tbl" style="min-width:0;font-size:12px">' + head + body + "</table></div>";
+  // 지표를 행으로, 기간을 열로 — 오래된 기간이 왼쪽
+  var cols = rows.map(function (r) { return "<th>" + label(r.date) + "</th>"; }).join("");
+  function metricRow(name, cls, cells) {
+    return "<tr><td class='l" + (cls ? " " + cls : "") + "'>" + name + "</td>" + cells.join("") + "</tr>";
+  }
+  var revRow = metricRow("<b>매출</b>", "", rows.map(function (r) { return "<td>" + fmtBig(r.rev, ccy) + "</td>"; }));
+  var revYoyRow = metricRow("YoY", "muted small", rows.map(function (r) { return "<td>" + (r.rev_yoy != null ? pctSpan(r.rev_yoy, 1) : "–") + "</td>"; }));
+  var revQoqRow = isQuarter ? metricRow("QoQ", "muted small", rows.map(function (r) { return "<td>" + (r.rev_qoq != null ? pctSpan(r.rev_qoq, 1) : "–") + "</td>"; })) : "";
+  var opRow = metricRow("<b>영업이익</b>", "", rows.map(function (r) { return "<td>" + fmtBig(r.op, ccy) + "</td>"; }));
+  var opmRow = metricRow("OPM", "muted small", rows.map(function (r) { return "<td>" + (r.opm != null ? r.opm.toFixed(1) + "%" : "–") + "</td>"; }));
+  var opYoyRow = metricRow("YoY", "muted small", rows.map(function (r) { return "<td>" + (r.op_yoy != null ? pctSpan(r.op_yoy, 1) : "–") + "</td>"; }));
+  var opQoqRow = isQuarter ? metricRow("QoQ", "muted small", rows.map(function (r) { return "<td>" + (r.op_qoq != null ? pctSpan(r.op_qoq, 1) : "–") + "</td>"; })) : "";
+  return '<div class="tbl-wrap"><table class="tbl fin-tbl" style="min-width:0;font-size:12px">' +
+    "<tr><th class='l'>기간</th>" + cols + "</tr>" +
+    revRow + revYoyRow + revQoqRow + opRow + opmRow + opYoyRow + opQoqRow +
+    "</table></div>";
 }
 
 /* ---------- ETF 상세 모달 (공용: data.json의 etf 객체 하나를 받아 통계모달을 연다) ---------- */

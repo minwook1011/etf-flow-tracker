@@ -145,14 +145,14 @@ function openErnModal(e) {
   var candleHtml = (s && s.candles) ? candleChartSVG(s.candles.slice(-90), 820, 240) : "";
   var body =
     '<div class="muted small" style="margin-bottom:8px;font-family:var(--mono)">' + escapeHtml(e.quarter) + " · 발표 " + escapeHtml(e.report_date) + "</div>" +
-    '<div class="ern-sub-tab" style="border-top:0;padding-top:0"><h4>내용 요약</h4><div style="font-family:var(--serif);line-height:1.75;font-size:14px">' + escapeHtml(e.summary) + "</div></div>" +
-    (e.qa ? '<div class="ern-sub-tab"><h4>질문 요약 (어닝콜 Q&amp;A)</h4><div class="qa-list">' + mdRender(e.qa) + "</div></div>" : "") +
-    (e.full ? '<div class="ern-sub-tab"><h4>전문 분석</h4><details class="fold" open><summary>펼치기/접기</summary>' + mdRender(e.full) + "</details></div>" : "") +
-    (candleHtml ? '<div class="ern-sub-tab"><h4>주가 (최근 90일)</h4>' + candleHtml + "</div>" : "") +
-    '<div class="ern-sub-tab"><h4>재무 추이</h4>' +
+    (candleHtml ? '<div class="ern-sub-tab" style="border-top:0;padding-top:0"><h4>주가 (최근 90일)</h4>' + candleHtml + "</div>" : "") +
+    '<div class="ern-sub-tab"' + (candleHtml ? "" : ' style="border-top:0;padding-top:0"') + '><h4>재무 추이</h4>' +
     '<div class="tab-row"><button data-fmode="annual" class="' + (finMode[tk] === "annual" ? "on" : "") + '">연간</button>' +
     '<button data-fmode="quarterly" class="' + (finMode[tk] === "quarterly" ? "on" : "") + '">분기</button></div>' +
-    '<div id="fin-holder"></div></div>';
+    '<div id="fin-holder"></div></div>' +
+    '<div class="ern-sub-tab"><h4>내용 요약</h4><div style="font-family:var(--serif);line-height:1.75;font-size:14px">' + escapeHtml(e.summary) + "</div></div>" +
+    (e.qa ? '<div class="ern-sub-tab"><h4>질문 요약 (어닝콜 Q&amp;A)</h4><div class="qa-list">' + mdRender(e.qa) + "</div></div>" : "") +
+    (e.full ? '<div class="ern-sub-tab"><h4>전문 분석</h4><details class="fold" open><summary>펼치기/접기</summary>' + mdRender(e.full) + "</details></div>" : "");
   openModal(escapeHtml(e.name) + ' <span class="muted small">' + escapeHtml(tk.replace(/\.[A-Z]+$/, "")) + "</span>" + (s ? " " + pctSpan(dayRet(s)) : ""), body,
     s ? '<span class="px">' + fmtPrice(s.price, priceCcySym(tk)) + "</span>" : "");
   renderFin(tk);
