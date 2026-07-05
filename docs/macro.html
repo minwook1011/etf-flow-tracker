@@ -297,24 +297,71 @@ var MACRO_DEFS = [
   { key: "umcsent", name: "미시간대 소비자심리지수", unit: "지수", why: "가계의 소비 여력과 심리를 보여주는 지표로, 소비지출(미국 GDP의 약 70%)의 향방을 가늠하는 선행지표 역할을 합니다." },
   { key: "m2", name: "M2 통화공급량", unit: "십억달러", why: "시중 유동성의 총량입니다. 2020~2021년 M2 급증은 자산가격 상승의 배경 중 하나로 꼽히며, 이후 증가세 둔화·감소는 유동성 축소 국면을 나타냅니다." }
 ];
-function indexedPair(macroSeries, weekly) {
+/* 매크로 지표(원래 값)와 나스닥(원래 지수)을 같은 날짜축에 정렬. 두 값 모두 raw로 반환. */
+function alignedPair(macroSeries, weekly) {
   if (!macroSeries || !macroSeries.length || !weekly.dates.length) return null;
   var filtered = macroSeries.filter(function (p) { return p.date >= weekly.dates[0]; });
   if (filtered.length < 2) return null;
-  var base = filtered[0].value;
-  var ndxBase = null;
-  var dates = [], macroPct = [], ndxPct = [];
+  var dates = [], macroVals = [], ndxVals = [];
   filtered.forEach(function (p) {
     var idx = weekly.dates.findIndex(function (d) { return d >= p.date; });
     if (idx < 0) idx = weekly.dates.length - 1;
     var ndxVal = weekly.ixic[idx];
     if (ndxVal == null) return;
-    if (ndxBase === null) ndxBase = ndxVal;
     dates.push(p.date);
-    macroPct.push(base ? (p.value / base - 1) * 100 : 0);
-    ndxPct.push(ndxBase ? (ndxVal / ndxBase - 1) * 100 : 0);
+    macroVals.push(p.value);
+    ndxVals.push(ndxVal);
   });
-  return { dates: dates, macroPct: macroPct, ndxPct: ndxPct, latest: filtered[filtered.length - 1] };
+  return { dates: dates, macroVals: macroVals, ndxVals: ndxVals };
+}
+function fmtAxisNum(v) {
+  var a = Math.abs(v);
+  if (a >= 1e6) return (v / 1e6).toFixed(1) + "M";
+  if (a >= 1e3) return (v / 1e3).toFixed(1) + "k";
+  if (a >= 100) return Math.round(v).toString();
+  return (Math.round(v * 100) / 100).toString();
+}
+/* 이중 Y축 라인차트: 왼쪽=매크로 지표(자기 스케일), 오른쪽=나스닥(자기 스케일), 아래=날짜.
+   tl-hit/tl-line + data-idx로 wireLineHover 호환(0=매크로, 1=나스닥). */
+function dualAxisChartSVG(dates, left, right) {
+  var w = 860, h = 240, padL = 54, padR = 58, padT = 14, padB = 30;
+  var n = dates.length;
+  if (n < 2) return '<div class="empty">비교 데이터 부족</div>';
+  function scale(vals) {
+    var valid = vals.filter(function (v) { return v != null; });
+    var mn = Math.min.apply(null, valid), mx = Math.max.apply(null, valid);
+    if (mn === mx) { mn -= 1; mx += 1; }
+    var sp = mx - mn; mn -= sp * 0.08; mx += sp * 0.08;
+    return { mn: mn, mx: mx };
+  }
+  var ls = scale(left.values), rs = scale(right.values);
+  function x(i) { return padL + (i / (n - 1)) * (w - padL - padR); }
+  function yL(v) { return padT + (1 - (v - ls.mn) / (ls.mx - ls.mn)) * (h - padT - padB); }
+  function yR(v) { return padT + (1 - (v - rs.mn) / (rs.mx - rs.mn)) * (h - padT - padB); }
+  var gl = "", steps = 4;
+  for (var g = 0; g <= steps; g++) {
+    var lv = ls.mn + (ls.mx - ls.mn) * g / steps;
+    var rv = rs.mn + (rs.mx - rs.mn) * g / steps;
+    var gy = padT + (1 - g / steps) * (h - padT - padB);
+    gl += '<line x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (w - padR) + '" y2="' + gy.toFixed(1) + '" stroke="var(--border)" stroke-width="1"/>' +
+      '<text x="' + (padL - 6) + '" y="' + (gy + 4).toFixed(1) + '" fill="#f0b429" font-size="9.5" text-anchor="end">' + fmtAxisNum(lv) + "</text>" +
+      '<text x="' + (w - padR + 6) + '" y="' + (gy + 4).toFixed(1) + '" fill="#5b8cff" font-size="9.5" text-anchor="start">' + fmtAxisNum(rv) + "</text>";
+  }
+  // x축 날짜: 약 6개 균등
+  var xticks = "";
+  var tickCount = Math.min(6, n);
+  for (var t = 0; t < tickCount; t++) {
+    var di = Math.round(t / (tickCount - 1) * (n - 1));
+    var anchor = t === 0 ? "start" : t === tickCount - 1 ? "end" : "middle";
+    xticks += '<text x="' + x(di).toFixed(1) + '" y="' + (h - 8) + '" fill="var(--muted)" font-size="9.5" text-anchor="' + anchor + '">' + dates[di].slice(0, 7) + "</text>";
+  }
+  function poly(vals, yfn, color, idx) {
+    var pts = vals.map(function (v, i) { return v == null ? null : x(i).toFixed(1) + "," + yfn(v).toFixed(1); }).filter(Boolean).join(" ");
+    return '<polyline class="tl-hit" data-idx="' + idx + '" fill="none" stroke="transparent" stroke-width="12" style="cursor:pointer" points="' + pts + '"></polyline>' +
+      '<polyline class="tl-line" data-idx="' + idx + '" fill="none" stroke="' + color + '" stroke-width="1.8" points="' + pts + '" style="pointer-events:none;transition:opacity .12s,stroke-width .12s"></polyline>';
+  }
+  return '<svg width="100%" viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" style="min-width:640px">' +
+    gl + poly(left.values, yL, "#f0b429", 0) + poly(right.values, yR, "#5b8cff", 1) + xticks + "</svg>";
 }
 function macroCardHTML(def, idx) {
   var series = MACRO.macro_monthly[def.key];
@@ -322,19 +369,19 @@ function macroCardHTML(def, idx) {
     return '<div class="macro-card"><div class="mc-head"><span class="rank-badge">' + (idx + 1) + '</span><span class="mc-title">' + def.name + '</span></div>' +
       '<div class="mc-why">' + def.why + '</div><div class="empty">데이터 수집 중입니다.</div></div>';
   }
-  var pair = indexedPair(series, MACRO.weekly);
+  var pair = alignedPair(series, MACRO.weekly);
   var chartHtml = pair
-    ? lineChartSVG([{ name: def.name, values: pair.macroPct, color: "#f0b429" }, { name: "나스닥", values: pair.ndxPct, color: "#5b8cff" }], 860, 220)
+    ? dualAxisChartSVG(pair.dates, { name: def.name, values: pair.macroVals }, { name: "나스닥", values: pair.ndxVals })
     : '<div class="empty">비교 데이터 부족</div>';
   var legend = pair
-    ? '<div class="ins-legend" style="margin-bottom:6px"><span data-line-idx="0"><i style="background:#f0b429"></i>' + def.name +
-      '</span><span data-line-idx="1"><i style="background:#5b8cff"></i>나스닥</span></div>'
+    ? '<div class="ins-legend" style="margin-bottom:6px"><span data-line-idx="0"><i style="background:#f0b429"></i>' + def.name + " (좌축, " + def.unit +
+      ')</span><span data-line-idx="1"><i style="background:#5b8cff"></i>나스닥 (우축, 지수)</span></div>'
     : "";
   return '<div class="macro-card" id="mc-' + def.key + '"><div class="mc-head"><span class="rank-badge">' + (idx + 1) + '</span><span class="mc-title">' + def.name + '</span></div>' +
     '<div class="mc-why">' + def.why + '</div>' + legend +
     '<div class="chart-hover-root">' + chartHtml + '</div>' +
     '<div class="mc-latest">최근값(' + series[series.length - 1].date + '): ' + series[series.length - 1].value.toLocaleString() + " " + def.unit +
-    (pair ? " · 차트는 " + pair.dates[0] + " 이후 구간을 각 시작점(0%) 대비 누적 변화율로 환산해 나스닥과 비교" : "") + "</div></div>";
+    (pair ? " · 좌축=" + def.name + "(실제값), 우축=나스닥 지수, " + pair.dates[0] + "부터" : "") + "</div></div>";
 }
 function renderMacroList() {
   $q("#macro-list").innerHTML = MACRO_DEFS.map(macroCardHTML).join("");
