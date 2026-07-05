@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme.css?v=20260705">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -15,13 +15,14 @@
 .month-box { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
 .month-box .mh { background: var(--bg2); padding: 8px 14px; font-weight: 800; font-size: 14px; }
 .month-box .mbody { padding: 12px; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-.ev-card { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 11px; cursor: pointer; }
-.ev-card:hover { background: var(--card-hover); border-color: var(--accent); }
+.ev-card { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 11px; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: background-color .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease; }
+.ev-card:hover { background: var(--card-hover); border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
 .ev-card .ev-name { font-weight: 800; font-size: 13.5px; }
 .ev-card .prev { margin-top: 7px; font-size: 12.5px; color: var(--gold); background: rgba(240,180,41,0.07); border-left: 2px solid var(--gold); padding: 6px 8px; border-radius: 0 6px 6px 0; }
 .up-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
 .up-strip .ev-card { min-width: 250px; border-color: var(--accent); }
-.stmt { border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; margin-bottom: 9px; background: var(--card); }
+.stmt { border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; margin-bottom: 9px; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
 .stmt .head { cursor: pointer; }
 .stmt .head:hover .s-name { text-decoration: underline; }
 .stmt .s-name { font-weight: 800; }
@@ -38,8 +39,9 @@
 .wk-head {
   cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px;
   padding: 11px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: border-color .15s ease, box-shadow .15s ease;
 }
-.wk-head:hover { border-color: var(--accent); }
+.wk-head:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
 .wk-head .wk-title { font-weight: 800; font-size: 14.5px; }
 .wk-head .wk-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
 .wk-head .wk-chevron { color: var(--muted); font-size: 13px; transition: transform .15s ease; flex: 0 0 auto; }
@@ -99,8 +101,8 @@
   </div>
 </div>
 
-<script src="theme.js"></script>
-<script src="stocks-common.js"></script>
+<script src="theme.js?v=20260705"></script>
+<script src="stocks-common.js?v=20260705"></script>
 <script>
 var EV = null, PP = null;
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
