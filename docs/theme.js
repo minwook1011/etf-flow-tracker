@@ -54,3 +54,75 @@
 /* 전역 헬퍼 */
 function $q(sel, root) { return (root || document).querySelector(sel); }
 function $qa(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+/* ================= 우측 목차(ToC) — 오른쪽 여백에 고정, 클릭 시 해당 섹션으로 스크롤 =================
+   페이지의 .section > h2 (및 접이식 .wk-section .wk-title)를 자동 수집해 목차를 만든다.
+   넓은 화면(가운데 1280px 컨테이너 바깥 여백이 충분할 때)에서만 표시. */
+(function () {
+  function buildTOC() {
+    if (document.getElementById("page-toc")) return;
+    var items = [];
+    var idx = 0;
+    $qa(".container .section").forEach(function (sec) {
+      // 섹션의 대표 제목: 직계 h2, 없으면 내부 .wk-title(접이식)
+      var h2 = sec.querySelector(":scope > h2");
+      var titleEl = h2 || sec.querySelector(".wk-head .wk-title");
+      if (!titleEl) return;
+      // .sub(부제) 제외한 순수 제목만
+      var clone = titleEl.cloneNode(true);
+      $qa(".sub", clone).forEach(function (s) { s.remove(); });
+      var label = (clone.textContent || "").trim();
+      if (!label) return;
+      if (!sec.id) sec.id = "toc-sec-" + (idx);
+      items.push({ id: sec.id, label: label });
+      idx++;
+    });
+    if (items.length < 2) return;  // 섹션 1개뿐이면 목차 불필요
+
+    var toc = document.createElement("nav");
+    toc.id = "page-toc";
+    toc.setAttribute("aria-label", "페이지 목차");
+    toc.innerHTML = '<div class="toc-title">목차</div>' + items.map(function (it) {
+      return '<a class="toc-link" href="#' + it.id + '" data-target="' + it.id + '">' + esc2(it.label) + "</a>";
+    }).join("");
+    document.body.appendChild(toc);
+
+    var links = $qa(".toc-link", toc);
+    links.forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        var el = document.getElementById(a.dataset.target);
+        if (el && el.offsetParent !== null) {  // 숨겨진(탭 비활성) 섹션은 무시
+          var y = el.getBoundingClientRect().top + window.pageYOffset - 74;  // 상단 고정 네비 높이 보정
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      });
+    });
+
+    // 스크롤스파이: 현재 화면 상단에 가장 가까운 섹션 강조
+    var secEls = items.map(function (it) { return document.getElementById(it.id); });
+    function spy() {
+      var best = 0, bestDist = Infinity;
+      for (var i = 0; i < secEls.length; i++) {
+        if (!secEls[i] || secEls[i].offsetParent === null) continue;
+        var top = secEls[i].getBoundingClientRect().top - 90;
+        var dist = Math.abs(top);
+        if (top <= 40 && dist < bestDist) { bestDist = dist; best = i; }
+      }
+      links.forEach(function (a, i) { a.classList.toggle("active", i === best); });
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function () {
+      if (!ticking) { window.requestAnimationFrame(function () { spy(); ticking = false; }); ticking = true; }
+    }, { passive: true });
+    spy();
+  }
+  function esc2(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { setTimeout(buildTOC, 300); });
+  } else {
+    setTimeout(buildTOC, 300);
+  }
+})();

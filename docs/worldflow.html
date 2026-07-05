@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706e">
+<link rel="stylesheet" href="theme.css?v=20260706f">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -71,6 +71,17 @@
 .ins-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
 .ins-sources { margin-top: 10px; font-size: 12px; }
 .ins-sources a { color: var(--accent); }
+/* 인사이트 리서치 카드(목록) */
+.ins-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid #c084fc; border-radius: 10px;
+  padding: 13px 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease; }
+.ins-card:hover { border-color: #c084fc; box-shadow: 0 4px 14px rgba(192,132,252,0.18); transform: translateY(-1px); }
+.ins-card .ic-title { font-weight: 800; font-size: 14.5px; line-height: 1.4; }
+.ins-card .ic-sum { font-family: var(--serif); font-size: 13px; line-height: 1.6; color: var(--muted); margin-top: 6px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ins-card .ic-tags { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px; }
+.ins-card .ic-tags span { font-size: 10.5px; color: #c084fc; background: rgba(192,132,252,0.1); border-radius: 5px; padding: 1px 7px; }
+.ins-card .ic-tk { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 7px; }
 </style>
 </head>
 <body>
@@ -125,6 +136,11 @@
 
   <!-- ===== 서브탭 2: 핵심 인물 ===== -->
   <div id="pane-pp" style="display:none">
+    <div class="section" id="insight-sec">
+      <h2>🔎 인사이트 리서치 <span class="sub">주요 발언·사건에서 파생된 심층 분석 · 카드 클릭 = 전체 보기</span></h2>
+      <input class="search" id="ins-search" placeholder="인사이트 검색 — 제목·태그·종목 (예: HBM, 전력, 밸류에이션)" style="margin-bottom:10px">
+      <div class="grid" id="insight-list" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"><div class="spin">로딩 중…</div></div>
+    </div>
     <div class="section">
       <input class="search" id="kw-search" placeholder="키워드 검색 — 발언·시사점·분석·태그 전체에서 필터 (예: 원자력, 금리, HBM)">
     </div>
@@ -141,8 +157,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260706e"></script>
-<script src="stocks-common.js?v=20260706e"></script>
+<script src="theme.js?v=20260706f"></script>
+<script src="stocks-common.js?v=20260706f"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -225,6 +241,31 @@ document.addEventListener("click", function (ev) {
   var box = ev.target.closest && ev.target.closest(".insight-box");
   if (box) openInsightModal(box.dataset.insight);
 });
+
+/* 인사이트 리서치 목록 — 모든 인사이트를 카드로(접힌 주차와 무관하게 전부 노출) */
+function renderInsightList() {
+  var holder = $q("#insight-list");
+  if (!holder) return;
+  var q = (($q("#ins-search") && $q("#ins-search").value) || "").trim().toLowerCase();
+  var list = INSIGHTS.slice().sort(function (a, b) { return String(b.added || "").localeCompare(String(a.added || "")); })
+    .filter(function (x) {
+      if (!q) return true;
+      var hay = [x.title, x.summary, (x.tags || []).join(" "), (x.linked_tickers || []).join(" ")].join(" ").toLowerCase();
+      return hay.indexOf(q) >= 0;
+    });
+  $q("#insight-sec").style.display = INSIGHTS.length ? "" : "none";
+  holder.innerHTML = list.length ? list.map(function (x) {
+    return '<div class="ins-card" data-insight="' + escapeHtml(x.id) + '">' +
+      '<div class="ic-title">' + escapeHtml(x.title) + "</div>" +
+      '<div class="ic-sum">' + escapeHtml(x.summary || x.trigger || "") + "</div>" +
+      (x.tags && x.tags.length ? '<div class="ic-tags">' + x.tags.slice(0, 5).map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>" : "") +
+      (x.linked_tickers && x.linked_tickers.length ? '<div class="ic-tk">' + x.linked_tickers.slice(0, 8).map(function (t) { return escapeHtml(t.replace(/\.[A-Z]+$/, "")); }).join(" · ") + "</div>" : "") +
+      "</div>";
+  }).join("") : '<div class="empty">검색 결과 없음</div>';
+  $qa("#insight-list .ins-card").forEach(function (c) {
+    c.onclick = function () { openInsightModal(c.dataset.insight); };
+  });
+}
 
 /* ============ 주요 일정 ============ */
 function evDateLabel(e) {
@@ -443,6 +484,7 @@ function renderStatements() {
 /* 검색 입력 */
 $q("#kw-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderStatements(); });
 $q("#pp-search").addEventListener("input", function () { ppName = this.value; renderDirectory(); });
+$q("#ins-search").addEventListener("input", function () { renderInsightList(); });
 
 /* ============ 로드 ============ */
 Promise.all([
@@ -454,6 +496,7 @@ Promise.all([
   INSIGHTS = rs[2].insights || [];
   $q("#updated").textContent = "행사 갱신: " + (EV.updated || "-") + " · 인물/발언 갱신: " + (PP.updated || "-");
   renderEvents();
+  renderInsightList();
   renderDirectory();
   renderStatements();
 });
