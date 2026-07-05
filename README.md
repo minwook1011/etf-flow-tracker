@@ -37,7 +37,7 @@ python -m http.server 8000 -d docs
 
 ## 일일 운영법
 
-- **자동 (건드릴 것 없음)**: 평일 한국시간 오전 7:30에 `update.yml`이 `data.json`/`megacap.json` 갱신·커밋. 일요일 밤 `universe.yml`이 TOP300 명단 재산정. 두 워크플로는 `theses/events/people.json`을 절대 건드리지 않음
+- **자동 (건드릴 것 없음)**: 평일 한국시간 오후 8:00에 `update.yml`이 `data.json`/`megacap.json` 갱신·커밋. 일요일 밤 `universe.yml`이 TOP300 명단 재산정. 두 워크플로는 `theses/events/people.json`을 절대 건드리지 않음
 - **3일 주기 (수동, 클로드 코드)**: repo 폴더에서 `claude` 실행 후 "세상 흐름 파악 업데이트" 프롬프트로 최근 발언·행사 preview/summary 갱신 → 커밋·푸시
 - **수시**: 새 테제가 생기면 `theses.json`에 추가 (다음 자동 갱신 때 스코어 계산 시작)
 - 인용 규칙: 인물 발언·기사는 반드시 요약 저장, 직접 인용은 15단어 미만, 출처 링크 필수

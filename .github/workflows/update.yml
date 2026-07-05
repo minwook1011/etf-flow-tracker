@@ -2,7 +2,7 @@ name: daily-data-update
 
 on:
   schedule:
-    - cron: "30 22 * * 1-5"   # 평일 22:30 UTC = 한국 오전 7:30
+    - cron: "0 11 * * 1-5"   # 평일 11:00 UTC = 한국 오후 8:00
   workflow_dispatch:
 
 permissions:

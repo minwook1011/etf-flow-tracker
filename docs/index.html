@@ -21,7 +21,7 @@
   </p>
 
   <div class="section" style="margin-top:8px">
-    <h2>자금 유입 시그널<span class="sub">선택 기간 수익률이 ACWI를 웃돌면서 거래대금이 늘어난 ETF (거래대금 비율 순)</span></h2>
+    <h2>자금 유입 시그널<span class="sub">선택 기간 수익률이 ACWI를 웃도는 ETF 중 거래대금 비율이 높은 순 (최소 5개)</span></h2>
     <div class="signal-list" id="signals"></div>
   </div>
 
@@ -123,18 +123,26 @@ function renderToggles() {
 }
 
 /* ---------- 자금 유입 시그널 ---------- */
+var SIGNAL_MIN = 5, SIGNAL_MAX = 6;
 function renderSignals() {
-  var hot = etfList()
-    .filter(function (e) { return e.ticker !== DATA.benchmark && e.group !== "한국" && num(e.vol_ratio) > 0; })
-    .filter(function (e) { return relOf(e, curPeriod) > 0 && num(e.vol_ratio) > 1.05; })
-    .sort(function (a, b) { return num(b.vol_ratio) - num(a.vol_ratio); })
-    .slice(0, 6);
+  var pool = etfList().filter(function (e) { return e.ticker !== DATA.benchmark && e.group !== "한국"; });
+  var qualified = pool.filter(function (e) { return relOf(e, curPeriod) > 0; })
+    .sort(function (a, b) { return num(b.vol_ratio) - num(a.vol_ratio); });
+  var hot = qualified.slice(0, SIGNAL_MAX);
+  if (hot.length < SIGNAL_MIN) {
+    var chosen = {};
+    hot.forEach(function (e) { chosen[e.ticker] = 1; });
+    pool.filter(function (e) { return !chosen[e.ticker]; })
+      .sort(function (a, b) { return num(b.vol_ratio) - num(a.vol_ratio); })
+      .slice(0, SIGNAL_MIN - hot.length)
+      .forEach(function (e) { hot.push(e); });
+  }
   $q("#signals").innerHTML = hot.length ? hot.map(function (e, i) {
     return '<div class="signal" data-t="' + e.ticker + '">' +
       '<div class="rank">' + (i + 1) + "</div>" +
       '<div class="s-meta"><div class="s-nm">' + escapeHtml(e.name) + '</div><div class="s-tk">' + e.ticker + " · " + escapeHtml(e.group) + "</div></div>" +
       '<div class="s-stats"><div class="' + pctClass(e[curPeriod]) + '">' + fmtPct(e[curPeriod]) + '</div><div class="s-vol">거래 ×' + num(e.vol_ratio).toFixed(2) + "</div></div></div>";
-  }).join("") : '<div class="empty">현재 조건(ACWI 초과수익 + 거래대금 5% 이상 증가)을 충족하는 ETF가 없습니다.</div>';
+  }).join("") : '<div class="empty">표시할 ETF가 없습니다.</div>';
   $qa("#signals .signal").forEach(function (c) {
     c.onclick = function () { openEtfModal(c.dataset.t); };
   });
@@ -152,7 +160,7 @@ function renderBars() {
       ? '<div style="position:absolute;left:50%;width:' + wpct + '%;height:100%;background:var(--up);opacity:.75;border-radius:0 3px 3px 0"></div>'
       : '<div style="position:absolute;right:50%;width:' + wpct + '%;height:100%;background:var(--dn);opacity:.75;border-radius:3px 0 0 3px"></div>';
     var rel = relOf(e, curPeriod);
-    return '<div class="bar-row" data-t="' + e.ticker + '" style="display:flex;align-items:center;gap:8px;padding:2px 0;cursor:pointer">' +
+    return '<div class="bar-row" data-t="' + e.ticker + '" style="display:flex;align-items:center;gap:8px;cursor:pointer">' +
       '<div style="flex:0 0 150px;text-align:right" class="small"><b>' + escapeHtml(e.name) + '</b> <span class="muted">' + e.ticker + "</span></div>" +
       '<div style="flex:1;position:relative;height:15px;background:var(--bg2);border-radius:3px">' + bar + "</div>" +
       '<div style="flex:0 0 145px" class="small">' + pctSpan(v) +

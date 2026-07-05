@@ -140,7 +140,7 @@ function renderRank() {
     var bar = r.med >= 0
       ? '<div style="position:absolute;left:50%;width:' + w + '%;height:100%;background:var(--up);opacity:.75;border-radius:0 3px 3px 0"></div>'
       : '<div style="position:absolute;right:50%;width:' + w + '%;height:100%;background:var(--dn);opacity:.75;border-radius:3px 0 0 3px"></div>';
-    return '<div class="bar-row" data-sec="sec-' + i + '" style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer">' +
+    return '<div class="bar-row" data-sec="sec-' + i + '" style="display:flex;align-items:center;gap:8px;cursor:pointer">' +
       '<div class="muted small" style="width:16px;text-align:right;font-family:var(--mono)">' + (i + 1) + "</div>" +
       '<div style="flex:0 0 150px" class="small"><b>' + escapeHtml(r.sector) + '</b> <span class="muted">' + r.list.length + "종</span></div>" +
       '<div style="flex:1;position:relative;height:15px;background:var(--bg2);border-radius:3px">' + bar + "</div>" +
