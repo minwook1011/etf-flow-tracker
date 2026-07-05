@@ -303,8 +303,13 @@ function newsListHTML(news, title) {
    cfg: {key(모달 재호출용 고유id), name, sub, price, priceCcy, r1d, chips:[{label,value,cls,per}],
          candles(전체 배열), holdings, news, holdingsTitle}
    기간 탭(1/3/6개월)은 상태를 모듈 전역에 저장해 재호출 시 유지한다. */
-var STAT_WINDOWS = [{ d: 21, l: "1개월" }, { d: 63, l: "3개월" }, { d: 126, l: "6개월" }];
-var _statModalWin = 63;
+/* d = 달력 기준 일수(과거엔 거래일 개수였지만, 캔들이 최근 구간은 일봉·오래된 구간은 주봉으로 섞여 있어
+   개수 기반 슬라이스 대신 날짜 기반 필터링을 쓴다 — 아래 statModalBody 참조) */
+var STAT_WINDOWS = [
+  { d: 30, l: "1개월" }, { d: 90, l: "3개월" }, { d: 182, l: "6개월" },
+  { d: 365, l: "1년" }, { d: 1095, l: "3년" }, { d: 1825, l: "5년" }
+];
+var _statModalWin = 90;
 var _statModalCfg = null;
 function statModalBody(cfg) {
   var chipsHtml = (cfg.chips || []).map(function (c) {
@@ -314,8 +319,12 @@ function statModalBody(cfg) {
   var tabsHtml = STAT_WINDOWS.map(function (w) {
     return '<button data-swin="' + w.d + '" class="' + (w.d === _statModalWin ? "on" : "") + '">' + w.l + "</button>";
   }).join("");
-  var n = Math.min(_statModalWin + 1, (cfg.candles || []).length);
-  var chartHtml = candleChartSVG((cfg.candles || []).slice(-n), 820, 300);
+  var all = cfg.candles || [];
+  var asOf = all.length ? new Date(all[all.length - 1].d) : new Date();
+  var cutoff = new Date(asOf.getTime() - _statModalWin * 86400000);
+  var cutoffStr = cutoff.toISOString().slice(0, 10);
+  var windowed = all.filter(function (c) { return c.d >= cutoffStr; });
+  var chartHtml = candleChartSVG(windowed.length ? windowed : all, 820, 300);
   return '<div class="modal-chips">' + chipsHtml + "</div>" +
     (cfg.intro ? '<p class="note" style="margin:0 0 12px;max-width:none">' + escapeHtml(cfg.intro) + "</p>" : "") +
     '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
@@ -331,7 +340,7 @@ function wireHoldingClicks(cfg) {
 }
 function openStatModal(cfg) {
   _statModalCfg = cfg;
-  _statModalWin = 63;
+  _statModalWin = 90;
   var priceHtml = '<span class="px">' + fmtPrice(cfg.price, cfg.priceCcy) + "</span>" +
     (cfg.r1d != null ? ' <span class="' + pctClass(cfg.r1d) + '" style="font-weight:700">' + fmtPct(cfg.r1d) + "</span>" : "") +
     '<button class="cap-btn" onclick="captureStatChart()" title="차트를 클립보드에 복사">복사</button>';

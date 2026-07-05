@@ -49,10 +49,36 @@ def http_get(url, timeout=20):
                 print(f"  [skip] {url[:80]} -> {e}")
     return None
 
+DAILY_KEEP_DAYS = 380  # 최근 ~13개월은 일봉 그대로, 그 이전(최대 5년)은 주봉으로 압축해 용량 절감
+
+def compress_candles(ch):
+    """최근 DAILY_KEEP_DAYS는 일봉 그대로 유지하고, 그보다 오래된 구간은 주봉(월~금 묶음)으로 집계.
+    1개 종목당 캔들 수를 최대 5년치 일봉(~1260개) 대신 약 550~600개로 줄인다."""
+    dates, o, h, l, c, v = ch["dates"], ch["o"], ch["h"], ch["l"], ch["c"], ch["v"]
+    n = len(dates)
+    split = max(0, n - DAILY_KEEP_DAYS)
+    old_idx = range(0, split)
+    weekly = {}
+    order = []
+    for i in old_idx:
+        wk = datetime.strptime(dates[i], "%Y-%m-%d").strftime("%G-W%V")
+        if wk not in weekly:
+            weekly[wk] = {"d": dates[i], "o": o[i], "h": h[i], "l": l[i], "c": c[i], "v": v[i]}
+            order.append(wk)
+        else:
+            slot = weekly[wk]
+            slot["h"] = max(slot["h"], h[i])
+            slot["l"] = min(slot["l"], l[i])
+            slot["c"] = c[i]
+            slot["v"] += v[i]
+    out = [weekly[wk] for wk in order]
+    out += [{"d": dates[i], "o": o[i], "h": h[i], "l": l[i], "c": c[i], "v": v[i]} for i in range(split, n)]
+    return out
+
 def fetch_chart(ticker):
     """야후 차트 API → {'dates','o','h','l','c','v'} (None 봉 제거)"""
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/"
-           f"{urllib.parse.quote(ticker)}?range=1y&interval=1d")
+           f"{urllib.parse.quote(ticker)}?range=5y&interval=1d")
     raw = http_get(url)
     if not raw:
         return None
@@ -187,8 +213,7 @@ def main():
         ytd = pct(closes[-1], base if base is not None else closes[0])
         dv = [c * v for c, v in zip(closes, vols)]
         vr = round((sum(dv[-5:]) / 5) / (sum(dv[-20:]) / 20), 2) if len(dv) >= 20 and sum(dv[-20:]) > 0 else 1.0
-        candles = [{"d": ch["dates"][j], "o": ch["o"][j], "h": ch["h"][j], "l": ch["l"][j],
-                    "c": ch["c"][j], "v": ch["v"][j]} for j in range(max(0, len(closes) - 90), len(closes))]
+        candles = compress_candles(ch)
         out_stocks.append({
             "ticker": tk, "name": s["name"], "sector": s["sector"],
             "rank": len(out_stocks) + 1,

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260705b">
+<link rel="stylesheet" href="theme.css?v=20260706a">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -141,8 +141,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260705b"></script>
-<script src="stocks-common.js?v=20260705b"></script>
+<script src="theme.js?v=20260706a"></script>
+<script src="stocks-common.js?v=20260706a"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -221,6 +221,10 @@ function openInsightModal(id) {
   }
   openModal("🔎 " + escapeHtml(x.title), body);
 }
+document.addEventListener("click", function (ev) {
+  var box = ev.target.closest && ev.target.closest(".insight-box");
+  if (box) openInsightModal(box.dataset.insight);
+});
 
 /* ============ 주요 일정 ============ */
 function evDateLabel(e) {
@@ -307,7 +311,7 @@ function renderEvents() {
   $qa(".ev-card").forEach(function (c) {
     c.onclick = function (ev) {
       var box = ev.target.closest(".insight-box");
-      if (box) { openInsightModal(box.dataset.insight); return; }
+      if (box) { ev.stopPropagation(); openInsightModal(box.dataset.insight); return; }
       var e = evs.filter(function (x) { return x.id === c.dataset.id; })[0];
       if (e) openEvModal(e);
     };
