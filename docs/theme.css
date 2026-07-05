@@ -306,6 +306,16 @@ table.tbl tbody tr:hover { background: var(--card-hover); cursor: pointer; }
 .ta-det { grid-area: det; font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
 .ta-score-badge { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-weight: 800; }
 .ta-score-badge .tsb-num { font-size: 15px; }
+.ta-summary { font-family: var(--serif); font-size: 13.5px; line-height: 1.7; color: var(--text);
+  background: var(--bg2); border-left: 2px solid var(--accent); border-radius: 0 6px 6px 0; padding: 9px 12px; margin-bottom: 12px; }
+.ta-summary b { color: var(--text); }
+/* 차트 위 추세선 토글·범례 */
+.trend-ctl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.trend-toggle { background: var(--card); border: 1px solid var(--border); color: var(--muted); border-radius: 8px;
+  padding: 4px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.trend-toggle.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.trend-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; color: var(--muted); }
+.trend-legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
 /* Bottom-up 카드의 점수 게이지 */
 .stock-card .tscore { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
 .stock-card .tscore .tsc-bar { flex: 1; height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }

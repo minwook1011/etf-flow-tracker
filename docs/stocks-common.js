@@ -140,7 +140,9 @@ function wireLineHover(root) {
 }
 
 /* 일봉 캔들차트 + 거래량 */
-function candleChartSVG(candles, w, h) {
+/* overlays(선택): {polylines:[{name,color,values[]}], lines:[{name,color,dash,x0,p0,x1,p1}]}
+   — 이동평균선·추세선·지지/저항선을 캔들 위에 그린다(가격 영역에 클리핑). */
+function candleChartSVG(candles, w, h, overlays) {
   candles = candles || [];
   w = w || 820; h = h || 320;
   if (candles.length < 2) return '<div class="empty">캔들 데이터 없음</div>';
@@ -156,6 +158,7 @@ function candleChartSVG(candles, w, h) {
   var cw = (w - padL - padR) / n;
   var bw = Math.max(Math.min(cw * 0.65, 12), 1.5);
   function yP(v) { return padT + (1 - (v - lo) / span) * priceH; }
+  function xC(i) { return padL + cw * i + cw / 2; }
 
   var gl = "";
   for (var g = 0; g <= 4; g++) {
@@ -165,7 +168,7 @@ function candleChartSVG(candles, w, h) {
       (gv >= 1000 ? Math.round(gv).toLocaleString() : gv.toFixed(2)) + "</text>";
   }
   var body = candles.map(function (c, i) {
-    var cx = padL + cw * i + cw / 2;
+    var cx = xC(i);
     var up = c.c >= c.o;
     var col = up ? "var(--up)" : "var(--dn)";
     var oT = yP(Math.max(c.o, c.c)), oB = yP(Math.min(c.o, c.c));
@@ -183,8 +186,90 @@ function candleChartSVG(candles, w, h) {
       '<rect x="' + (cx - bw / 2) + '" y="' + (vy + volH - vh) + '" width="' + bw + '" height="' + Math.max(vh, 0.5) +
       '" fill="' + col + '" opacity="0.45"/>' + lbl;
   }).join("");
+
+  // ----- overlays (가격 영역 클리핑) -----
+  var ov = "";
+  if (overlays) {
+    var clipId = "cchart-clip-" + Math.floor(candles.length + hi);
+    ov += '<clipPath id="' + clipId + '"><rect x="' + padL + '" y="' + padT + '" width="' + (w - padL - padR) + '" height="' + priceH + '"/></clipPath>';
+    ov += '<g clip-path="url(#' + clipId + ')">';
+    (overlays.polylines || []).forEach(function (pl) {
+      var pts = (pl.values || []).map(function (v, i) { return v == null ? null : xC(i).toFixed(1) + "," + yP(v).toFixed(1); }).filter(Boolean).join(" ");
+      if (pts) ov += '<polyline fill="none" stroke="' + pl.color + '" stroke-width="1.4" opacity="0.9" points="' + pts + '"><title>' + escapeHtml(pl.name || "") + "</title></polyline>";
+    });
+    (overlays.lines || []).forEach(function (ln) {
+      ov += '<line x1="' + xC(ln.x0).toFixed(1) + '" y1="' + yP(ln.p0).toFixed(1) + '" x2="' + xC(ln.x1).toFixed(1) + '" y2="' + yP(ln.p1).toFixed(1) +
+        '" stroke="' + ln.color + '" stroke-width="1.6"' + (ln.dash ? ' stroke-dasharray="' + ln.dash + '"' : "") + ' opacity="0.92"><title>' + escapeHtml(ln.name || "") + "</title></line>";
+    });
+    ov += "</g>";
+  }
   return '<div style="overflow-x:auto"><svg width="100%" viewBox="0 0 ' + w + " " + h +
-    '" preserveAspectRatio="none" style="min-width:640px">' + gl + body + "</svg></div>";
+    '" preserveAspectRatio="none" style="min-width:640px">' + gl + body + ov + "</svg></div>";
+}
+
+/* ---------- 추세선/지지·저항/이동평균선 자동 계산 (선 긋기) ----------
+   candles(차트에 표시되는 구간)에서: MA20/MA60 폴리라인 + 장기추세선(회귀) + 지지선(피벗 저점)·저항선(피벗 고점). */
+function _linreg(ys) {
+  var n = ys.length, sx = 0, sy = 0, sxx = 0, sxy = 0;
+  for (var i = 0; i < n; i++) { sx += i; sy += ys[i]; sxx += i * i; sxy += i * ys[i]; }
+  var d = n * sxx - sx * sx;
+  if (!d) return null;
+  var slope = (n * sxy - sx * sy) / d;
+  return { slope: slope, intercept: (sy - slope * sx) / n };
+}
+function _pivotsHL(candles, k) {
+  var highs = [], lows = [];
+  for (var i = k; i < candles.length - k; i++) {
+    var isH = true, isL = true;
+    for (var j = i - k; j <= i + k; j++) {
+      if (j === i) continue;
+      if (candles[j].h >= candles[i].h) isH = false;
+      if (candles[j].l <= candles[i].l) isL = false;
+    }
+    if (isH) highs.push({ i: i, p: candles[i].h });
+    if (isL) lows.push({ i: i, p: candles[i].l });
+  }
+  return { highs: highs, lows: lows };
+}
+function _maSeries(closes, p) {
+  var out = [];
+  for (var i = 0; i < closes.length; i++) {
+    if (i < p - 1) { out.push(null); continue; }
+    var s = 0;
+    for (var j = i - p + 1; j <= i; j++) s += closes[j];
+    out.push(s / p);
+  }
+  return out;
+}
+function computeTrendlines(candles) {
+  if (!candles || candles.length < 20) return null;
+  var n = candles.length;
+  var closes = candles.map(function (c) { return c.c; });
+  var polylines = [], lines = [];
+  // 이동평균선
+  if (n >= 20) polylines.push({ name: "20일선", color: "#5b8cff", values: _maSeries(closes, 20) });
+  if (n >= 60) polylines.push({ name: "60일선", color: "#f0b429", values: _maSeries(closes, 60) });
+  // 장기 추세선(전체 구간 종가 선형회귀)
+  var reg = _linreg(closes);
+  if (reg) {
+    lines.push({ name: "장기 추세선(회귀)", color: "#c084fc", dash: "6,4",
+      x0: 0, p0: reg.intercept, x1: n - 1, p1: reg.intercept + reg.slope * (n - 1) });
+  }
+  // 지지선·저항선: 피벗 저점/고점 중 최근 2개를 이어 연장
+  var k = Math.max(3, Math.round(n / 30));
+  var piv = _pivotsHL(candles, k);
+  function fitExtend(pts, color, name) {
+    if (pts.length < 2) return;
+    var a = pts[pts.length - 2], b = pts[pts.length - 1];
+    if (b.i === a.i) return;
+    var slope = (b.p - a.p) / (b.i - a.i);
+    var p0 = a.p + slope * (0 - a.i);          // 좌측 끝으로 연장
+    var p1 = a.p + slope * (n - 1 - a.i);      // 우측 끝으로 연장
+    lines.push({ name: name, color: color, x0: 0, p0: p0, x1: n - 1, p1: p1 });
+  }
+  fitExtend(piv.lows, "#34d399", "지지선(추세)");
+  fitExtend(piv.highs, "#f0475a", "저항선(추세)");
+  return { polylines: polylines, lines: lines, pivots: piv };
 }
 
 /* ---------- 경량 마크다운 렌더 (헤딩/굵게/기울임/리스트/링크/코드/문단) ---------- */
@@ -457,6 +542,40 @@ function taBreakdownHTML(ta) {
       '<div class="ta-det">' + escapeHtml(s.detail) + "</div></div>";
   }).join("") + "</div>";
 }
+/* TA 결과를 '어떤 지표가 좋고 어디가 우려인지' 자연어로 요약 */
+function taSummaryText(ta) {
+  if (!ta) return "";
+  var sub = {};
+  ta.subs.forEach(function (s) { sub[s.key] = s; });
+  var strong = ta.subs.filter(function (s) { return s.score >= 72; });
+  var weak = ta.subs.filter(function (s) { return s.score < 45; });
+  var verdict = ta.score >= 75 ? "기술적으로 매우 강한 국면입니다."
+    : ta.score >= 60 ? "기술적으로 양호한 흐름입니다."
+    : ta.score >= 45 ? "기술적으로 중립~혼조 구간입니다."
+    : "기술적으로 약세 신호가 우세합니다.";
+  var parts = ["<b>종합 " + ta.score + "점</b> — " + verdict];
+
+  var good = [];
+  if (sub.ma && sub.ma.score >= 70) good.push("이동평균선 " + sub.ma.detail + "으로 추세 양호");
+  if (sub.vol && sub.vol.score >= 65) good.push("거래량 " + sub.vol.detail + "으로 수급 유입");
+  if (sub.sup && sub.sup.score >= 72) good.push("이동평균선 지지 안착(" + sub.sup.detail + ")");
+  if (sub.macd && sub.macd.score >= 70) good.push("MACD " + sub.macd.detail);
+  if (sub.ichi && sub.ichi.score >= 70) good.push("일목균형표 " + sub.ichi.detail);
+  if (sub.brk && sub.brk.score >= 72) good.push(sub.brk.detail);
+  if (good.length) parts.push("<b>강점:</b> " + good.join(", ") + ".");
+
+  var caution = [];
+  if (sub.rsi && sub.rsi.score < 55 && /과열/.test(sub.rsi.detail)) caution.push("RSI 과열(" + sub.rsi.detail + ")로 단기 조정 여지");
+  else if (sub.rsi && sub.rsi.score < 45) caution.push("RSI 약세(" + sub.rsi.detail + ")로 모멘텀 부족");
+  if (sub.boll && /상단 돌파/.test(sub.boll.detail)) caution.push("볼린저 상단 이탈(" + sub.boll.detail + ")로 과열 부담");
+  if (sub.sup && sub.sup.score < 45) caution.push("이동평균선 이탈(" + sub.sup.detail + ")로 지지 약화");
+  if (sub.ma && sub.ma.score < 45) caution.push("이동평균선 " + sub.ma.detail + "으로 추세 하락");
+  if (sub.ichi && sub.ichi.score < 40) caution.push("일목균형표 " + sub.ichi.detail);
+  if (caution.length) parts.push("<b>유의:</b> " + caution.join(", ") + ".");
+  else if (weak.length === 0) parts.push("<b>유의:</b> 뚜렷한 약세 신호는 없습니다.");
+
+  return '<div class="ta-summary">' + parts.join(" ") + "</div>";
+}
 
 var PALETTE = ["#5b8cff", "#f0475a", "#f0b429", "#34d399", "#c084fc", "#22d3ee",
   "#fb923c", "#a3e635", "#f472b6", "#94a3b8", "#eab308", "#60a5fa"];
@@ -507,6 +626,7 @@ var STAT_WINDOWS = [
 var _statModalWin = 90;
 var _statModalCfg = null;
 var _statFinMode = "annual";  // 모달 내 재무 연간/분기 토글 상태
+var _statShowTrend = true;    // 모달 차트에 추세선/이평선 표시 여부
 /* 재무 추이 섹션(연간/분기 토글 + 표). cfg.financials = {annual:[], quarterly:[]} 있을 때만 노출. */
 function statFinSectionHTML(cfg) {
   var fin = cfg.financials;
@@ -535,10 +655,19 @@ function statModalBody(cfg) {
   var cutoff = new Date(asOf.getTime() - _statModalWin * 86400000);
   var cutoffStr = cutoff.toISOString().slice(0, 10);
   var windowed = all.filter(function (c) { return c.d >= cutoffStr; });
-  var chartHtml = candleChartSVG(windowed.length ? windowed : all, 820, 300);
+  var chartCandles = windowed.length ? windowed : all;
+  var trend = (cfg.candles && _statShowTrend) ? computeTrendlines(chartCandles) : null;
+  var chartHtml = candleChartSVG(chartCandles, 820, 300, trend);
+  var trendCtl = cfg.candles ? '<div class="trend-ctl">' +
+    '<button class="trend-toggle' + (_statShowTrend ? " on" : "") + '" data-trendtoggle>선 긋기(추세·이평)</button>' +
+    (trend ? '<span class="trend-legend">' +
+      '<span><i style="background:#5b8cff"></i>20일선</span><span><i style="background:#f0b429"></i>60일선</span>' +
+      '<span><i style="background:#c084fc"></i>장기추세</span><span><i style="background:#34d399"></i>지지선</span><span><i style="background:#f0475a"></i>저항선</span></span>' : "") +
+    "</div>" : "";
   return '<div class="modal-chips">' + chipsHtml + "</div>" +
     (cfg.intro ? '<p class="note" style="margin:0 0 12px;max-width:none">' + escapeHtml(cfg.intro) + "</p>" : "") +
-    '<div class="toggle" style="margin-bottom:10px">' + tabsHtml + "</div>" +
+    '<div class="toggle" style="margin-bottom:6px">' + tabsHtml + "</div>" +
+    trendCtl +
     chartHtml +
     (cfg.ta ? statTaSectionHTML(cfg.ta) : "") +
     statFinSectionHTML(cfg) +
@@ -549,12 +678,18 @@ function statTaSectionHTML(ta) {
   if (!ta) return "";
   return '<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:18px 0 8px;font-weight:800">기술적 분석 ' +
     '<span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">대중이 많이 보는 순서 · 종합 <b style="color:' + taScoreColor(ta.score) + '">' + ta.score + '점</b>/100</span></h4>' +
+    taSummaryText(ta) +
     taBreakdownHTML(ta);
 }
 function wireHoldingClicks(cfg) {
   if (!cfg.onHoldingClick) return;
   $qa("#modal-back .m-body .hold[data-tk]").forEach(function (h) {
     h.onclick = function () { cfg.onHoldingClick(h.dataset.tk); };
+  });
+}
+function wireTrendToggle() {
+  $qa("#modal-back [data-trendtoggle]").forEach(function (b) {
+    b.onclick = function () { _statShowTrend = !_statShowTrend; rerenderStatModal(); };
   });
 }
 function wireStatFinToggle() {
@@ -589,6 +724,7 @@ function openStatModal(cfg) {
   });
   wireHoldingClicks(cfg);
   wireStatFinToggle();
+  wireTrendToggle();
 }
 function rerenderStatModal() {
   if (!_statModalCfg) return;
@@ -599,6 +735,7 @@ function rerenderStatModal() {
   });
   wireHoldingClicks(_statModalCfg);
   wireStatFinToggle();
+  wireTrendToggle();
 }
 
 /* ---------- 차트 클립보드 복사 ----------
