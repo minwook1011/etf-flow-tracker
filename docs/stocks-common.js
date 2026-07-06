@@ -243,10 +243,15 @@ function wireCandleCrosshair(root) {
       hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.style.display = "";
       var cc = data.c[i];
       if (cc != null) { dot.setAttribute("cx", cx); dot.setAttribute("cy", yP(cc)); dot.style.display = ""; } else dot.style.display = "none";
+      // 등락률: 전일 종가 대비(첫 봉은 당일 시가 대비)
+      var prev = i > 0 ? data.c[i - 1] : data.o[i];
+      var chg = (prev != null && prev !== 0 && data.c[i] != null) ? (data.c[i] / prev - 1) * 100 : null;
+      var chgCls = chg == null ? "flat" : chg > 0 ? "up" : chg < 0 ? "dn" : "flat";
+      var chgHtml = chg == null ? "" : ' <span class="' + chgCls + '">' + (chg > 0 ? "+" : "") + chg.toFixed(2) + "%</span>";
       var up = data.c[i] >= data.o[i];
       tip.innerHTML = '<div class="xt-d">' + data.dates[i] + "</div>" +
         '<div>시 <b>' + fmtP(data.o[i]) + "</b> 고 <b>" + fmtP(data.h[i]) + "</b></div>" +
-        '<div>저 <b>' + fmtP(data.l[i]) + '</b> 종 <b style="color:' + (up ? "var(--up)" : "var(--dn)") + '">' + fmtP(data.c[i]) + "</b></div>" +
+        '<div>저 <b>' + fmtP(data.l[i]) + '</b> 종 <b style="color:' + (up ? "var(--up)" : "var(--dn)") + '">' + fmtP(data.c[i]) + "</b>" + chgHtml + "</div>" +
         '<div class="muted">거래량 ' + fmtVol(data.v[i]) + "</div>";
       tip.style.display = "";
       var boxRect = box.getBoundingClientRect();
