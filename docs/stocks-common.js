@@ -203,8 +203,63 @@ function candleChartSVG(candles, w, h, overlays) {
     });
     ov += "</g>";
   }
-  return '<div style="overflow-x:auto"><svg width="100%" viewBox="0 0 ' + w + " " + h +
-    '" preserveAspectRatio="none" style="min-width:640px">' + gl + body + ov + "</svg></div>";
+  // ----- 크로스헤어(마우스 따라 점선 세로선 + 날짜·OHLC 툴팁) -----
+  var cross = '<line class="cx-hair" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + priceH) + '" stroke="var(--text)" stroke-width="1" stroke-dasharray="4,3" opacity="0.6" style="display:none;pointer-events:none"/>' +
+    '<circle class="cx-dot" r="3.2" fill="var(--text)" style="display:none;pointer-events:none"/>';
+  var payload = {
+    dates: candles.map(function (c) { return c.d; }),
+    o: candles.map(function (c) { return c.o; }), h: candles.map(function (c) { return c.h; }),
+    l: candles.map(function (c) { return c.l; }), c: candles.map(function (c) { return c.c; }),
+    v: candles.map(function (c) { return c.v; }),
+    geom: { w: w, padL: padL, padR: padR, padT: padT, priceH: priceH, lo: lo, span: span, cw: cw }
+  };
+  var svg = '<svg width="100%" viewBox="0 0 ' + w + " " + h +
+    '" preserveAspectRatio="none" style="min-width:640px">' + gl + body + ov + cross + "</svg>";
+  return '<div class="xchart-candle" data-cx="' + escapeHtml(JSON.stringify(payload)) + '" style="position:relative;overflow-x:auto">' +
+    svg + '<div class="xtip" style="display:none"></div></div>';
+}
+/* 캔들차트 크로스헤어 wiring — 모든 종목 모달 차트에 적용 */
+function wireCandleCrosshair(root) {
+  $qa(".xchart-candle", root || document).forEach(function (box) {
+    if (box._cxWired) return;
+    box._cxWired = true;
+    var data;
+    try { data = JSON.parse(box.getAttribute("data-cx")); } catch (e) { return; }
+    var svg = box.querySelector("svg"), hair = box.querySelector(".cx-hair");
+    var dot = box.querySelector(".cx-dot"), tip = box.querySelector(".xtip");
+    if (!svg || !hair) return;
+    var g = data.geom, n = data.dates.length;
+    function xCen(i) { return g.padL + g.cw * i + g.cw / 2; }
+    function yP(v) { return g.padT + (1 - (v - g.lo) / g.span) * g.priceH; }
+    function fmtP(v) { return v == null ? "–" : (v >= 1000 ? Math.round(v).toLocaleString() : (Math.round(v * 100) / 100).toString()); }
+    function fmtVol(v) { return v == null ? "–" : v >= 1e9 ? (v / 1e9).toFixed(1) + "B" : v >= 1e6 ? (v / 1e6).toFixed(1) + "M" : Math.round(v).toLocaleString(); }
+    function move(ev) {
+      var rect = svg.getBoundingClientRect();
+      if (!rect.width) return;
+      var vbX = (ev.clientX - rect.left) / rect.width * g.w;
+      var i = Math.round((vbX - g.padL - g.cw / 2) / g.cw);
+      if (i < 0) i = 0; if (i > n - 1) i = n - 1;
+      var cx = xCen(i);
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.style.display = "";
+      var cc = data.c[i];
+      if (cc != null) { dot.setAttribute("cx", cx); dot.setAttribute("cy", yP(cc)); dot.style.display = ""; } else dot.style.display = "none";
+      var up = data.c[i] >= data.o[i];
+      tip.innerHTML = '<div class="xt-d">' + data.dates[i] + "</div>" +
+        '<div>시 <b>' + fmtP(data.o[i]) + "</b> 고 <b>" + fmtP(data.h[i]) + "</b></div>" +
+        '<div>저 <b>' + fmtP(data.l[i]) + '</b> 종 <b style="color:' + (up ? "var(--up)" : "var(--dn)") + '">' + fmtP(data.c[i]) + "</b></div>" +
+        '<div class="muted">거래량 ' + fmtVol(data.v[i]) + "</div>";
+      tip.style.display = "";
+      var boxRect = box.getBoundingClientRect();
+      var px = ev.clientX - boxRect.left;
+      var left = px + 14;
+      if (left + tip.offsetWidth > boxRect.width) left = px - tip.offsetWidth - 14;
+      tip.style.left = Math.max(2, left) + "px";
+    }
+    box.addEventListener("mousemove", move);
+    box.addEventListener("mouseleave", function () {
+      hair.style.display = "none"; dot.style.display = "none"; tip.style.display = "none";
+    });
+  });
 }
 
 /* ---------- 추세선/지지·저항/이동평균선 자동 계산 (선 긋기) ----------
@@ -725,11 +780,13 @@ function openStatModal(cfg) {
   wireHoldingClicks(cfg);
   wireStatFinToggle();
   wireTrendToggle();
+  wireCandleCrosshair(document.getElementById("modal-back"));
 }
 function rerenderStatModal() {
   if (!_statModalCfg) return;
   var mb = document.querySelector("#modal-back .m-body");
   if (mb) mb.innerHTML = statModalBody(_statModalCfg);
+  wireCandleCrosshair(document.getElementById("modal-back"));
   $qa("[data-swin]").forEach(function (b) {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
