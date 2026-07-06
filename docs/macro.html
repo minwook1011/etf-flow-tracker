@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>매크로 및 투자전략 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706g">
+<link rel="stylesheet" href="theme.css?v=20260707b">
 <style>
 .gauge-wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
 .gauge-box { flex: 0 0 auto; text-align: center; }
@@ -34,6 +34,12 @@
 .report-box h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); margin: 22px 0 8px; font-weight: 800; font-family: var(--sans); }
 .report-box h3:first-child { margin-top: 0; }
 .stat-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
+/* 차트 크로스헤어 툴팁 */
+.xchart .xtip { position: absolute; top: 6px; pointer-events: none; z-index: 5;
+  background: rgba(11,14,20,0.94); border: 1px solid var(--border-strong); border-radius: 7px;
+  padding: 6px 9px; font-size: 11.5px; line-height: 1.55; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
+.xchart .xtip .xt-d { font-family: var(--mono); font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.xchart .xtip b { font-family: var(--mono); }
 </style>
 </head>
 <body>
@@ -94,8 +100,8 @@
 
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
-<script src="theme.js?v=20260706g"></script>
-<script src="stocks-common.js?v=20260706g"></script>
+<script src="theme.js?v=20260707b"></script>
+<script src="stocks-common.js?v=20260707b"></script>
 <script>
 var MACRO = null, VAL = null;
 
@@ -140,6 +146,7 @@ function renderValuation() {
   $q("#val-chart").innerHTML = dualAxisChartSVG(dates,
     { name: "후행 P/E", values: peVals }, { name: "S&P500", values: spxVals });
   wireLineHover($q("#val-chart"));
+  wireCrosshairAll($q("#val-chart"));
 
   var pctRank = null;
   if (trailingNow != null) {
@@ -419,11 +426,63 @@ function dualAxisChartSVG(dates, left, right) {
   }
   function poly(vals, yfn, color, idx) {
     var pts = vals.map(function (v, i) { return v == null ? null : x(i).toFixed(1) + "," + yfn(v).toFixed(1); }).filter(Boolean).join(" ");
-    return '<polyline class="tl-hit" data-idx="' + idx + '" fill="none" stroke="transparent" stroke-width="12" style="cursor:pointer" points="' + pts + '"></polyline>' +
+    return '<polyline class="tl-hit" data-idx="' + idx + '" fill="none" stroke="transparent" stroke-width="12" style="cursor:crosshair" points="' + pts + '"></polyline>' +
       '<polyline class="tl-line" data-idx="' + idx + '" fill="none" stroke="' + color + '" stroke-width="1.8" points="' + pts + '" style="pointer-events:none;transition:opacity .12s,stroke-width .12s"></polyline>';
   }
-  return '<svg width="100%" viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" style="min-width:640px">' +
-    gl + poly(left.values, yL, "#f0b429", 0) + poly(right.values, yR, "#5b8cff", 1) + xticks + "</svg>";
+  var svg = '<svg width="100%" viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none" style="min-width:640px">' +
+    gl + poly(left.values, yL, "#f0b429", 0) + poly(right.values, yR, "#5b8cff", 1) + xticks +
+    '<line class="xhair" x1="0" y1="' + padT + '" x2="0" y2="' + (h - padB) + '" stroke="var(--text)" stroke-width="1" stroke-dasharray="4,3" opacity="0.6" style="display:none;pointer-events:none"/>' +
+    '<circle class="xdot-l" r="3.5" fill="#f0b429" style="display:none;pointer-events:none"/>' +
+    '<circle class="xdot-r" r="3.5" fill="#5b8cff" style="display:none;pointer-events:none"/></svg>';
+  var payload = {
+    dates: dates, geom: { w: w, h: h, padL: padL, padR: padR, padT: padT, padB: padB },
+    l: { name: left.name, color: "#f0b429", vals: left.values.map(function (v) { return v == null ? null : Math.round(v * 100) / 100; }) },
+    r: { name: right.name, color: "#5b8cff", vals: right.values.map(function (v) { return v == null ? null : Math.round(v * 10) / 10; }) }
+  };
+  return '<div class="xchart" data-cross="' + escapeHtml(JSON.stringify(payload)) + '" style="position:relative;overflow-x:auto">' +
+    svg + '<div class="xtip" style="display:none"></div></div>';
+}
+/* 크로스헤어: 차트에 마우스를 올리면 날짜·값 툴팁 + 점선 세로선이 따라온다. */
+function wireCrosshairAll(root) {
+  $qa(".xchart", root || document).forEach(function (box) {
+    if (box._crossWired) return;
+    box._crossWired = true;
+    var data;
+    try { data = JSON.parse(box.getAttribute("data-cross")); } catch (e) { return; }
+    var svg = box.querySelector("svg"), hair = box.querySelector(".xhair");
+    var dotL = box.querySelector(".xdot-l"), dotR = box.querySelector(".xdot-r"), tip = box.querySelector(".xtip");
+    var g = data.geom, n = data.dates.length;
+    function xI(i) { return g.padL + (i / (n - 1)) * (g.w - g.padL - g.padR); }
+    function scale(vals) { var vd = vals.filter(function (v) { return v != null; }); var mn = Math.min.apply(null, vd), mx = Math.max.apply(null, vd); if (mn === mx) { mn -= 1; mx += 1; } var sp = mx - mn; return { mn: mn - sp * 0.08, mx: mx + sp * 0.08 }; }
+    var ls = scale(data.l.vals), rs = scale(data.r.vals);
+    function yOf(v, s) { return g.padT + (1 - (v - s.mn) / (s.mx - s.mn)) * (g.h - g.padT - g.padB); }
+    function fmtV(v) { return v == null ? "–" : (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : (Math.round(v * 100) / 100).toString()); }
+    function move(ev) {
+      var rect = svg.getBoundingClientRect();
+      if (!rect.width) return;
+      var vbX = (ev.clientX - rect.left) / rect.width * g.w;
+      var i = Math.round((vbX - g.padL) / (g.w - g.padL - g.padR) * (n - 1));
+      if (i < 0) i = 0; if (i > n - 1) i = n - 1;
+      var cx = xI(i);
+      hair.setAttribute("x1", cx); hair.setAttribute("x2", cx); hair.style.display = "";
+      var lv = data.l.vals[i], rv = data.r.vals[i];
+      if (lv != null) { dotL.setAttribute("cx", cx); dotL.setAttribute("cy", yOf(lv, ls)); dotL.style.display = ""; } else dotL.style.display = "none";
+      if (rv != null) { dotR.setAttribute("cx", cx); dotR.setAttribute("cy", yOf(rv, rs)); dotR.style.display = ""; } else dotR.style.display = "none";
+      tip.innerHTML = '<div class="xt-d">' + data.dates[i] + "</div>" +
+        '<div><span style="color:' + data.l.color + '">■</span> ' + escapeHtml(data.l.name) + " <b>" + fmtV(lv) + "</b></div>" +
+        '<div><span style="color:' + data.r.color + '">■</span> ' + escapeHtml(data.r.name) + " <b>" + fmtV(rv) + "</b></div>";
+      tip.style.display = "";
+      var boxRect = box.getBoundingClientRect();
+      var px = ev.clientX - boxRect.left;
+      var left = px + 14;
+      if (left + tip.offsetWidth > boxRect.width) left = px - tip.offsetWidth - 14;
+      tip.style.left = Math.max(2, left) + "px";
+    }
+    svg.addEventListener("mousemove", move);
+    box.addEventListener("mouseleave", function () {
+      hair.style.display = "none"; dotL.style.display = "none"; dotR.style.display = "none"; tip.style.display = "none";
+    });
+  });
 }
 function macroCardHTML(def, idx) {
   var series = MACRO.macro_monthly[def.key];
@@ -447,7 +506,7 @@ function macroCardHTML(def, idx) {
 }
 function renderMacroList() {
   $q("#macro-list").innerHTML = MACRO_DEFS.map(macroCardHTML).join("");
-  $qa("#macro-list .chart-hover-root").forEach(function (root) { wireLineHover(root); });
+  $qa("#macro-list .chart-hover-root").forEach(function (root) { wireLineHover(root); wireCrosshairAll(root); });
 }
 
 /* ---------- 분석 리포트 ---------- */
