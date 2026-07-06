@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260706g">
+<link rel="stylesheet" href="theme.css?v=20260707a">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -76,7 +76,9 @@
   padding: 13px 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18);
   transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease; }
 .ins-card:hover { border-color: #c084fc; box-shadow: 0 4px 14px rgba(192,132,252,0.18); transform: translateY(-1px); }
+.ins-card .ic-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .ins-card .ic-title { font-weight: 800; font-size: 14.5px; line-height: 1.4; }
+.ins-card .ic-date { flex: 0 0 auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
 .ins-card .ic-sum { font-family: var(--serif); font-size: 13px; line-height: 1.6; color: var(--muted); margin-top: 6px;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .ins-card .ic-tags { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px; }
@@ -157,8 +159,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260706g"></script>
-<script src="stocks-common.js?v=20260706g"></script>
+<script src="theme.js?v=20260707a"></script>
+<script src="stocks-common.js?v=20260707a"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -226,6 +228,7 @@ function openInsightModal(id) {
   var x = insightById(id);
   if (!x) return;
   var body = "";
+  if (x.added) body += '<div class="muted small" style="margin-bottom:8px;font-family:var(--mono)">작성일 ' + escapeHtml(x.added) + "</div>";
   if (x.trigger) body += '<div class="insight-hero">' + escapeHtml(x.trigger) + "</div>";
   body += mdRender(x.body || x.summary || "");
   body += (x.charts || []).map(insightChartHTML).join("");
@@ -256,7 +259,8 @@ function renderInsightList() {
   $q("#insight-sec").style.display = INSIGHTS.length ? "" : "none";
   holder.innerHTML = list.length ? list.map(function (x) {
     return '<div class="ins-card" data-insight="' + escapeHtml(x.id) + '">' +
-      '<div class="ic-title">' + escapeHtml(x.title) + "</div>" +
+      '<div class="ic-head"><span class="ic-title">' + escapeHtml(x.title) + "</span>" +
+      (x.added ? '<span class="ic-date">' + escapeHtml(x.added) + "</span>" : "") + "</div>" +
       '<div class="ic-sum">' + escapeHtml(x.summary || x.trigger || "") + "</div>" +
       (x.tags && x.tags.length ? '<div class="ic-tags">' + x.tags.slice(0, 5).map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>" : "") +
       (x.linked_tickers && x.linked_tickers.length ? '<div class="ic-tk">' + x.linked_tickers.slice(0, 8).map(function (t) { return escapeHtml(t.replace(/\.[A-Z]+$/, "")); }).join(" · ") + "</div>" : "") +
