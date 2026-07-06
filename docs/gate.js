@@ -14,9 +14,9 @@
 (function () {
   "use strict";
 
-  // 현재 비밀번호: etf2026  (반드시 원하는 값으로 교체하세요)
-  var GATE_HASH = "5ec37e098056971a3cd206c5883f07b0e5597836e9467c4a47a336b03a346195";
-  var GATE_VER  = "1"; // 값을 바꾸면 모든 사용자가 재입력
+  // 현재 비밀번호: 1011  (반드시 원하는 값으로 교체하세요)
+  var GATE_HASH = "3dd9c0995d54c0abd51a90f1d57b1ce77bc885fc8a7cea52dcad3c2540dda5ee";
+  var GATE_VER  = "2"; // 값을 바꾸면 모든 사용자가 재입력
   var STORE_KEY = "etf_gate_ok_v" + GATE_VER;
 
   // 이미 통과한 브라우저면 아무것도 안 함
