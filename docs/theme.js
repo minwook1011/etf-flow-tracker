@@ -28,7 +28,7 @@
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
-  fetch("data.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+  fetch("data.json?v=" + Date.now()).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     var tape = document.getElementById("tape");
     if (!tape || !d || !d.etfs) return;
     var items = TAPE_TICKERS.map(function (tk) { return d.etfs[tk]; }).filter(Boolean)
