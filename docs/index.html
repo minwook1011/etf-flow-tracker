@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글로벌 섹터 ETF 자금 흐름</title>
-<link rel="stylesheet" href="theme.css?v=20260707d">
+<link rel="stylesheet" href="theme.css?v=20260708b">
 </head>
 <body>
 <header id="topnav"></header>
@@ -23,6 +23,11 @@
   <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px">
     <div class="toggle" id="period-toggle"></div>
     <span class="muted small">기간 선택 = 아래 전체 섹션에 적용</span>
+  </div>
+
+  <div class="section" id="fav-section">
+    <h2>⭐ 즐겨찾기<span class="sub">종목·ETF를 열어 헤더의 ☆를 누르면 여기에 모입니다 · 이 브라우저에 저장</span></h2>
+    <div class="fav-strip" id="fav-strip"></div>
   </div>
 
   <div class="section">
@@ -81,7 +86,7 @@
 </div>
 
 <script src="theme.js?v=20260708a"></script>
-<script src="stocks-common.js?v=20260707d"></script>
+<script src="stocks-common.js?v=20260708b"></script>
 <script>
 var DATA = null;
 var MEGA = {};  // megacap.json — 대표 구성종목 클릭 시 개별 종목 모달용(있으면 사용, 없어도 페이지는 정상 동작)
@@ -293,6 +298,23 @@ function openEtfModal(tk) {
   });
 }
 
+/* ---------- 즐겨찾기 ---------- */
+function favResolve(tk) {
+  var m = MEGA[tk];
+  if (m) return {
+    name: m.name, price: m.price, ccy: megaCcySym(tk), r1d: megaDayRet(m),
+    open: function () { openMegaStockModal(tk, m, FIN[tk]); }
+  };
+  var e = DATA && DATA.etfs && DATA.etfs[tk];
+  if (e) return {
+    name: e.name, price: e.price, ccy: /\.K[SQ]$/.test(tk) ? "₩" : "$", r1d: e.r1d,
+    open: function () { openEtfModal(tk); }
+  };
+  return null;
+}
+function renderFavs() { renderFavStrip($q("#fav-strip"), favResolve); }
+document.addEventListener("favchange", renderFavs);
+
 /* ---------- 초기화 ---------- */
 Promise.all([
   fetchJSON("data.json"),
@@ -305,6 +327,7 @@ Promise.all([
   FIN = (rs[2] && rs[2].financials) || {};
   $q("#updated").textContent = "기준: " + (d.updated || "-") + " · 벤치마크 " + (d.benchmark || "ACWI");
   renderToggles();
+  renderFavs();
   renderBreadth();
   renderSignals();
   renderBars();

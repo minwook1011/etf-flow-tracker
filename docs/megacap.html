@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>글로벌 메가캡 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260707d">
+<link rel="stylesheet" href="theme.css?v=20260708b">
 <style>
 .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 6px; }
 .uni-wrap { display: flex; align-items: center; gap: 8px; }
@@ -77,7 +77,7 @@
 </div>
 
 <script src="theme.js?v=20260708a"></script>
-<script src="stocks-common.js?v=20260707d"></script>
+<script src="stocks-common.js?v=20260708b"></script>
 <script>
 var DATA = null;
 var PROFILES = {};
@@ -242,7 +242,7 @@ function openStockModal(ticker) {
     price: s.price, priceCcy: ccyOf(s.ticker), r1d: s.r1d,
     chips: chips,
     intro: profile ? profile.biz : "회사 개요가 아직 준비되지 않았습니다 (최근 명단에 새로 편입된 종목일 수 있습니다).",
-    candles: s.candles, news: s.news, financials: FIN[ticker], ta: computeTA(s.candles)
+    candles: s.candles, news: s.news, financials: FIN[ticker], ta: computeTA(s.candles), tk: s.ticker
   });
 }
 

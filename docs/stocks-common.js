@@ -387,6 +387,78 @@ function closeModal() {
 }
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
 
+/* ---------- 즐겨찾기 (localStorage, 브라우저별 저장) ---------- */
+var FAV_KEY = "etf_favs_v1";
+function favLoad() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || {}; } catch (e) { return {}; } }
+function favSave(m) { try { localStorage.setItem(FAV_KEY, JSON.stringify(m)); } catch (e) {} }
+function favHas(tk) { return !!favLoad()[tk]; }
+function favToggle(tk, name) {
+  var m = favLoad();
+  if (m[tk]) delete m[tk]; else m[tk] = { name: name || tk, ts: Date.now() };
+  favSave(m);
+  document.dispatchEvent(new CustomEvent("favchange"));
+  return !!favLoad()[tk];
+}
+function favList() {
+  var m = favLoad();
+  return Object.keys(m).map(function (tk) { return { tk: tk, name: m[tk].name, ts: m[tk].ts || 0 }; })
+    .sort(function (a, b) { return b.ts - a.ts; });
+}
+function favStarHTML(tk, name) {
+  if (!tk) return "";
+  var on = favHas(tk);
+  return '<button class="fav-star' + (on ? " on" : "") + '" data-fav-tk="' + escapeHtml(tk) +
+    '" data-fav-name="' + escapeHtml(name || tk) + '" title="' + (on ? "즐겨찾기 해제" : "즐겨찾기 추가") + '">' +
+    (on ? "★" : "☆") + "</button>";
+}
+function wireFavStars(root) {
+  var scope = root && root.querySelectorAll ? root : document;
+  scope.querySelectorAll(".fav-star[data-fav-tk]").forEach(function (btn) {
+    if (btn.__favWired) return; btn.__favWired = true;
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var on = favToggle(btn.dataset.favTk, btn.dataset.favName);
+      btn.classList.toggle("on", on);
+      btn.textContent = on ? "★" : "☆";
+      btn.title = on ? "즐겨찾기 해제" : "즐겨찾기 추가";
+    });
+  });
+}
+/* 즐겨찾기 목록 렌더 — resolve(tk)는 {name, price, ccy, r1d, open} 또는 null 반환 */
+function renderFavStrip(el, resolve) {
+  if (!el) return;
+  var favs = favList();
+  if (!favs.length) {
+    el.innerHTML = '<div class="fav-empty">아직 즐겨찾기가 없습니다. 종목·ETF를 열어 헤더의 ☆를 누르면 여기에 모입니다.</div>';
+    return;
+  }
+  el.innerHTML = favs.map(function (f) {
+    var r = resolve ? resolve(f.tk) : null;
+    var nm = (r && r.name) || f.name;
+    var px = r && r.price != null ? fmtPrice(r.price, r.ccy) : "";
+    var ret = r && r.r1d != null ? ' <span class="' + pctClass(r.r1d) + '">' + fmtPct(r.r1d) + "</span>" : "";
+    return '<div class="fav-item' + (r && r.open ? " clickable" : "") + '" data-fav-open="' + escapeHtml(f.tk) + '">' +
+      '<button class="fav-rm" data-fav-rm="' + escapeHtml(f.tk) + '" title="즐겨찾기 삭제">✕</button>' +
+      '<div class="fav-nm">' + escapeHtml(nm) + "</div>" +
+      '<div class="fav-tk">' + escapeHtml(f.tk.replace(/\.[A-Z]+$/, "")) + "</div>" +
+      (px ? '<div class="fav-px">' + px + ret + "</div>" : "") +
+      "</div>";
+  }).join("");
+  el.querySelectorAll(".fav-item[data-fav-open]").forEach(function (it) {
+    it.addEventListener("click", function () {
+      var r = resolve ? resolve(it.dataset.favOpen) : null;
+      if (r && r.open) r.open();
+    });
+  });
+  el.querySelectorAll("[data-fav-rm]").forEach(function (x) {
+    x.addEventListener("click", function (e) {
+      e.stopPropagation();
+      favToggle(x.dataset.favRm);
+      renderFavStrip(el, resolve);
+    });
+  });
+}
+
 /* ---------- 테이블 정렬 ---------- */
 function makeSortable(table, rows, renderRows) {
   /* rows: 원본 배열, renderRows(sortedRows) 재렌더 콜백.
@@ -771,7 +843,8 @@ function openStatModal(cfg) {
   _statModalCfg = cfg;
   _statModalWin = 90;
   _statFinMode = "annual";
-  var priceHtml = '<span class="px">' + fmtPrice(cfg.price, cfg.priceCcy) + "</span>" +
+  var priceHtml = (cfg.tk ? favStarHTML(cfg.tk, cfg.name) : "") +
+    '<span class="px">' + fmtPrice(cfg.price, cfg.priceCcy) + "</span>" +
     (cfg.r1d != null ? ' <span class="' + pctClass(cfg.r1d) + '" style="font-weight:700">' + fmtPct(cfg.r1d) + "</span>" : "") +
     '<button class="cap-btn" onclick="captureStatChart()" title="차트를 클립보드에 복사">복사</button>';
   openModal(
@@ -779,6 +852,7 @@ function openStatModal(cfg) {
     statModalBody(cfg),
     priceHtml
   );
+  wireFavStars(document.getElementById("modal-back"));
   $qa("[data-swin]").forEach(function (b) {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
@@ -1028,7 +1102,7 @@ function openEtfDetailModal(e, tk, onHoldingClick) {
       { label: "52주 고점대비", value: fmtPct(e.from_high, 1), cls: pctClass(e.from_high) }
     ],
     candles: e.candles, holdings: e.holdings, holdingsTitle: "대표 구성종목", news: e.news,
-    onHoldingClick: onHoldingClick
+    onHoldingClick: onHoldingClick, tk: tk
   });
 }
 
@@ -1057,7 +1131,7 @@ function openMegaStockModal(tk, mega, fin) {
     name: mega.name, sub: tk.replace(/\.[A-Z]+$/, "") + (mega.sector ? " · " + mega.sector : ""),
     price: mega.price, priceCcy: megaCcySym(tk), r1d: megaDayRet(mega),
     chips: chips, candles: mega.candles, news: mega.news, financials: fin,
-    ta: computeTA(mega.candles)
+    ta: computeTA(mega.candles), tk: tk
   });
 }
 
