@@ -6,6 +6,7 @@
     ["bottomup.html", "Bottom-up 발굴"],
     ["perspective.html", "핵심 테제 트래킹"],
     ["worldflow.html", "세상 흐름 파악"],
+    ["news.html", "실시간 뉴스"],
     ["earnings.html", "미국 주요 실적 정리"],
     ["macro.html", "매크로 및 투자전략"],
   ];

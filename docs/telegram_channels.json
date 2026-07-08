@@ -1,0 +1,6 @@
+{
+  "_설명": "여기 channels 배열에 수집할 '공개' 텔레그램 채널 username을 넣으세요(@ 없이). 유료·비공개 방은 로그인이 필요해 이 방식으로는 안 됩니다.",
+  "channels": ["financialjuice", "markettwits"],
+  "keep": 200,
+  "max_age_days": 21
+}

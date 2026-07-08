@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실시간 뉴스 — FLOW·TRACKER</title>
+<link rel="stylesheet" href="theme.css?v=20260708b">
+<style>
+.news-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 16px; }
+.news-search { flex: 1; min-width: 200px; max-width: 340px; padding: 9px 13px; font-size: 14px;
+  color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 9px; outline: none; }
+.news-search:focus { border-color: var(--accent); }
+.ch-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ch-chip { background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  padding: 6px 13px; border-radius: 999px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+.ch-chip.on { color: #fff; border-color: transparent; }
+.date-group { margin-bottom: 22px; }
+.date-head { font-weight: 800; font-size: 13px; color: var(--muted); letter-spacing: .02em;
+  padding: 4px 0 10px; position: sticky; top: 0; background: var(--bg); z-index: 2; }
+.news-item { display: grid; grid-template-columns: 62px 1fr; gap: 12px; padding: 11px 0; border-top: 1px solid var(--border); }
+.news-item:first-child { border-top: none; }
+.ni-time { font-family: var(--mono); font-size: 12px; color: var(--faint); padding-top: 2px; }
+.ni-body {}
+.ni-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ni-ch { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #fff; }
+.ni-link { font-size: 11.5px; color: var(--accent); text-decoration: none; }
+.ni-link:hover { text-decoration: underline; }
+.ni-text { font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.ni-text a { color: var(--accent); }
+.news-empty { border: 1px dashed var(--border-strong); border-radius: 12px; padding: 22px; color: var(--muted); line-height: 1.7; }
+.news-empty code { background: var(--card); padding: 1px 6px; border-radius: 5px; font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+</style>
+</head>
+<body>
+<header id="topnav"></header>
+<div class="container">
+  <div class="kicker">실시간 뉴스 · 텔레그램 수집</div>
+  <div class="page-head">
+    <h1>실시간 뉴스</h1>
+    <span class="upd" id="updated"></span>
+  </div>
+  <p class="note">
+    지정한 <b>공개 텔레그램 채널</b>들의 최신 글을 모아 <b>중복을 제거</b>하고 시간순으로 보여줍니다.
+    채널 태그를 눌러 걸러 보거나, 검색으로 원하는 키워드만 볼 수 있습니다. 각 글의 <b>원문</b>을 누르면 텔레그램 원본으로 이동합니다.
+  </p>
+
+  <div class="news-controls">
+    <input class="news-search" id="news-search" type="text" placeholder="뉴스 검색 (키워드)">
+    <div class="ch-chips" id="ch-chips"></div>
+  </div>
+
+  <div id="news-list"><div class="spin">로딩 중…</div></div>
+</div>
+
+<script src="theme.js?v=20260708c"></script>
+<script src="stocks-common.js?v=20260708b"></script>
+<script>
+var NEWS = [], CHANNELS = [], curCh = "all", kw = "";
+var CH_COLORS = ["#3d7eff", "#f0b429", "#34d399", "#c084fc", "#f0475a", "#22d3ee", "#fb923c", "#a3e635"];
+function chColor(u) {
+  var i = CHANNELS.findIndex(function (c) { return c.username === u; });
+  return CH_COLORS[(i < 0 ? 0 : i) % CH_COLORS.length];
+}
+function pad2(n) { return (n < 10 ? "0" : "") + n; }
+function localDateKey(iso) { var d = new Date(iso); return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+function fmtTime(iso) {
+  var d = new Date(iso);
+  return pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+}
+var WD = ["일", "월", "화", "수", "목", "금", "토"];
+function dateLabel(key) {
+  var now = new Date(), t = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var p = key.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]);
+  var diff = Math.round((t - d) / 86400000);
+  var base = key + " (" + WD[d.getDay()] + ")";
+  if (diff === 0) return "오늘 · " + base;
+  if (diff === 1) return "어제 · " + base;
+  return base;
+}
+function linkify(text) {
+  return escapeHtml(text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+}
+
+function renderChips() {
+  var chips = ['<button class="ch-chip' + (curCh === "all" ? " on" : "") + '" data-ch="all"' +
+    (curCh === "all" ? ' style="background:var(--accent)"' : "") + ">전체 " + NEWS.length + "</button>"];
+  CHANNELS.forEach(function (c) {
+    var n = NEWS.filter(function (it) { return it.channel === c.username; }).length;
+    var on = curCh === c.username;
+    chips.push('<button class="ch-chip' + (on ? " on" : "") + '" data-ch="' + escapeHtml(c.username) + '"' +
+      (on ? ' style="background:' + chColor(c.username) + '"' : "") + ">" + escapeHtml(c.title) + " " + n + "</button>");
+  });
+  $q("#ch-chips").innerHTML = chips.join("");
+  $qa("#ch-chips .ch-chip").forEach(function (b) {
+    b.onclick = function () { curCh = b.dataset.ch; renderChips(); renderList(); };
+  });
+}
+
+function renderList() {
+  var items = NEWS.filter(function (it) {
+    if (curCh !== "all" && it.channel !== curCh) return false;
+    if (kw && it.text.toLowerCase().indexOf(kw) < 0) return false;
+    return true;
+  });
+  var host = $q("#news-list");
+  if (!items.length) {
+    host.innerHTML = '<div class="empty">조건에 맞는 뉴스가 없습니다.</div>';
+    return;
+  }
+  var groups = {}, order = [];
+  items.forEach(function (it) {
+    var k = localDateKey(it.date);
+    if (!groups[k]) { groups[k] = []; order.push(k); }
+    groups[k].push(it);
+  });
+  host.innerHTML = order.map(function (k) {
+    var rows = groups[k].map(function (it) {
+      return '<div class="news-item">' +
+        '<div class="ni-time">' + fmtTime(it.date) + "</div>" +
+        '<div class="ni-body">' +
+          '<div class="ni-top">' +
+            '<span class="ni-ch" style="background:' + chColor(it.channel) + '">' + escapeHtml(it.channel_title || it.channel) + "</span>" +
+            '<a class="ni-link" href="' + escapeHtml(it.link) + '" target="_blank" rel="noopener">원문 ↗</a>' +
+          "</div>" +
+          '<div class="ni-text">' + linkify(it.text) + "</div>" +
+        "</div></div>";
+    }).join("");
+    return '<div class="date-group"><div class="date-head">' + dateLabel(k) + "</div>" + rows + "</div>";
+  }).join("");
+}
+
+function showSetup(msg) {
+  $q("#news-list").innerHTML = '<div class="news-empty">' + msg + "</div>";
+}
+
+$q("#news-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderList(); });
+
+fetchJSON("telegram_news.json").then(function (d) {
+  NEWS = d.items || [];
+  CHANNELS = d.channels || [];
+  $q("#updated").textContent = "갱신: " + (d.updated || "-") + " · " + NEWS.length + "건 · 채널 " + CHANNELS.length + "개";
+  if (!CHANNELS.length) {
+    showSetup("아직 등록된 채널이 없습니다.<br>수집할 <b>공개</b> 텔레그램 채널 username을 <code>docs/telegram_channels.json</code>의 <code>channels</code> 배열에 넣으세요(@ 없이). " +
+      "예: <code>[\"financialjuice\", \"markettwits\"]</code>.<br><span class=\"muted small\">유료·비공개 방은 로그인이 필요해 이 방식으로는 수집되지 않습니다.</span>");
+    renderChips();
+    return;
+  }
+  if (!NEWS.length) {
+    showSetup("채널은 등록됐지만 아직 수집된 글이 없습니다. 수집 스크립트(fetch_telegram.py)가 한 번 실행되면 채워집니다.");
+  }
+  renderChips();
+  renderList();
+}).catch(function () {
+  $q("#updated").textContent = "";
+  showSetup("아직 뉴스 데이터가 없습니다.<br>수집할 <b>공개</b> 텔레그램 채널을 <code>docs/telegram_channels.json</code>에 넣고 <code>fetch_telegram.py</code>를 실행하세요. " +
+    "채널 목록은 원하시면 저에게 알려주셔도 됩니다.<br><span class=\"muted small\">유료·비공개 방은 로그인이 필요해 이 방식으로는 수집되지 않습니다.</span>");
+});
+</script>
+</body>
+</html>
