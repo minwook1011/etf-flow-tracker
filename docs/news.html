@@ -33,6 +33,31 @@
 .tg-link:hover { text-decoration: underline; }
 .news-empty { border: 1px dashed var(--border-strong); border-radius: 12px; padding: 22px; color: var(--muted); line-height: 1.7; }
 .news-empty code { background: var(--card); padding: 1px 6px; border-radius: 5px; font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+/* 일일 종합 요약 */
+.digest-box { border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 12px;
+  background: var(--card); padding: 16px 18px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.digest-title { font-size: 17px; font-weight: 800; letter-spacing: -.2px; line-height: 1.4; }
+.digest-meta { font-size: 11.5px; color: var(--faint); font-family: var(--mono); margin-top: 3px; }
+.digest-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.dstat { border: 1px solid var(--border); border-radius: 9px; padding: 7px 12px; background: var(--bg2); min-width: 96px; }
+.dstat .dl { font-size: 10.5px; color: var(--muted); }
+.dstat .dv { font-size: 15px; font-weight: 800; font-family: var(--mono); margin-top: 2px; }
+.dstat .dn2 { font-size: 10px; color: var(--faint); margin-top: 1px; }
+.dstat .dv.up { color: var(--up); } .dstat .dv.dn { color: var(--dn); }
+.digest-body { margin-top: 8px; }
+.digest-body.collapsed { max-height: 300px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
+.digest-body .md h2 { font-size: 15px; font-weight: 800; margin: 16px 0 7px; padding-top: 4px; }
+.digest-body .md h3 { font-size: 13.5px; font-weight: 800; margin: 12px 0 5px; color: var(--muted); }
+.digest-body .md p { font-size: 13.5px; line-height: 1.72; margin: 6px 0; }
+.digest-body .md ul { margin: 5px 0 8px; padding-left: 18px; }
+.digest-body .md li { font-size: 13.5px; line-height: 1.62; margin: 3px 0; }
+.digest-body .md blockquote, .digest-body .md p em { color: var(--muted); }
+.digest-toggle { margin-top: 10px; background: var(--bg2); border: 1px solid var(--border); color: var(--accent);
+  border-radius: 8px; padding: 7px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.digest-past { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.digest-past .dp { background: var(--bg2); border: 1px solid var(--border); color: var(--muted);
+  padding: 5px 11px; border-radius: 999px; font-size: 11.5px; cursor: pointer; font-family: var(--mono); }
+.digest-past .dp.on { color: #fff; background: var(--gold); border-color: transparent; }
 </style>
 </head>
 <body>
@@ -48,12 +73,20 @@
     채널 태그로 걸러 보거나 검색할 수 있고, 각 카드의 <b>원문 ↗</b>을 누르면 텔레그램 원본으로 이동합니다.
   </p>
 
-  <div class="news-controls">
-    <input class="news-search" id="news-search" type="text" placeholder="뉴스 검색 (키워드)">
-    <div class="ch-chips" id="ch-chips"></div>
+  <div class="section" id="digest-sec" style="display:none">
+    <h2>📰 오늘의 종합 요약<span class="sub">매일 밤 9시 자동 생성 · 섹터·매크로·전체를 한 글로</span></h2>
+    <div class="digest-box" id="digest-box"></div>
+    <div class="digest-past" id="digest-past"></div>
   </div>
 
-  <div id="news-list"><div class="spin">로딩 중…</div></div>
+  <div class="section">
+    <h2>실시간 피드<span class="sub">최신이 왼쪽 위 · 오른쪽으로 이전 글</span></h2>
+    <div class="news-controls">
+      <input class="news-search" id="news-search" type="text" placeholder="뉴스 검색 (키워드)">
+      <div class="ch-chips" id="ch-chips"></div>
+    </div>
+    <div id="news-list"><div class="spin">로딩 중…</div></div>
+  </div>
 </div>
 
 <script src="theme.js?v=20260708c"></script>
@@ -134,6 +167,45 @@ function showSetup(msg) {
 }
 
 $q("#news-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderList(); });
+
+/* ---------- 일일 종합 요약 ---------- */
+var DIGESTS = [], curDigest = 0;
+function renderDigest() {
+  var d = DIGESTS[curDigest];
+  if (!d) return;
+  var stats = (d.stats || []).map(function (s) {
+    return '<div class="dstat"><div class="dl">' + escapeHtml(s.label) + "</div>" +
+      '<div class="dv ' + (s.tone || "") + '">' + escapeHtml(s.value) + "</div>" +
+      (s.note ? '<div class="dn2">' + escapeHtml(s.note) + "</div>" : "") + "</div>";
+  }).join("");
+  $q("#digest-box").innerHTML =
+    '<div class="digest-title">' + escapeHtml(d.title || "종합 요약") + "</div>" +
+    '<div class="digest-meta">' + escapeHtml(d.generated || d.date || "") + "</div>" +
+    (stats ? '<div class="digest-stats">' + stats + "</div>" : "") +
+    '<div class="digest-body collapsed" id="digest-body">' + mdRender(d.markdown) + "</div>" +
+    '<button class="digest-toggle" id="digest-toggle">전체 보기 ▾</button>';
+  $q("#digest-toggle").onclick = function () {
+    var col = $q("#digest-body").classList.toggle("collapsed");
+    this.textContent = col ? "전체 보기 ▾" : "접기 ▴";
+  };
+}
+function renderDigestPast() {
+  if (DIGESTS.length < 2) { $q("#digest-past").innerHTML = ""; return; }
+  $q("#digest-past").innerHTML = DIGESTS.map(function (d, i) {
+    return '<button class="dp' + (i === curDigest ? " on" : "") + '" data-di="' + i + '">' + escapeHtml(d.date) + "</button>";
+  }).join("");
+  $qa("#digest-past .dp").forEach(function (b) {
+    b.onclick = function () { curDigest = +b.dataset.di; renderDigest(); renderDigestPast(); };
+  });
+}
+fetchJSON("news_digest.json").then(function (d) {
+  DIGESTS = (d.digests || []).slice().sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); });
+  if (!DIGESTS.length) return;
+  $q("#digest-sec").style.display = "";
+  curDigest = 0;
+  renderDigest();
+  renderDigestPast();
+}).catch(function () {});
 
 fetchJSON("telegram_news.json").then(function (d) {
   NEWS = d.items || [];
