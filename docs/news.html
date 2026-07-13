@@ -14,19 +14,23 @@
 .ch-chip { background: var(--card); border: 1px solid var(--border); color: var(--muted);
   padding: 6px 13px; border-radius: 999px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: inherit; }
 .ch-chip.on { color: #fff; border-color: transparent; }
-.date-group { margin-bottom: 22px; }
-.date-head { font-weight: 800; font-size: 13px; color: var(--muted); letter-spacing: .02em;
-  padding: 4px 0 10px; position: sticky; top: 0; background: var(--bg); z-index: 2; }
-.news-item { display: grid; grid-template-columns: 62px 1fr; gap: 12px; padding: 11px 0; border-top: 1px solid var(--border); }
-.news-item:first-child { border-top: none; }
-.ni-time { font-family: var(--mono); font-size: 12px; color: var(--faint); padding-top: 2px; }
-.ni-body {}
-.ni-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 4px; }
-.ni-ch { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #fff; }
-.ni-link { font-size: 11.5px; color: var(--accent); text-decoration: none; }
-.ni-link:hover { text-decoration: underline; }
-.ni-text { font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
-.ni-text a { color: var(--accent); }
+/* 직사각형 카드 그리드 — 최신이 왼쪽 위, 오른쪽으로 흐르며 다음 줄로 밀림 */
+.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(226px, 1fr)); gap: 12px; align-items: start; }
+.tg-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--accent);
+  border-radius: 10px; padding: 10px 12px 11px; display: flex; flex-direction: column; height: 188px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.18); transition: border-color .12s, transform .12s, box-shadow .12s; }
+.tg-card:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(0,0,0,.3); }
+.tg-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
+.tg-ch { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+.tg-time { font-family: var(--mono); font-size: 10.5px; color: var(--faint); white-space: nowrap; }
+.tg-text { position: relative; flex: 1; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; overflow: hidden; }
+.tg-text::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px;
+  background: linear-gradient(transparent, var(--card)); pointer-events: none; }
+.tg-text a { color: var(--accent); }
+.tg-foot { margin-top: 8px; }
+.tg-link { font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 700; }
+.tg-link:hover { text-decoration: underline; }
 .news-empty { border: 1px dashed var(--border-strong); border-radius: 12px; padding: 22px; color: var(--muted); line-height: 1.7; }
 .news-empty code { background: var(--card); padding: 1px 6px; border-radius: 5px; font-family: var(--mono); font-size: 12.5px; color: var(--text); }
 </style>
@@ -40,8 +44,8 @@
     <span class="upd" id="updated"></span>
   </div>
   <p class="note">
-    지정한 <b>공개 텔레그램 채널</b>들의 최신 글을 모아 <b>중복을 제거</b>하고 시간순으로 보여줍니다.
-    채널 태그를 눌러 걸러 보거나, 검색으로 원하는 키워드만 볼 수 있습니다. 각 글의 <b>원문</b>을 누르면 텔레그램 원본으로 이동합니다.
+    지정한 텔레그램 채널들의 글을 모아 <b>중복을 제거</b>하고, <b>가장 최신 글이 왼쪽 위</b>에 오도록 카드로 흘려 보여줍니다(오른쪽으로 갈수록 이전 글).
+    채널 태그로 걸러 보거나 검색할 수 있고, 각 카드의 <b>원문 ↗</b>을 누르면 텔레그램 원본으로 이동합니다.
   </p>
 
   <div class="news-controls">
@@ -66,6 +70,10 @@ function localDateKey(iso) { var d = new Date(iso); return d.getFullYear() + "-"
 function fmtTime(iso) {
   var d = new Date(iso);
   return pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+}
+function fmtDateTime(iso) {
+  var d = new Date(iso);
+  return pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
 }
 var WD = ["일", "월", "화", "수", "목", "금", "토"];
 function dateLabel(key) {
@@ -107,26 +115,18 @@ function renderList() {
     host.innerHTML = '<div class="empty">조건에 맞는 뉴스가 없습니다.</div>';
     return;
   }
-  var groups = {}, order = [];
-  items.forEach(function (it) {
-    var k = localDateKey(it.date);
-    if (!groups[k]) { groups[k] = []; order.push(k); }
-    groups[k].push(it);
-  });
-  host.innerHTML = order.map(function (k) {
-    var rows = groups[k].map(function (it) {
-      return '<div class="news-item">' +
-        '<div class="ni-time">' + fmtTime(it.date) + "</div>" +
-        '<div class="ni-body">' +
-          '<div class="ni-top">' +
-            '<span class="ni-ch" style="background:' + chColor(it.channel) + '">' + escapeHtml(it.channel_title || it.channel) + "</span>" +
-            '<a class="ni-link" href="' + escapeHtml(it.link) + '" target="_blank" rel="noopener">원문 ↗</a>' +
-          "</div>" +
-          '<div class="ni-text">' + linkify(it.text) + "</div>" +
-        "</div></div>";
-    }).join("");
-    return '<div class="date-group"><div class="date-head">' + dateLabel(k) + "</div>" + rows + "</div>";
-  }).join("");
+  // 최신순(왼쪽 위부터) 직사각형 카드 그리드 — 오른쪽으로 흐르며 다음 줄로 밀림
+  host.innerHTML = '<div class="news-grid">' + items.map(function (it) {
+    var col = chColor(it.channel);
+    return '<div class="tg-card" style="border-top-color:' + col + '">' +
+      '<div class="tg-head">' +
+        '<span class="tg-ch" style="background:' + col + '">' + escapeHtml(it.channel_title || it.channel) + "</span>" +
+        '<span class="tg-time">' + fmtDateTime(it.date) + "</span>" +
+      "</div>" +
+      '<div class="tg-text">' + linkify(it.text) + "</div>" +
+      '<div class="tg-foot"><a class="tg-link" href="' + escapeHtml(it.link) + '" target="_blank" rel="noopener">원문 ↗</a></div>' +
+      "</div>";
+  }).join("") + "</div>";
 }
 
 function showSetup(msg) {
