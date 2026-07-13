@@ -66,11 +66,11 @@ def fetch_yahoo(ticker, rng):
 
 def fetch_fred(series_id):
     url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
-    for attempt in range(3):
+    for attempt in range(2):
         _throttle()
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=20) as r:
+            with urllib.request.urlopen(req, timeout=12) as r:
                 text = r.read().decode("utf-8")
             lines = text.strip().splitlines()[1:]  # 헤더 스킵
             out = []
@@ -87,11 +87,88 @@ def fetch_fred(series_id):
                     continue
             return out
         except Exception as e:
-            if attempt < 2:
-                time.sleep(1.5 * (attempt + 1))
+            if attempt == 0:
+                time.sleep(1.5)
             else:
                 print(f"  [skip] FRED {series_id} -> {e}")
-                return []
+    return []
+
+def fetch_treasury_10y(start_year=2017, end_year=2026):
+    """미 재무부 일별 국채수익률 CSV에서 10년물을 월별(각 월의 최신 관측치)로. FRED 대체(무키)."""
+    import csv as _csv, io as _io
+    monthly = {}
+    for year in range(start_year, end_year + 1):
+        url = ("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
+               f"daily-treasury-rates.csv/{year}/all?type=daily_treasury_yield_curve"
+               f"&field_tdr_date_value={year}&page&_format=csv")
+        for attempt in range(2):
+            _throttle()
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": UA})
+                with urllib.request.urlopen(req, timeout=25) as r:
+                    rows = list(_csv.reader(_io.StringIO(r.read().decode("utf-8", "replace"))))
+                if not rows:
+                    break
+                idx = next((j for j, h in enumerate(rows[0]) if h.strip() == "10 Yr"), None)
+                if idx is None:
+                    break
+                for row in rows[1:]:  # CSV는 최신이 위 → 각 월 첫 등장 = 월 마지막 영업일
+                    if len(row) <= idx or not row[idx].strip():
+                        continue
+                    try:
+                        mm, dd, yy = row[0].strip().split("/")
+                        key = f"{yy}-{int(mm):02d}"
+                        if key not in monthly:
+                            monthly[key] = (f"{yy}-{int(mm):02d}-01", float(row[idx]))
+                    except Exception:
+                        continue
+                break
+            except Exception as e:
+                if attempt == 0:
+                    time.sleep(1.0)
+                else:
+                    print(f"  [skip] Treasury {year} -> {e}")
+    return [{"date": d, "value": v} for d, v in (monthly[k] for k in sorted(monthly))]
+
+
+def fetch_bls_series(series_map, start_year=2017, end_year=2026):
+    """BLS 공개 API(무키). series_map: {우리키: BLS_id}. 반환 {우리키: [{date,value}...]}(오름차순)."""
+    out = {k: [] for k in series_map}
+    body = json.dumps({"seriesid": list(series_map.values()),
+                       "startyear": str(start_year), "endyear": str(end_year)}).encode()
+    for attempt in range(2):
+        _throttle()
+        try:
+            req = urllib.request.Request("https://api.bls.gov/publicAPI/v2/timeseries/data/",
+                                         data=body, headers={"Content-Type": "application/json", "User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                d = json.loads(r.read().decode("utf-8", "replace"))
+            if d.get("status") != "REQUEST_SUCCEEDED":
+                raise RuntimeError(str(d.get("message"))[:120])
+            id_to_key = {v: k for k, v in series_map.items()}
+            for s in d["Results"]["series"]:
+                key = id_to_key.get(s["seriesID"])
+                if not key:
+                    continue
+                pts = []
+                for x in s["data"]:
+                    per = x.get("period", "")
+                    if not per.startswith("M") or per == "M13":
+                        continue
+                    try:
+                        pts.append((f"{x['year']}-{int(per[1:]):02d}-01", float(x["value"])))
+                    except Exception:
+                        continue
+                pts.sort()
+                out[key] = [{"date": dd, "value": vv} for dd, vv in pts]
+            return out
+        except Exception as e:
+            if attempt == 0:
+                time.sleep(1.5)
+            else:
+                print(f"  [skip] BLS -> {e}")
+    return out
+
 
 def to_dict(series):
     return dict(series)
@@ -281,13 +358,23 @@ def main():
     lqd = ffill_series(lqd_map)
     tlt = ffill_series(tlt_map)
 
-    print("FRED 매크로 지표 수집 중...")
-    fred_series = {
-        "cpi": "CPIAUCSL", "ppi": "PPIACO", "pce": "PCEPI", "unrate": "UNRATE",
-        "fedfunds": "FEDFUNDS", "payems": "PAYEMS", "icsa": "ICSA", "m2": "M2SL",
-        "dgs10": "DGS10", "umcsent": "UMCSENT",
-    }
+    print("매크로 지표 수집 중 (10년물=Treasury, CPI/실업률/고용=BLS, 나머지=FRED)...")
     fred_out = {}
+
+    # 안정 소스: 10년물(Treasury), CPI·실업률·비농업고용(BLS) — 무키, FRED 대체
+    try:
+        fred_out["dgs10"] = fetch_treasury_10y()
+        print(f"  dgs10(Treasury): {len(fred_out['dgs10'])}개")
+    except Exception as e:
+        fred_out["dgs10"] = []
+        print(f"  dgs10 실패: {e}")
+    bls = fetch_bls_series({"cpi": "CUUR0000SA0", "unrate": "LNS14000000", "payems": "CES0000000001"})
+    for k in ("cpi", "unrate", "payems"):
+        fred_out[k] = bls.get(k, [])
+        print(f"  {k}(BLS): {len(fred_out[k])}개")
+
+    # 나머지는 FRED(가능할 때만; 실패 시 빈 값 유지)
+    fred_series = {"ppi": "PPIACO", "pce": "PCEPI", "fedfunds": "FEDFUNDS", "icsa": "ICSA", "m2": "M2SL", "umcsent": "UMCSENT"}
     for key, sid in fred_series.items():
         rows = fetch_fred(sid)
         fred_out[key] = [{"date": d, "value": v} for d, v in rows]

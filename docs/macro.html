@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>매크로 및 투자전략 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260708b">
+<link rel="stylesheet" href="theme.css?v=20260713a">
 <style>
 .gauge-wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
 .gauge-box { flex: 0 0 auto; text-align: center; }
@@ -24,9 +24,24 @@
 .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; margin-right: 8px; flex: 0 0 auto; }
 .macro-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,0.18); }
 .macro-card .mc-head { display: flex; align-items: center; margin-bottom: 8px; }
+.macro-card .mc-toggle { width: 100%; gap: 10px; background: none; border: 0; cursor: pointer; font-family: inherit; color: var(--text); padding: 4px 0; text-align: left; margin-bottom: 0; }
+.macro-card .mc-toggle:hover .mc-title { color: var(--accent); }
 .macro-card .mc-title { font-weight: 800; font-size: 15px; }
+.macro-card .mc-inline { margin-left: 8px; font-family: var(--mono); font-size: 12.5px; color: var(--accent); font-weight: 700; }
+.macro-card .mc-inline.muted { color: var(--faint); font-weight: 400; }
+.macro-card .mc-inline .mc-inline-d { color: var(--faint); font-weight: 400; }
+.macro-card .mc-caret { margin-left: auto; color: var(--muted); font-size: 13px; transition: transform .15s; }
+.macro-card.open .mc-caret { transform: rotate(180deg); }
 .macro-card .mc-why { font-family: var(--serif); font-size: 13.5px; line-height: 1.7; color: var(--text); margin: 6px 0 12px; }
 .macro-card .mc-latest { font-size: 12px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
+.macro-card .mc-tablewrap { margin-top: 14px; }
+.macro-card .mc-tabletitle { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.mc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.mc-table th { text-align: left; color: var(--muted); font-weight: 700; padding: 5px 8px; border-bottom: 1px solid var(--border); font-size: 11px; }
+.mc-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+.mc-table td.r, .mc-table th.r { text-align: right; }
+.mc-table td .up { color: var(--up); }
+.mc-table td .dn { color: var(--dn); }
 .case-phase { border-left: 3px solid var(--accent); padding: 8px 0 8px 14px; margin-bottom: 12px; }
 .case-phase .cp-date { font-family: var(--mono); font-size: 11.5px; color: var(--accent); font-weight: 700; }
 .case-phase .cp-title { font-weight: 800; font-size: 14px; margin: 2px 0 4px; }
@@ -101,7 +116,7 @@
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
 <script src="theme.js?v=20260708c"></script>
-<script src="stocks-common.js?v=20260708b"></script>
+<script src="stocks-common.js?v=20260713a"></script>
 <script>
 var MACRO = null, VAL = null;
 
@@ -484,11 +499,37 @@ function wireCrosshairAll(root) {
     });
   });
 }
+function macroFmtVal(v, unit) {
+  var s = (Math.abs(v) >= 1000) ? Math.round(v).toLocaleString() : v.toLocaleString();
+  return s + (unit ? " " + unit : "");
+}
+function macroRecentTable(series, unit) {
+  var n = series.length, out = [];
+  for (var i = n - 1; i >= 1 && out.length < 10; i--) {
+    var p = series[i], prev = series[i - 1];
+    var dv = p.value - prev.value;
+    var dp = prev.value ? (p.value / prev.value - 1) * 100 : null;
+    var cls = dv > 0 ? "up" : dv < 0 ? "dn" : "";
+    var dvTxt = (Math.abs(dv) >= 100 ? Math.round(dv).toLocaleString() : dv.toFixed(2));
+    var chg = '<span class="' + cls + '">' + (dv > 0 ? "+" : "") + dvTxt +
+      (dp != null ? " (" + (dp > 0 ? "+" : "") + dp.toFixed(2) + "%)" : "") + "</span>";
+    out.push('<tr><td>' + p.date.slice(0, 7) + '</td><td class="r">' + macroFmtVal(p.value, unit) + '</td><td class="r">' + chg + "</td></tr>");
+  }
+  return '<table class="mc-table"><thead><tr><th>기준월</th><th class="r">값</th><th class="r">직전 대비</th></tr></thead><tbody>' + out.join("") + "</tbody></table>";
+}
 function macroCardHTML(def, idx) {
   var series = MACRO.macro_monthly[def.key];
-  if (!series || series.length < 2) {
-    return '<div class="macro-card"><div class="mc-head"><span class="rank-badge">' + (idx + 1) + '</span><span class="mc-title">' + def.name + '</span></div>' +
-      '<div class="mc-why">' + def.why + '</div><div class="empty">데이터 수집 중입니다.</div></div>';
+  var has = series && series.length >= 2;
+  var last = has ? series[series.length - 1] : null;
+  var head = '<button class="mc-head mc-toggle" data-key="' + def.key + '" aria-expanded="false">' +
+    '<span class="rank-badge">' + (idx + 1) + "</span>" +
+    '<span class="mc-title">' + def.name + "</span>" +
+    (has ? '<span class="mc-inline">최근 ' + macroFmtVal(last.value, def.unit) + ' <span class="mc-inline-d">(' + last.date.slice(0, 7) + ")</span></span>"
+         : '<span class="mc-inline muted">수집 중</span>') +
+    '<span class="mc-caret">▾</span></button>';
+  if (!has) {
+    return '<div class="macro-card" id="mc-' + def.key + '">' + head +
+      '<div class="mc-body" style="display:none"><div class="mc-why">' + def.why + '</div><div class="empty">데이터 수집 중입니다(소스 일시 오류).</div></div></div>';
   }
   var pair = alignedPair(series, MACRO.weekly);
   var chartHtml = pair
@@ -498,15 +539,35 @@ function macroCardHTML(def, idx) {
     ? '<div class="ins-legend" style="margin-bottom:6px"><span data-line-idx="0"><i style="background:#f0b429"></i>' + def.name + " (좌축, " + def.unit +
       ')</span><span data-line-idx="1"><i style="background:#5b8cff"></i>나스닥 (우축, 지수)</span></div>'
     : "";
-  return '<div class="macro-card" id="mc-' + def.key + '"><div class="mc-head"><span class="rank-badge">' + (idx + 1) + '</span><span class="mc-title">' + def.name + '</span></div>' +
-    '<div class="mc-why">' + def.why + '</div>' + legend +
-    '<div class="chart-hover-root">' + chartHtml + '</div>' +
-    '<div class="mc-latest">최근값(' + series[series.length - 1].date + '): ' + series[series.length - 1].value.toLocaleString() + " " + def.unit +
-    (pair ? " · 좌축=" + def.name + "(실제값), 우축=나스닥 지수, " + pair.dates[0] + "부터" : "") + "</div></div>";
+  return '<div class="macro-card" id="mc-' + def.key + '">' + head +
+    '<div class="mc-body" style="display:none">' +
+    '<div class="mc-why">' + def.why + "</div>" + legend +
+    '<div class="chart-hover-root">' + chartHtml + "</div>" +
+    '<div class="mc-latest">최근값(' + last.date + "): " + macroFmtVal(last.value, def.unit) +
+    (pair ? " · 좌축=" + def.name + "(실제값), 우축=나스닥 지수, " + pair.dates[0] + "부터" : "") + "</div>" +
+    '<div class="mc-tablewrap"><div class="mc-tabletitle">최근 발표 수치 (최대 10개)</div>' + macroRecentTable(series, def.unit) + "</div>" +
+    "</div></div>";
 }
 function renderMacroList() {
-  $q("#macro-list").innerHTML = MACRO_DEFS.map(macroCardHTML).join("");
-  $qa("#macro-list .chart-hover-root").forEach(function (root) { wireLineHover(root); wireCrosshairAll(root); });
+  var defs = MACRO_DEFS.slice().sort(function (a, b) {
+    var la = (MACRO.macro_monthly[a.key] || []).length >= 2 ? 1 : 0;
+    var lb = (MACRO.macro_monthly[b.key] || []).length >= 2 ? 1 : 0;
+    return lb - la; // 데이터 있는 카드 먼저
+  });
+  $q("#macro-list").innerHTML = defs.map(macroCardHTML).join("");
+  $qa("#macro-list .mc-toggle").forEach(function (btn) {
+    btn.onclick = function () {
+      var card = btn.closest(".macro-card"), body = card.querySelector(".mc-body");
+      var open = body.style.display === "none";
+      body.style.display = open ? "" : "none";
+      card.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && !body.__wired) {
+        body.__wired = true;
+        body.querySelectorAll(".chart-hover-root").forEach(function (root) { wireLineHover(root); wireCrosshairAll(root); });
+      }
+    };
+  });
 }
 
 /* ---------- 분석 리포트 ---------- */
