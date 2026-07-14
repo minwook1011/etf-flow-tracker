@@ -4,8 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>실시간 뉴스 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260708b">
+<link rel="stylesheet" href="theme.css?v=20260714a">
 <style>
+/* 탭 */
+.news-subtabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 18px; }
+.news-subtabs button { background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  padding: 9px 18px; border-radius: 9px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
+.news-subtabs button.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+/* 실시간 피드 카드 그리드 */
 .news-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 16px; }
 .news-search { flex: 1; min-width: 200px; max-width: 340px; padding: 9px 13px; font-size: 14px;
   color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 9px; outline: none; }
@@ -14,15 +21,14 @@
 .ch-chip { background: var(--card); border: 1px solid var(--border); color: var(--muted);
   padding: 6px 13px; border-radius: 999px; font-weight: 700; font-size: 12.5px; cursor: pointer; font-family: inherit; }
 .ch-chip.on { color: #fff; border-color: transparent; }
-/* 직사각형 카드 그리드 — 최신이 왼쪽 위, 오른쪽으로 흐르며 다음 줄로 밀림 */
 .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(226px, 1fr)); gap: 12px; align-items: start; }
-.tg-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--accent);
+.tg-card { position: relative; background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--accent);
   border-radius: 10px; padding: 10px 12px 11px; display: flex; flex-direction: column; height: 188px;
   box-shadow: 0 1px 2px rgba(0,0,0,.18); transition: border-color .12s, transform .12s, box-shadow .12s; }
 .tg-card:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(0,0,0,.3); }
-.tg-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
+.tg-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; padding-right: 22px; }
 .tg-ch { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
 .tg-time { font-family: var(--mono); font-size: 10.5px; color: var(--faint); white-space: nowrap; }
 .tg-text { position: relative; flex: 1; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; overflow: hidden; }
 .tg-text::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px;
@@ -31,97 +37,187 @@
 .tg-foot { margin-top: 8px; }
 .tg-link { font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 700; }
 .tg-link:hover { text-decoration: underline; }
+.tg-fav { position: absolute; top: 7px; right: 8px; background: none; border: none; cursor: pointer;
+  font-size: 17px; line-height: 1; color: var(--faint); padding: 0; transition: color .12s, transform .12s; z-index: 2; }
+.tg-fav:hover { transform: scale(1.15); color: #f0b429; }
+.tg-fav.on { color: #f0b429; }
+
 .news-empty { border: 1px dashed var(--border-strong); border-radius: 12px; padding: 22px; color: var(--muted); line-height: 1.7; }
 .news-empty code { background: var(--card); padding: 1px 6px; border-radius: 5px; font-family: var(--mono); font-size: 12.5px; color: var(--text); }
-/* 일일 종합 요약 */
+
+/* 시황 요약 */
 .digest-box { border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 12px;
-  background: var(--card); padding: 16px 18px 18px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
-.digest-title { font-size: 17px; font-weight: 800; letter-spacing: -.2px; line-height: 1.4; }
+  background: var(--card); padding: 18px 20px 20px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.digest-title { font-size: 18px; font-weight: 800; letter-spacing: -.2px; line-height: 1.4; }
 .digest-meta { font-size: 11.5px; color: var(--faint); font-family: var(--mono); margin-top: 3px; }
-.digest-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.digest-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0 6px; }
 .dstat { border: 1px solid var(--border); border-radius: 9px; padding: 7px 12px; background: var(--bg2); min-width: 96px; }
 .dstat .dl { font-size: 10.5px; color: var(--muted); }
 .dstat .dv { font-size: 15px; font-weight: 800; font-family: var(--mono); margin-top: 2px; }
 .dstat .dn2 { font-size: 10px; color: var(--faint); margin-top: 1px; }
 .dstat .dv.up { color: var(--up); } .dstat .dv.dn { color: var(--dn); }
-.digest-body { margin-top: 8px; }
-.digest-body.collapsed { max-height: 300px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
-.digest-body .md h2 { font-size: 15px; font-weight: 800; margin: 16px 0 7px; padding-top: 4px; }
+.digest-imgs { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.digest-imgs figure { margin: 0; max-width: 340px; }
+.digest-imgs img { width: 100%; border-radius: 9px; border: 1px solid var(--border); display: block; }
+.digest-imgs figcaption { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.digest-body { margin-top: 10px; }
+.digest-body .md h2 { font-size: 15.5px; font-weight: 800; margin: 18px 0 8px; padding-top: 6px; border-top: 1px solid var(--border); }
+.digest-body .md h2:first-child { border-top: none; padding-top: 0; margin-top: 4px; }
 .digest-body .md h3 { font-size: 13.5px; font-weight: 800; margin: 12px 0 5px; color: var(--muted); }
-.digest-body .md p { font-size: 13.5px; line-height: 1.72; margin: 6px 0; }
-.digest-body .md ul { margin: 5px 0 8px; padding-left: 18px; }
-.digest-body .md li { font-size: 13.5px; line-height: 1.62; margin: 3px 0; }
-.digest-body .md blockquote, .digest-body .md p em { color: var(--muted); }
-.digest-toggle { margin-top: 10px; background: var(--bg2); border: 1px solid var(--border); color: var(--accent);
-  border-radius: 8px; padding: 7px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
-.digest-past { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.digest-past .dp { background: var(--bg2); border: 1px solid var(--border); color: var(--muted);
-  padding: 5px 11px; border-radius: 999px; font-size: 11.5px; cursor: pointer; font-family: var(--mono); }
-.digest-past .dp.on { color: #fff; background: var(--gold); border-color: transparent; }
+.digest-body .md p { font-size: 14px; line-height: 1.78; margin: 7px 0; }
+.digest-body .md ul { margin: 6px 0 10px; padding-left: 18px; }
+.digest-body .md li { font-size: 14px; line-height: 1.7; margin: 4px 0; }
+/* 중요 강조: 볼드 + 노란 밑줄 */
+.digest-body .md strong, .sector-analysis .md strong { font-weight: 800; color: var(--text);
+  text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+/* 주차별 요약 아카이브 */
+.wk-group { border: 1px solid var(--border); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+.wk-head { display: flex; align-items: center; gap: 8px; width: 100%; background: var(--bg2); border: 0;
+  cursor: pointer; font-family: inherit; color: var(--text); padding: 10px 14px; font-weight: 800; font-size: 13.5px; text-align: left; }
+.wk-caret { margin-left: auto; color: var(--muted); transition: transform .15s; }
+.wk-group.open .wk-caret { transform: rotate(180deg); }
+.wk-body { padding: 6px 10px 10px; display: none; }
+.wk-item { display: flex; gap: 10px; align-items: baseline; padding: 8px 6px; border-top: 1px solid var(--border); cursor: pointer; border-radius: 6px; }
+.wk-item:first-child { border-top: none; }
+.wk-item:hover { background: var(--card-hover); }
+.wk-item.on { background: var(--card-hover); }
+.wk-item .wd { font-family: var(--mono); font-size: 11.5px; color: var(--accent); flex: 0 0 auto; }
+.wk-item .wt { font-size: 13px; }
+
+/* 섹터별 요약 */
+.sector-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.sector-card { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 11px;
+  background: var(--card); padding: 14px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+.sector-card.up { border-left-color: var(--up); } .sector-card.dn { border-left-color: var(--dn); }
+.sc-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.sc-name { font-size: 15px; font-weight: 800; }
+.sc-stat { font-family: var(--mono); font-size: 11.5px; font-weight: 700; }
+.sc-stat.up { color: var(--up); } .sc-stat.dn { color: var(--dn); } .sc-stat.flat { color: var(--muted); }
+.sector-analysis .md p { font-size: 13.5px; line-height: 1.72; margin: 5px 0; }
 </style>
 </head>
 <body>
 <header id="topnav"></header>
 <div class="container">
-  <div class="kicker">실시간 뉴스 · 텔레그램 수집</div>
+  <div class="kicker">실시간 뉴스 · 텔레그램 & 종합 분석</div>
   <div class="page-head">
     <h1>실시간 뉴스</h1>
     <span class="upd" id="updated"></span>
   </div>
-  <p class="note">
-    지정한 텔레그램 채널들의 글을 모아 <b>중복을 제거</b>하고, <b>가장 최신 글이 왼쪽 위</b>에 오도록 카드로 흘려 보여줍니다(오른쪽으로 갈수록 이전 글).
-    채널 태그로 걸러 보거나 검색할 수 있고, 각 카드의 <b>원문 ↗</b>을 누르면 텔레그램 원본으로 이동합니다.
-  </p>
 
-  <div class="section" id="digest-sec" style="display:none">
-    <h2>📰 오늘의 종합 요약<span class="sub">매일 밤 9시 자동 생성 · 섹터·매크로·전체를 한 글로</span></h2>
-    <div class="digest-box" id="digest-box"></div>
-    <div class="digest-past" id="digest-past"></div>
+  <div class="news-subtabs" id="news-tabs">
+    <button data-pane="digest" class="on">오늘 시황 요약</button>
+    <button data-pane="feed">실시간 피드</button>
+    <button data-pane="favs">즐겨찾기</button>
+    <button data-pane="sectors">금일 섹터별 요약</button>
   </div>
 
-  <div class="section">
-    <h2>실시간 피드<span class="sub">최신이 왼쪽 위 · 오른쪽으로 이전 글</span></h2>
+  <!-- 1. 오늘 시황 요약 -->
+  <div id="pane-digest">
+    <div class="digest-box" id="digest-box"><div class="spin">로딩 중…</div></div>
+    <div class="section" id="digest-archive-sec" style="display:none">
+      <h2>지난 요약<span class="sub">주차별 · 날짜를 누르면 해당 요약을 봅니다</span></h2>
+      <div id="digest-archive"></div>
+    </div>
+  </div>
+
+  <!-- 2. 실시간 피드 -->
+  <div id="pane-feed" style="display:none">
+    <p class="note">지정한 텔레그램 채널의 글을 <b>중복 제거</b> 후 <b>최신이 왼쪽 위</b>로 흐르게 보여줍니다. 카드 우측 상단 <b>★</b>로 즐겨찾기, <b>원문 ↗</b>으로 원본 이동.</p>
     <div class="news-controls">
       <input class="news-search" id="news-search" type="text" placeholder="뉴스 검색 (키워드)">
       <div class="ch-chips" id="ch-chips"></div>
     </div>
     <div id="news-list"><div class="spin">로딩 중…</div></div>
   </div>
+
+  <!-- 3. 즐겨찾기 -->
+  <div id="pane-favs" style="display:none">
+    <p class="note">피드에서 <b>★</b>로 담은 글이 여기에 모입니다. 이 브라우저에 저장됩니다.</p>
+    <div id="favs-list"></div>
+  </div>
+
+  <!-- 4. 금일 섹터별 요약 -->
+  <div id="pane-sectors" style="display:none">
+    <p class="note">시황 요약이 시장 <b>전체</b>를 봤다면, 여기서는 <b>섹터별</b>로 이슈를 모아 자세히 분석합니다. <span id="sectors-date" class="muted"></span></p>
+    <div id="sectors-list"><div class="spin">로딩 중…</div></div>
+  </div>
 </div>
 
 <script src="theme.js?v=20260708c"></script>
-<script src="stocks-common.js?v=20260708b"></script>
+<script src="stocks-common.js?v=20260714a"></script>
 <script>
 var NEWS = [], CHANNELS = [], curCh = "all", kw = "";
+var DIGESTS = [], curDigest = 0;
 var CH_COLORS = ["#3d7eff", "#f0b429", "#34d399", "#c084fc", "#f0475a", "#22d3ee", "#fb923c", "#a3e635"];
 function chColor(u) {
   var i = CHANNELS.findIndex(function (c) { return c.username === u; });
   return CH_COLORS[(i < 0 ? 0 : i) % CH_COLORS.length];
 }
 function pad2(n) { return (n < 10 ? "0" : "") + n; }
-function localDateKey(iso) { var d = new Date(iso); return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
-function fmtTime(iso) {
-  var d = new Date(iso);
-  return pad2(d.getHours()) + ":" + pad2(d.getMinutes());
-}
 function fmtDateTime(iso) {
   var d = new Date(iso);
   return pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
 }
-var WD = ["일", "월", "화", "수", "목", "금", "토"];
-function dateLabel(key) {
-  var now = new Date(), t = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  var p = key.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]);
-  var diff = Math.round((t - d) / 86400000);
-  var base = key + " (" + WD[d.getDay()] + ")";
-  if (diff === 0) return "오늘 · " + base;
-  if (diff === 1) return "어제 · " + base;
-  return base;
-}
 function linkify(text) {
   return escapeHtml(text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 }
+function isoWeek(dateStr) {
+  var d = new Date(dateStr + "T00:00:00");
+  var t = new Date(d); t.setDate(t.getDate() + 3 - ((d.getDay() + 6) % 7));
+  var wk1 = new Date(t.getFullYear(), 0, 4);
+  var w = 1 + Math.round(((t - wk1) / 86400000 - 3 + ((wk1.getDay() + 6) % 7)) / 7);
+  return t.getFullYear() + "-W" + pad2(w);
+}
 
+/* ---------- 뉴스 즐겨찾기 (localStorage, link 기준) ---------- */
+var NFAV_KEY = "etf_news_favs_v1";
+function nfavLoad() { try { return JSON.parse(localStorage.getItem(NFAV_KEY)) || {}; } catch (e) { return {}; } }
+function nfavSave(m) { try { localStorage.setItem(NFAV_KEY, JSON.stringify(m)); } catch (e) {} }
+function nfavHas(link) { return !!nfavLoad()[link]; }
+function nfavToggle(item) {
+  var m = nfavLoad();
+  if (m[item.link]) delete m[item.link];
+  else m[item.link] = { channel: item.channel, channel_title: item.channel_title, date: item.date, text: item.text, link: item.link, ts: Date.now() };
+  nfavSave(m);
+  return !!nfavLoad()[item.link];
+}
+function nfavList() {
+  var m = nfavLoad();
+  return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+}
+
+/* ---------- 카드 렌더 ---------- */
+function newsCardHTML(it) {
+  var col = chColor(it.channel);
+  var fav = nfavHas(it.link);
+  return '<div class="tg-card" style="border-top-color:' + col + '">' +
+    '<button class="tg-fav' + (fav ? " on" : "") + '" data-fav-link="' + escapeHtml(it.link) + '" title="즐겨찾기">' + (fav ? "★" : "☆") + "</button>" +
+    '<div class="tg-head">' +
+      '<span class="tg-ch" style="background:' + col + '">' + escapeHtml(it.channel_title || it.channel) + "</span>" +
+      '<span class="tg-time">' + fmtDateTime(it.date) + "</span>" +
+    "</div>" +
+    '<div class="tg-text">' + linkify(it.text) + "</div>" +
+    '<div class="tg-foot"><a class="tg-link" href="' + escapeHtml(it.link) + '" target="_blank" rel="noopener">원문 ↗</a></div>' +
+    "</div>";
+}
+function wireFavButtons(root, onToggle) {
+  root.querySelectorAll(".tg-fav[data-fav-link]").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var link = btn.dataset.favLink;
+      var item = NEWS.concat(nfavList()).filter(function (x) { return x.link === link; })[0];
+      if (!item) return;
+      var on = nfavToggle(item);
+      btn.classList.toggle("on", on);
+      btn.textContent = on ? "★" : "☆";
+      if (onToggle) onToggle();
+    });
+  });
+}
+
+/* ---------- 피드 ---------- */
 function renderChips() {
   var chips = ['<button class="ch-chip' + (curCh === "all" ? " on" : "") + '" data-ch="all"' +
     (curCh === "all" ? ' style="background:var(--accent)"' : "") + ">전체 " + NEWS.length + "</button>"];
@@ -133,99 +229,133 @@ function renderChips() {
   });
   $q("#ch-chips").innerHTML = chips.join("");
   $qa("#ch-chips .ch-chip").forEach(function (b) {
-    b.onclick = function () { curCh = b.dataset.ch; renderChips(); renderList(); };
+    b.onclick = function () { curCh = b.dataset.ch; renderChips(); renderFeed(); };
   });
 }
-
-function renderList() {
+function renderFeed() {
   var items = NEWS.filter(function (it) {
     if (curCh !== "all" && it.channel !== curCh) return false;
     if (kw && it.text.toLowerCase().indexOf(kw) < 0) return false;
     return true;
   });
   var host = $q("#news-list");
-  if (!items.length) {
-    host.innerHTML = '<div class="empty">조건에 맞는 뉴스가 없습니다.</div>';
-    return;
-  }
-  // 최신순(왼쪽 위부터) 직사각형 카드 그리드 — 오른쪽으로 흐르며 다음 줄로 밀림
-  host.innerHTML = '<div class="news-grid">' + items.map(function (it) {
-    var col = chColor(it.channel);
-    return '<div class="tg-card" style="border-top-color:' + col + '">' +
-      '<div class="tg-head">' +
-        '<span class="tg-ch" style="background:' + col + '">' + escapeHtml(it.channel_title || it.channel) + "</span>" +
-        '<span class="tg-time">' + fmtDateTime(it.date) + "</span>" +
-      "</div>" +
-      '<div class="tg-text">' + linkify(it.text) + "</div>" +
-      '<div class="tg-foot"><a class="tg-link" href="' + escapeHtml(it.link) + '" target="_blank" rel="noopener">원문 ↗</a></div>' +
-      "</div>";
-  }).join("") + "</div>";
+  if (!items.length) { host.innerHTML = '<div class="empty">조건에 맞는 뉴스가 없습니다.</div>'; return; }
+  host.innerHTML = '<div class="news-grid">' + items.map(newsCardHTML).join("") + "</div>";
+  wireFavButtons(host, function () { renderFavs(); });
 }
 
-function showSetup(msg) {
-  $q("#news-list").innerHTML = '<div class="news-empty">' + msg + "</div>";
+/* ---------- 즐겨찾기 ---------- */
+function renderFavs() {
+  var favs = nfavList();
+  var host = $q("#favs-list");
+  if (!favs.length) { host.innerHTML = '<div class="news-empty">아직 즐겨찾기한 글이 없습니다. 실시간 피드에서 카드 우측 상단 ☆를 눌러 담아보세요.</div>'; return; }
+  host.innerHTML = '<div class="news-grid">' + favs.map(newsCardHTML).join("") + "</div>";
+  wireFavButtons(host, function () { renderFavs(); });
 }
 
-$q("#news-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderList(); });
-
-/* ---------- 일일 종합 요약 ---------- */
-var DIGESTS = [], curDigest = 0;
+/* ---------- 시황 요약 ---------- */
 function renderDigest() {
   var d = DIGESTS[curDigest];
-  if (!d) return;
+  var box = $q("#digest-box");
+  if (!d) { box.innerHTML = '<div class="news-empty">아직 생성된 요약이 없습니다. 매일 밤 9시 자동 생성됩니다.</div>'; return; }
   var stats = (d.stats || []).map(function (s) {
     return '<div class="dstat"><div class="dl">' + escapeHtml(s.label) + "</div>" +
       '<div class="dv ' + (s.tone || "") + '">' + escapeHtml(s.value) + "</div>" +
       (s.note ? '<div class="dn2">' + escapeHtml(s.note) + "</div>" : "") + "</div>";
   }).join("");
-  $q("#digest-box").innerHTML =
+  var imgs = (d.images || []).map(function (im) {
+    return '<figure><img src="' + escapeHtml(im.url) + '" alt="">' + (im.caption ? "<figcaption>" + escapeHtml(im.caption) + "</figcaption>" : "") + "</figure>";
+  }).join("");
+  box.innerHTML =
     '<div class="digest-title">' + escapeHtml(d.title || "종합 요약") + "</div>" +
     '<div class="digest-meta">' + escapeHtml(d.generated || d.date || "") + "</div>" +
     (stats ? '<div class="digest-stats">' + stats + "</div>" : "") +
-    '<div class="digest-body collapsed" id="digest-body">' + mdRender(d.markdown) + "</div>" +
-    '<button class="digest-toggle" id="digest-toggle">전체 보기 ▾</button>';
-  $q("#digest-toggle").onclick = function () {
-    var col = $q("#digest-body").classList.toggle("collapsed");
-    this.textContent = col ? "전체 보기 ▾" : "접기 ▴";
-  };
+    (imgs ? '<div class="digest-imgs">' + imgs + "</div>" : "") +
+    '<div class="digest-body">' + mdRender(d.markdown) + "</div>";
 }
-function renderDigestPast() {
-  if (DIGESTS.length < 2) { $q("#digest-past").innerHTML = ""; return; }
-  $q("#digest-past").innerHTML = DIGESTS.map(function (d, i) {
-    return '<button class="dp' + (i === curDigest ? " on" : "") + '" data-di="' + i + '">' + escapeHtml(d.date) + "</button>";
+function renderArchive() {
+  var sec = $q("#digest-archive-sec");
+  if (DIGESTS.length < 2) { sec.style.display = "none"; return; }
+  sec.style.display = "";
+  var groups = {}, order = [];
+  DIGESTS.forEach(function (d, i) {
+    var wk = isoWeek(d.date);
+    if (!groups[wk]) { groups[wk] = []; order.push(wk); }
+    groups[wk].push({ d: d, i: i });
+  });
+  $q("#digest-archive").innerHTML = order.map(function (wk, gi) {
+    var rows = groups[wk].map(function (o) {
+      return '<div class="wk-item' + (o.i === curDigest ? " on" : "") + '" data-di="' + o.i + '">' +
+        '<span class="wd">' + o.d.date.slice(5) + "</span><span class=\"wt\">" + escapeHtml(o.d.title || "") + "</span></div>";
+    }).join("");
+    return '<div class="wk-group' + (gi === 0 ? " open" : "") + '"><button class="wk-head" data-wk="' + wk + '">' +
+      "<span>" + wk + " · " + groups[wk].length + "건</span><span class=\"wk-caret\">▾</span></button>" +
+      '<div class="wk-body" style="display:' + (gi === 0 ? "block" : "none") + '">' + rows + "</div></div>";
   }).join("");
-  $qa("#digest-past .dp").forEach(function (b) {
-    b.onclick = function () { curDigest = +b.dataset.di; renderDigest(); renderDigestPast(); };
+  $qa("#digest-archive .wk-head").forEach(function (h) {
+    h.onclick = function () {
+      var g = h.parentElement, body = g.querySelector(".wk-body");
+      var open = body.style.display === "none";
+      body.style.display = open ? "block" : "none";
+      g.classList.toggle("open", open);
+    };
+  });
+  $qa("#digest-archive .wk-item").forEach(function (it) {
+    it.onclick = function () { curDigest = +it.dataset.di; renderDigest(); renderArchive(); window.scrollTo({ top: 0, behavior: "smooth" }); };
   });
 }
+
+/* ---------- 섹터별 요약 ---------- */
+function renderSectors() {
+  var d = DIGESTS[0];
+  var host = $q("#sectors-list");
+  var secs = d && d.sectors;
+  if (!secs || !secs.length) {
+    host.innerHTML = '<div class="news-empty">아직 섹터별 요약이 없습니다. 매일 밤 9시 시황 요약과 함께 생성됩니다.</div>';
+    return;
+  }
+  $q("#sectors-date").textContent = "(" + (d.date || "") + ")";
+  host.innerHTML = '<div class="sector-grid">' + secs.map(function (s) {
+    var tone = s.tone || "flat";
+    return '<div class="sector-card ' + tone + '">' +
+      '<div class="sc-h"><span class="sc-name">' + escapeHtml(s.sector) + "</span>" +
+      '<span class="sc-stat ' + tone + '">' + escapeHtml(s.stat || "") + "</span></div>" +
+      '<div class="sector-analysis">' + mdRender(s.analysis || "") + "</div></div>";
+  }).join("") + "</div>";
+}
+
+/* ---------- 탭 ---------- */
+function showPane(name) {
+  ["digest", "feed", "favs", "sectors"].forEach(function (p) {
+    $q("#pane-" + p).style.display = p === name ? "" : "none";
+  });
+  $qa("#news-tabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.pane === name); });
+  if (name === "favs") renderFavs();
+}
+$qa("#news-tabs button").forEach(function (b) { b.onclick = function () { showPane(b.dataset.pane); }; });
+$q("#news-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderFeed(); });
+
+/* ---------- 로드 ---------- */
 fetchJSON("news_digest.json").then(function (d) {
   DIGESTS = (d.digests || []).slice().sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); });
-  if (!DIGESTS.length) return;
-  $q("#digest-sec").style.display = "";
   curDigest = 0;
   renderDigest();
-  renderDigestPast();
-}).catch(function () {});
+  renderArchive();
+  renderSectors();
+}).catch(function () { renderDigest(); });
 
 fetchJSON("telegram_news.json").then(function (d) {
   NEWS = d.items || [];
   CHANNELS = d.channels || [];
   $q("#updated").textContent = "갱신: " + (d.updated || "-") + " · " + NEWS.length + "건 · 채널 " + CHANNELS.length + "개";
   if (!CHANNELS.length) {
-    showSetup("아직 등록된 채널이 없습니다.<br>수집할 <b>공개</b> 텔레그램 채널 username을 <code>docs/telegram_channels.json</code>의 <code>channels</code> 배열에 넣으세요(@ 없이). " +
-      "예: <code>[\"financialjuice\", \"markettwits\"]</code>.<br><span class=\"muted small\">유료·비공개 방은 로그인이 필요해 이 방식으로는 수집되지 않습니다.</span>");
-    renderChips();
+    $q("#news-list").innerHTML = '<div class="news-empty">아직 등록된 채널이 없습니다. 공개 채널은 <code>docs/telegram_channels.json</code>에 username을 넣으면 됩니다. 비공개·유료방은 로그인 수집기가 필요합니다.</div>';
     return;
   }
-  if (!NEWS.length) {
-    showSetup("채널은 등록됐지만 아직 수집된 글이 없습니다. 수집 스크립트(fetch_telegram.py)가 한 번 실행되면 채워집니다.");
-  }
   renderChips();
-  renderList();
+  renderFeed();
 }).catch(function () {
-  $q("#updated").textContent = "";
-  showSetup("아직 뉴스 데이터가 없습니다.<br>수집할 <b>공개</b> 텔레그램 채널을 <code>docs/telegram_channels.json</code>에 넣고 <code>fetch_telegram.py</code>를 실행하세요. " +
-    "채널 목록은 원하시면 저에게 알려주셔도 됩니다.<br><span class=\"muted small\">유료·비공개 방은 로그인이 필요해 이 방식으로는 수집되지 않습니다.</span>");
+  $q("#news-list").innerHTML = '<div class="news-empty">아직 뉴스 데이터가 없습니다.</div>';
 });
 </script>
 </body>

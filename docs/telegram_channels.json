@@ -1,6 +1,7 @@
 {
-  "_설명": "여기 channels 배열에 수집할 '공개' 텔레그램 채널 username을 넣으세요(@ 없이). 유료·비공개 방은 로그인이 필요해 이 방식으로는 안 됩니다.",
+  "_설명": "channels = 수집할 '공개' 텔레그램 채널 username(@ 없이). 비공개·유료방은 로그인 수집기(fetch_telegram_private.py, 본인 1회 로그인)로 별도 수집 → private_channels 참고.",
   "channels": ["financialjuice", "markettwits"],
-  "keep": 200,
+  "private_channels_wanted": ["루팡", "오를주식", "카이에 de market", "Bad Onion 나쁜양파", "Dean's Ticker"],
+  "keep": 250,
   "max_age_days": 21
 }
