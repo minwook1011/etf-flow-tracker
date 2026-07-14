@@ -84,6 +84,29 @@
 .ins-card .ic-tags { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px; }
 .ins-card .ic-tags span { font-size: 10.5px; color: #c084fc; background: rgba(192,132,252,0.1); border-radius: 5px; padding: 1px 7px; }
 .ins-card .ic-tk { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 7px; }
+/* 핵심 인물 서브탭 */
+.ppsub { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 16px; }
+.ppsub button { background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  padding: 9px 18px; border-radius: 9px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
+.ppsub button.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+/* 인물 아코디언 */
+.person-acc { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; background: var(--card); }
+.person-acc .pa-head { display: flex; align-items: center; gap: 9px; width: 100%; background: none; border: 0; cursor: pointer;
+  font-family: inherit; color: var(--text); padding: 12px 14px; text-align: left; }
+.person-acc .pa-head:hover .pa-name { color: var(--accent); }
+.person-acc .pa-caret { color: var(--muted); font-size: 12px; transition: transform .15s; flex: 0 0 auto; }
+.person-acc.open .pa-caret { transform: rotate(180deg); }
+.person-acc .pa-name { font-weight: 800; font-size: 14.5px; }
+.person-acc .pa-affil { color: var(--muted); font-size: 12.5px; }
+.person-acc .pa-meta { margin-left: auto; color: var(--faint); font-size: 11.5px; font-family: var(--mono); white-space: nowrap; }
+.person-acc .pa-body { padding: 2px 12px 10px; }
+.person-acc .pa-body .stmt:first-child { border-top: none; }
+/* 발언 즐겨찾기 별 */
+.stmt { position: relative; padding-right: 26px; }
+.stmt-fav { position: absolute; top: 8px; right: 2px; background: none; border: none; cursor: pointer;
+  font-size: 16px; line-height: 1; color: var(--faint); padding: 0; z-index: 2; transition: color .12s, transform .12s; }
+.stmt-fav:hover { transform: scale(1.15); color: #f0b429; }
+.stmt-fav.on { color: #f0b429; }
 </style>
 </head>
 <body>
@@ -138,23 +161,33 @@
 
   <!-- ===== 서브탭 2: 핵심 인물 ===== -->
   <div id="pane-pp" style="display:none">
-    <div class="section" id="insight-sec">
-      <h2>🔎 인사이트 리서치 <span class="sub">주요 발언·사건에서 파생된 심층 분석 · 카드 클릭 = 전체 보기</span></h2>
-      <input class="search" id="ins-search" placeholder="인사이트 검색 — 제목·태그·종목 (예: HBM, 전력, 밸류에이션)" style="margin-bottom:10px">
-      <div class="grid" id="insight-list" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"><div class="spin">로딩 중…</div></div>
+    <div class="ppsub" id="pp-subtabs">
+      <button data-sub="stmt" class="on">주차별 발언</button>
+      <button data-sub="fav">즐겨찾기</button>
+      <button data-sub="ins">인사이트 리서치</button>
     </div>
-    <div class="section">
-      <input class="search" id="kw-search" placeholder="키워드 검색 — 발언·시사점·분석·태그 전체에서 필터 (예: 원자력, 금리, HBM)">
+
+    <div id="ppsub-stmt">
+      <div class="section">
+        <h2>인물별 발언 <span class="sub" id="dir-count"></span></h2>
+        <input class="search" id="kw-search" placeholder="검색 — 인물·소속·발언 내용 (예: 워시, AI, 금리)" style="margin-bottom:12px">
+        <div id="person-dir"><div class="spin">로딩 중…</div></div>
+      </div>
     </div>
-    <div class="section">
-      <h2>인물 디렉토리 <span class="sub" id="dir-count"></span></h2>
-      <input class="search" id="pp-search" placeholder="인물 이름·소속 검색" style="margin-bottom:8px">
-      <div id="directory"></div>
+
+    <div id="ppsub-fav" style="display:none">
+      <div class="section">
+        <h2>즐겨찾기 <span class="sub">발언 우측 ☆를 눌러 담은 항목 · 이 브라우저에 저장</span></h2>
+        <div id="stmt-favs"></div>
+      </div>
     </div>
-    <div class="section">
-      <h2>주차별 발언 <span class="sub">헤더 클릭 시 펼치기/접기 — 클릭 전에도 건수·주요 인물 표시</span></h2>
-      <div class="wk-nav" id="week-nav"></div>
-      <div id="stmt-weeks"><div class="spin">로딩 중…</div></div>
+
+    <div id="ppsub-ins" style="display:none">
+      <div class="section" id="insight-sec">
+        <h2>🔎 인사이트 리서치 <span class="sub">앞으로 올라오는 발언에서 자동 생성되는 심층 분석 · 카드 클릭 = 전체 보기</span></h2>
+        <input class="search" id="ins-search" placeholder="인사이트 검색 — 제목·태그·종목 (예: HBM, 전력, 밸류에이션)" style="margin-bottom:10px">
+        <div class="grid" id="insight-list" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"><div class="spin">로딩 중…</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -486,8 +519,109 @@ function renderStatements() {
 }
 
 /* 검색 입력 */
-$q("#kw-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderStatements(); });
-$q("#pp-search").addEventListener("input", function () { ppName = this.value; renderDirectory(); });
+/* ---------- 발언 즐겨찾기 (localStorage) ---------- */
+var SFAV_KEY = "etf_stmt_favs_v1";
+function sfavLoad() { try { return JSON.parse(localStorage.getItem(SFAV_KEY)) || {}; } catch (e) { return {}; } }
+function sfavSave(m) { try { localStorage.setItem(SFAV_KEY, JSON.stringify(m)); } catch (e) {} }
+function sfavKey(s) { return s.person_id + "|" + s.date + "|" + String(s.statement || "").slice(0, 30); }
+function sfavHas(s) { return !!sfavLoad()[sfavKey(s)]; }
+function sfavToggle(s) { var m = sfavLoad(), k = sfavKey(s); if (m[k]) delete m[k]; else m[k] = { s: s, ts: Date.now() }; sfavSave(m); return !!sfavLoad()[k]; }
+function sfavListSorted() { var m = sfavLoad(); return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); }).map(function (x) { return x.s; }); }
+
+/* 발언 1개 렌더(아코디언·즐겨찾기 공용) */
+function stmtHTML(s, idp, i) {
+  var p = personById(s.person_id) || { name: s.person_id, affil: "" };
+  var badge = isNew(s.added) ? ' <span class="badge new">NEW</span>' : "";
+  var hasAn = s.analysis && s.analysis.trim();
+  var fav = sfavHas(s);
+  var sd = encodeURIComponent(JSON.stringify(s));
+  return '<div class="stmt" id="' + idp + "-" + i + '">' +
+    '<button class="stmt-fav' + (fav ? " on" : "") + '" data-s="' + sd + '" title="즐겨찾기">' + (fav ? "★" : "☆") + "</button>" +
+    '<div class="head" onclick="this.parentElement.classList.toggle(\'open\')">' +
+    '<span class="s-name">' + escapeHtml(p.name) + "</span> " +
+    '<span class="muted">(' + escapeHtml(p.affil) + ")</span>: " + escapeHtml(s.statement) + badge +
+    '<div class="muted small" style="margin-top:3px">' + escapeHtml(s.date) + " · " +
+    (s.link ? '<a href="' + escapeHtml(s.link) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escapeHtml(s.source || "출처") + "</a>" : escapeHtml(s.source || "")) +
+    (hasAn ? ' · <span style="color:var(--accent)">클릭하여 상세 분석 ▾</span>' : "") + "</div></div>" +
+    (s.implication ? '<div class="impl"><b>핵심 시사점:</b> ' + escapeHtml(s.implication) + "</div>" : "") +
+    (s.tags && s.tags.length ? '<div class="tags">' + s.tags.map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>" : "") +
+    (hasAn ? '<div class="analysis">' + mdRender(s.analysis) + "</div>" : "") +
+    insightBoxHTML(insightsForStatement(s.person_id, s.date)) +
+    "</div>";
+}
+function wireStmtFav(root) {
+  if (!root) return;
+  root.querySelectorAll(".stmt-fav[data-s]").forEach(function (btn) {
+    btn.onclick = function (e) {
+      e.stopPropagation();
+      var s; try { s = JSON.parse(decodeURIComponent(btn.dataset.s)); } catch (err) { return; }
+      var on = sfavToggle(s); btn.classList.toggle("on", on); btn.textContent = on ? "★" : "☆";
+    };
+  });
+}
+
+/* 인물별 발언 아코디언 */
+function personGroups() {
+  var map = {};
+  (PP.weeks || []).forEach(function (w) { (w.statements || []).forEach(function (s) { (map[s.person_id] = map[s.person_id] || []).push(s); }); });
+  return Object.keys(map).map(function (pid) {
+    var list = map[pid].slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    var p = personById(pid) || { name: pid, affil: "", type: "" };
+    return { pid: pid, p: p, list: list, latest: list[0] ? list[0].date : "" };
+  }).sort(function (a, b) { return String(b.latest).localeCompare(String(a.latest)) || (b.list.length - a.list.length); });
+}
+var openPersons = {};
+function renderPersonDir() {
+  var q = kw;
+  var groups = personGroups().filter(function (g) {
+    if (!q) return true;
+    var hay = (g.p.name + " " + g.p.affil + " " + g.list.map(function (s) { return s.statement; }).join(" ")).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  });
+  var totalStmts = (PP.weeks || []).reduce(function (a, w) { return a + (w.statements || []).length; }, 0);
+  $q("#dir-count").textContent = "인물 " + groups.length + "명 · 발언 " + totalStmts + "건 · 세모(▾)로 펼치기";
+  var forceOpen = !!q;
+  $q("#person-dir").innerHTML = groups.map(function (g) {
+    var open = forceOpen || !!openPersons[g.pid];
+    var items = g.list.map(function (s, i) { return stmtHTML(s, "pd-" + g.pid, i); }).join("");
+    var hasNew = g.list.some(function (s) { return isNew(s.added); });
+    return '<div class="person-acc' + (open ? " open" : "") + '">' +
+      '<button class="pa-head" data-pid="' + escapeHtml(g.pid) + '">' +
+      '<span class="pa-caret">▾</span>' +
+      '<span class="pa-name">' + escapeHtml(g.p.name) + "</span>" +
+      '<span class="pa-affil">' + escapeHtml(g.p.affil || "") + "</span>" +
+      (hasNew ? ' <span class="badge new">NEW</span>' : "") +
+      '<span class="pa-meta">' + g.list.length + "건 · 최근 " + escapeHtml(g.latest) + "</span>" +
+      "</button>" +
+      '<div class="pa-body" style="display:' + (open ? "block" : "none") + '">' + items + "</div></div>";
+  }).join("") || '<div class="empty">인물 없음</div>';
+  $qa("#person-dir .pa-head").forEach(function (h) {
+    h.onclick = function () {
+      var pid = h.dataset.pid; openPersons[pid] = !openPersons[pid];
+      var acc = h.parentElement, body = acc.querySelector(".pa-body"), open = !!openPersons[pid];
+      body.style.display = open ? "block" : "none"; acc.classList.toggle("open", open);
+    };
+  });
+  wireStmtFav($q("#person-dir"));
+}
+function renderStmtFavs() {
+  var favs = sfavListSorted();
+  $q("#stmt-favs").innerHTML = favs.length ? favs.map(function (s, i) { return stmtHTML(s, "sf", i); }).join("")
+    : '<div class="empty">즐겨찾기한 발언이 없습니다. 발언 우측 ☆를 눌러 담아보세요.</div>';
+  wireStmtFav($q("#stmt-favs"));
+}
+/* 핵심 인물 서브탭 */
+function showPpSub(name) {
+  ["stmt", "fav", "ins"].forEach(function (n) { var el = $q("#ppsub-" + n); if (el) el.style.display = n === name ? "" : "none"; });
+  $qa("#pp-subtabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.sub === name); });
+  if (name === "stmt") renderPersonDir();
+  if (name === "fav") renderStmtFavs();
+  if (name === "ins") renderInsightList();
+}
+$qa("#pp-subtabs button").forEach(function (b) { b.onclick = function () { showPpSub(b.dataset.sub); }; });
+
+/* 검색 입력 */
+$q("#kw-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderPersonDir(); });
 $q("#ins-search").addEventListener("input", function () { renderInsightList(); });
 
 /* ============ 로드 ============ */
@@ -500,9 +634,7 @@ Promise.all([
   INSIGHTS = rs[2].insights || [];
   $q("#updated").textContent = "행사 갱신: " + (EV.updated || "-") + " · 인물/발언 갱신: " + (PP.updated || "-");
   renderEvents();
-  renderInsightList();
-  renderDirectory();
-  renderStatements();
+  renderPersonDir();
 });
 </script>
 </body>
