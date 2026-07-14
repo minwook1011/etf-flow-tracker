@@ -1,5 +1,8 @@
-__pycache__/
+*.log
 *.pyc
+*.session
+*.session-journal
 .DS_Store
 Thumbs.db
-*.log
+__pycache__/
+telegram_secret.json
