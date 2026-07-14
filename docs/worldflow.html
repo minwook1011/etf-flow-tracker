@@ -84,6 +84,14 @@
 .ins-card .ic-tags { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px; }
 .ins-card .ic-tags span { font-size: 10.5px; color: #c084fc; background: rgba(192,132,252,0.1); border-radius: 5px; padding: 1px 7px; }
 .ins-card .ic-tk { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 7px; }
+/* 인물별 발언 접기 블록 */
+.dir-collapse { border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); overflow: hidden; }
+.dir-toggle { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; cursor: pointer;
+  font-family: inherit; color: var(--text); padding: 12px 14px; text-align: left; font-weight: 800; font-size: 14.5px; }
+.dir-toggle:hover { color: var(--accent); }
+.dir-toggle .dir-caret { color: var(--muted); font-size: 12px; transition: transform .15s; }
+.dir-toggle .sub { font-weight: 400; }
+.dir-body { padding: 4px 14px 12px; }
 /* 핵심 인물 서브탭 */
 .ppsub { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 16px; }
 .ppsub button { background: var(--card); border: 1px solid var(--border); color: var(--muted);
@@ -169,9 +177,13 @@
 
     <div id="ppsub-stmt">
       <div class="section">
-        <h2>인물별 발언 <span class="sub" id="dir-count"></span></h2>
-        <input class="search" id="kw-search" placeholder="검색 — 인물·소속·발언 내용 (예: 워시, AI, 금리)" style="margin-bottom:12px">
-        <div id="person-dir"><div class="spin">로딩 중…</div></div>
+        <div class="dir-collapse">
+          <button class="dir-toggle" id="dir-toggle"><span class="dir-caret">▸</span> 인물별 발언 <span class="sub" id="dir-count"></span></button>
+          <div class="dir-body" id="directory" style="display:none"></div>
+        </div>
+        <input class="search" id="kw-search" placeholder="검색 — 인물·소속·발언 (예: 워시, AI, 금리)" style="margin:14px 0 14px">
+        <div class="wk-nav" id="week-nav"></div>
+        <div id="stmt-weeks"><div class="spin">로딩 중…</div></div>
       </div>
     </div>
 
@@ -489,23 +501,7 @@ function renderStatements() {
   var html = weekData.map(function (x) {
     var w = x.w, list = x.list;
     var isOpen = forceOpen || openWeeks.has(w.week);
-    var items = list.map(function (s, i) {
-      var p = personById(s.person_id) || { name: s.person_id, affil: "" };
-      var badge = isNew(s.added) ? ' <span class="badge new">NEW</span>' : "";
-      var hasAn = s.analysis && s.analysis.trim();
-      return '<div class="stmt" id="stmt-' + escapeHtml(w.week) + "-" + i + '">' +
-        '<div class="head" onclick="this.parentElement.classList.toggle(\'open\')">' +
-        '<span class="s-name">' + escapeHtml(p.name) + "</span>" +
-        '<span class="muted">(' + escapeHtml(p.affil) + ")</span>: " + escapeHtml(s.statement) + badge +
-        '<div class="muted small" style="margin-top:3px">' + escapeHtml(s.date) + " · " +
-        (s.link ? '<a href="' + escapeHtml(s.link) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escapeHtml(s.source || "출처") + "</a>" : escapeHtml(s.source || "")) +
-        (hasAn ? ' · <span style="color:var(--accent)">클릭하여 상세 분석 보기 ▾</span>' : "") + "</div></div>" +
-        '<div class="impl"><b>핵심 시사점:</b> ' + escapeHtml(s.implication) + "</div>" +
-        (s.tags && s.tags.length ? '<div class="tags">' + s.tags.map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>" : "") +
-        (hasAn ? '<div class="analysis">' + mdRender(s.analysis) + "</div>" : "") +
-        insightBoxHTML(insightsForStatement(s.person_id, s.date)) +
-        "</div>";
-    }).join("");
+    var items = list.map(function (s, i) { return stmtHTML(s, "st-" + w.week, i); }).join("");
     var hasNew = list.some(function (s) { return isNew(s.added); });
     return '<div class="wk-section' + (isOpen ? " open" : "") + '" id="wk-' + escapeHtml(w.week) + '">' +
       '<div class="wk-head" onclick="toggleWeek(\'' + escapeHtml(w.week) + '\')">' +
@@ -516,6 +512,7 @@ function renderStatements() {
   }).join("");
   $q("#stmt-weeks").innerHTML = html ||
     '<div class="empty">' + (kw || selPerson ? "필터에 해당하는 발언이 없습니다" : "등록된 발언 없음 — docs/people.json에 추가하세요") + "</div>";
+  wireStmtFav($q("#stmt-weeks"));
 }
 
 /* 검색 입력 */
@@ -614,14 +611,19 @@ function renderStmtFavs() {
 function showPpSub(name) {
   ["stmt", "fav", "ins"].forEach(function (n) { var el = $q("#ppsub-" + n); if (el) el.style.display = n === name ? "" : "none"; });
   $qa("#pp-subtabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.sub === name); });
-  if (name === "stmt") renderPersonDir();
+  if (name === "stmt") { renderDirectory(); renderStatements(); }
   if (name === "fav") renderStmtFavs();
   if (name === "ins") renderInsightList();
 }
 $qa("#pp-subtabs button").forEach(function (b) { b.onclick = function () { showPpSub(b.dataset.sub); }; });
+$q("#dir-toggle").onclick = function () {
+  var b = $q("#directory"), open = b.style.display === "none";
+  b.style.display = open ? "block" : "none";
+  this.querySelector(".dir-caret").style.transform = open ? "rotate(90deg)" : "";
+};
 
 /* 검색 입력 */
-$q("#kw-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderPersonDir(); });
+$q("#kw-search").addEventListener("input", function () { kw = this.value.trim().toLowerCase(); renderStatements(); });
 $q("#ins-search").addEventListener("input", function () { renderInsightList(); });
 
 /* ============ 로드 ============ */
@@ -634,7 +636,8 @@ Promise.all([
   INSIGHTS = rs[2].insights || [];
   $q("#updated").textContent = "행사 갱신: " + (EV.updated || "-") + " · 인물/발언 갱신: " + (PP.updated || "-");
   renderEvents();
-  renderPersonDir();
+  renderDirectory();
+  renderStatements();
 });
 </script>
 </body>
