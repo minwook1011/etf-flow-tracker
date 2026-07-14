@@ -217,6 +217,27 @@ a:hover { text-decoration: underline; }
 .fav-item:hover .fav-rm { opacity: 1; }
 .fav-rm:hover { color: var(--up); background: var(--card-hover); }
 
+/* ---------- 5년 구간별 등락 분석 ---------- */
+.seg-title { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent);
+  margin: 20px 0 8px; font-weight: 800; }
+.seg-chart { border: 1px solid var(--border); border-radius: 9px; background: var(--bg2); padding: 8px 6px; margin-bottom: 10px; }
+.seg-list { display: flex; flex-direction: column; gap: 2px; }
+.seg-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--card); font-size: 12.5px; }
+.seg-row.has { cursor: pointer; }
+.seg-row.has:hover { border-color: var(--accent); background: var(--card-hover); }
+.seg-row .seg-dt { font-family: var(--mono); font-size: 11.5px; color: var(--muted); flex: 0 0 auto; }
+.seg-row .seg-pct { font-family: var(--mono); font-weight: 800; }
+.seg-row .seg-pct.up { color: var(--up); }
+.seg-row .seg-pct.dn { color: var(--dn); }
+.seg-row .seg-cta { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--accent); }
+.seg-row:not(.has) .seg-cta { color: var(--faint); font-weight: 400; }
+.seg-analysis { padding: 4px 12px 12px; }
+.seg-analysis .md p { font-size: 13px; line-height: 1.7; margin: 6px 0; }
+.seg-analysis .md h2, .seg-analysis .md h3 { font-size: 13px; font-weight: 800; margin: 10px 0 4px; }
+.seg-analysis .md strong { color: var(--text); text-decoration: underline;
+  text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
 /* ---------- 색상/배지 ---------- */
 .up { color: var(--up); }
 .dn { color: var(--dn); }

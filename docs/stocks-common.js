@@ -803,6 +803,7 @@ function statModalBody(cfg) {
     chartHtml +
     (cfg.ta ? statTaSectionHTML(cfg.ta) : "") +
     statFinSectionHTML(cfg) +
+    '<div id="seg-holder">' + segSectionHTML(cfg) + "</div>" +
     (cfg.holdings ? holdingsGridHTML(cfg.holdings, cfg.holdingsTitle, !!cfg.onHoldingClick) : "") +
     (cfg.news !== undefined ? newsListHTML(cfg.news) : "");
 }
@@ -839,6 +840,119 @@ function wireStatFinToggle() {
     };
   });
 }
+/* ---------- 5년 구간별 등락 분석 (20% 지그재그 추세 분할) ---------- */
+var _stockPeriods = null;
+function loadStockPeriods() {
+  if (_stockPeriods) return Promise.resolve(_stockPeriods);
+  return fetchJSON("megacap_periods.json").then(function (d) {
+    _stockPeriods = (d && d.stocks) || {};
+    return _stockPeriods;
+  }).catch(function () { _stockPeriods = {}; return {}; });
+}
+function computeSegments(candles, thr) {
+  thr = thr || 0.20;
+  var pts = [];
+  (candles || []).forEach(function (c) { if (typeof c.c === "number") pts.push({ d: c.d, p: c.c }); });
+  if (pts.length < 12) return [];
+  var piv = [0], exti = 0, dr = 0, base = pts[0].p;
+  for (var i = 1; i < pts.length; i++) {
+    var ep = pts[exti].p, p = pts[i].p;
+    if (dr === 0) {
+      if (p >= ep * (1 + thr)) { dr = 1; piv.push(exti); exti = i; }
+      else if (p <= ep * (1 - thr)) { dr = -1; piv.push(exti); exti = i; }
+      else if (Math.abs(p / base - 1) > Math.abs(ep / base - 1)) exti = i;
+    } else if (dr === 1) {
+      if (p > ep) exti = i;
+      else if (p <= ep * (1 - thr)) { piv.push(exti); dr = -1; exti = i; }
+    } else {
+      if (p < ep) exti = i;
+      else if (p >= ep * (1 + thr)) { piv.push(exti); dr = 1; exti = i; }
+    }
+  }
+  if (piv[piv.length - 1] !== exti) piv.push(exti);
+  if (piv[piv.length - 1] !== pts.length - 1) piv.push(pts.length - 1);
+  var segs = [];
+  for (var j = 1; j < piv.length; j++) {
+    var a = pts[piv[j - 1]], b = pts[piv[j]];
+    var pct = (b.p / a.p - 1) * 100;
+    segs.push({ start: a.d, end: b.d, sp: +a.p.toFixed(2), ep: +b.p.toFixed(2), dir: pct >= 0 ? "up" : "down", pct: +pct.toFixed(1) });
+  }
+  return segs;
+}
+function segmentsChartSVG(candles, segs, w, h) {
+  var pts = [];
+  (candles || []).forEach(function (c) { if (typeof c.c === "number") pts.push({ d: c.d, p: c.c }); });
+  if (pts.length < 2) return "";
+  w = w || 820; h = h || 210;
+  var padL = 6, padR = 6, padT = 24, padB = 18, iw = w - padL - padR, ih = h - padT - padB;
+  var lo = Infinity, hi = -Infinity;
+  pts.forEach(function (p) { lo = Math.min(lo, p.p); hi = Math.max(hi, p.p); });
+  var span = (hi - lo) || 1;
+  function X(i) { return padL + iw * i / (pts.length - 1); }
+  function Y(v) { return padT + ih * (1 - (v - lo) / span); }
+  var idx = {}; pts.forEach(function (p, i) { idx[p.d] = i; });
+  var base = pts.map(function (p, i) { return X(i).toFixed(1) + "," + Y(p.p).toFixed(1); }).join(" ");
+  var segLines = "", dividers = "", labels = "";
+  segs.forEach(function (g) {
+    var s = idx[g.start], e = idx[g.end];
+    if (s == null || e == null) return;
+    var col = g.dir === "up" ? "var(--up)" : "var(--dn)";
+    var poly = "";
+    for (var i = s; i <= e; i++) poly += (i > s ? " " : "") + X(i).toFixed(1) + "," + Y(pts[i].p).toFixed(1);
+    segLines += '<polyline points="' + poly + '" fill="none" stroke="' + col + '" stroke-width="2.2"/>';
+    dividers += '<line x1="' + X(e).toFixed(1) + '" y1="' + padT + '" x2="' + X(e).toFixed(1) + '" y2="' + (padT + ih) + '" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="3 3"/>';
+    var mx = (X(s) + X(e)) / 2;
+    labels += '<text x="' + mx.toFixed(1) + '" y="13" fill="' + col + '" font-size="10" font-weight="700" text-anchor="middle">' + (g.pct > 0 ? "+" : "") + g.pct + "%</text>";
+  });
+  var years = "", seen = {};
+  pts.forEach(function (p, i) { var y = p.d.slice(0, 4); if (!seen[y]) { seen[y] = 1; years += '<text x="' + X(i).toFixed(1) + '" y="' + (h - 5) + '" fill="var(--muted)" font-size="9" text-anchor="middle">' + y + "</text>"; } });
+  return '<svg viewBox="0 0 ' + w + " " + h + '" width="100%" style="display:block">' +
+    '<polyline points="' + base + '" fill="none" stroke="var(--border)" stroke-width="1"/>' +
+    dividers + segLines + labels + years + "</svg>";
+}
+function segSectionHTML(cfg) {
+  if (!cfg.candles || cfg.candles.length < 30) return "";
+  var pdata = (_stockPeriods && cfg.tk && _stockPeriods[cfg.tk]) || null;
+  var segs = (pdata && pdata.segments && pdata.segments.length) ? pdata.segments : computeSegments(cfg.candles);
+  if (!segs.length) return "";
+  var chart = segmentsChartSVG(cfg.candles, segs);
+  var rows = segs.slice().reverse().map(function (g, ri) {
+    var k = segs.length - 1 - ri;
+    var arrow = g.dir === "up" ? "▲" : "▼";
+    var cls = g.dir === "up" ? "up" : "dn";
+    var hasA = g.analysis && String(g.analysis).trim();
+    return '<div class="seg-row' + (hasA ? " has" : "") + '" data-seg="' + k + '">' +
+      '<span class="seg-dt">' + escapeHtml(g.start) + " → " + escapeHtml(g.end) + "</span>" +
+      '<span class="seg-pct ' + cls + '">' + arrow + " " + (g.pct > 0 ? "+" : "") + g.pct + "%</span>" +
+      '<span class="seg-cta">' + (hasA ? "이유 보기 ▾" : "분석 준비 중") + "</span></div>" +
+      '<div class="seg-analysis" data-seg-body="' + k + '" style="display:none">' + (hasA ? mdRender(g.analysis) : "") + "</div>";
+  }).join("");
+  var done = segs.some(function (g) { return g.analysis; });
+  return '<h4 class="seg-title">5년 구간별 등락 분석 <span class="muted small" style="font-weight:400">20% 추세 기준 · ' +
+    (done ? "구간 클릭 = 상승/하락 이유" : "구간 자동 분할됨 · 이유 분석 순차 작성 중") + "</span></h4>" +
+    '<div class="seg-chart">' + chart + "</div>" +
+    '<div class="seg-list">' + rows + "</div>";
+}
+function wireSegRows(root) {
+  root = root || document.getElementById("modal-back");
+  if (!root) return;
+  root.querySelectorAll(".seg-row.has[data-seg]").forEach(function (r) {
+    r.onclick = function () {
+      var body = root.querySelector('.seg-analysis[data-seg-body="' + r.dataset.seg + '"]');
+      if (!body) return;
+      var open = body.style.display === "none";
+      body.style.display = open ? "block" : "none";
+      r.classList.toggle("open", open);
+    };
+  });
+}
+function refreshSegSection(cfg) {
+  loadStockPeriods().then(function () {
+    var mb = document.getElementById("modal-back");
+    var h = mb && mb.querySelector("#seg-holder");
+    if (h) { h.innerHTML = segSectionHTML(cfg); wireSegRows(mb); }
+  });
+}
 function openStatModal(cfg) {
   _statModalCfg = cfg;
   _statModalWin = 90;
@@ -853,6 +967,8 @@ function openStatModal(cfg) {
     priceHtml
   );
   wireFavStars(document.getElementById("modal-back"));
+  wireSegRows(document.getElementById("modal-back"));
+  refreshSegSection(cfg);
   $qa("[data-swin]").forEach(function (b) {
     b.onclick = function () { _statModalWin = +b.dataset.swin; rerenderStatModal(); };
   });
@@ -872,6 +988,7 @@ function rerenderStatModal() {
   wireHoldingClicks(_statModalCfg);
   wireStatFinToggle();
   wireTrendToggle();
+  wireSegRows(document.getElementById("modal-back"));
 }
 
 /* ---------- 차트 클립보드 복사 ----------
