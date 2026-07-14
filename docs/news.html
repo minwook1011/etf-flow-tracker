@@ -86,15 +86,28 @@
 .wk-item .wt { font-size: 13px; }
 
 /* 섹터별 요약 */
+.sector-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 16px; }
+.sector-chip { background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+.sector-chip.on { color: #fff; background: var(--accent); border-color: transparent; }
 .sector-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-.sector-card { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 11px;
+.sector-grid.single { grid-template-columns: 1fr; }
+.sector-card { border: 1px solid var(--border); border-left: 3px solid var(--border-strong); border-radius: 11px;
   background: var(--card); padding: 14px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.18); }
 .sector-card.up { border-left-color: var(--up); } .sector-card.dn { border-left-color: var(--dn); }
-.sc-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-.sc-name { font-size: 15px; font-weight: 800; }
-.sc-stat { font-family: var(--mono); font-size: 11.5px; font-weight: 700; }
-.sc-stat.up { color: var(--up); } .sc-stat.dn { color: var(--dn); } .sc-stat.flat { color: var(--muted); }
-.sector-analysis .md p { font-size: 13.5px; line-height: 1.72; margin: 5px 0; }
+.sc-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+/* 제목만 색(빨강=강세/파랑=약세), 나머지 텍스트는 흰색 */
+.sc-name { font-size: 15.5px; font-weight: 800; color: var(--text); }
+.sector-card.up .sc-name { color: var(--up); }
+.sector-card.dn .sc-name { color: var(--dn); }
+.sc-stat { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.sector-analysis .md p { font-size: 13.5px; line-height: 1.75; margin: 5px 0; color: var(--text); }
+.sector-analysis .md strong { color: var(--text); text-decoration: underline;
+  text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.sector-card.big { padding: 18px 20px; }
+.sec-news-title { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase;
+  letter-spacing: .04em; margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid var(--border); }
+.sec-news-empty { font-size: 12.5px; color: var(--faint); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -306,6 +319,40 @@ function renderArchive() {
 }
 
 /* ---------- 섹터별 요약 ---------- */
+var curSector = "all";
+var SECTOR_KW = {
+  "AI·빅테크": ["ai", "인공지능", "meta", "메타", "openai", "오픈ai", "zuckerberg", "저커버그", "altman", "올트먼", "nvidia", "엔비디아", "gpt", "capex", "캡엑스", "microsoft", "msft", "구글", "google", "alphabet", "anthropic", "앤스로픽"],
+  "반도체·메모리": ["반도체", "semiconductor", "chip", "hbm", "메모리", "memory", "hynix", "하이닉스", "삼성", "samsung", "micron", "마이크론", "tsmc", "dram", "nand", "엔비디아", "nvidia", "amd", "broadcom", "브로드컴", "avgo"],
+  "미국 금융": ["은행", "bank", "jpmorgan", "jp모간", "금리", "국채", "yield", "fed", "연준", "금융", "goldman", "골드만", "dimon", "다이먼", "blackrock", "블랙록"],
+  "에너지": ["에너지", "oil", "유가", "crude", "energy", "opec", "천연가스", "gas", "정유", "원유", "brent", "wti", "exxon", "chevron"],
+  "자동차·전기차": ["테슬라", "tesla", "tsla", "ev", "전기차", "자동차", "auto", "현대", "rivian", "gm", "ford", "포드", "옵티머스", "optimus", "배터리", "battery", "byd"],
+  "소비·항공": ["항공", "airline", "delta", "델타", "소비", "retail", "소매", "여행", "travel", "소비재", "레저", "boeing", "보잉", "호텔"],
+  "신재생·태양광": ["태양광", "solar", "풍력", "wind", "재생", "renewable", "수소", "hydrogen", "esg", "clean"],
+  "한국": ["코스피", "코스닥", "kospi", "kosdaq", "삼성전자", "sk", "한국", "korea", "k방산", "방산", "현대차", "posco", "포스코"],
+  "중국·아시아": ["중국", "china", "대만", "taiwan", "일본", "japan", "홍콩", "아시아", "nikkei", "닛케이", "항셍", "alibaba", "알리바바"]
+};
+function sectorMatchNews(kws) {
+  if (!kws || !kws.length) return [];
+  var low = kws.map(function (k) { return String(k).toLowerCase(); });
+  return NEWS.filter(function (it) {
+    var t = (it.text || "").toLowerCase();
+    return low.some(function (k) { return t.indexOf(k) >= 0; });
+  }).slice(0, 30);
+}
+function sectorNewsHTML(s) {
+  var rel = sectorMatchNews(s.keywords && s.keywords.length ? s.keywords : SECTOR_KW[s.sector]);
+  if (!rel.length) return '<div class="sec-news-empty">이 섹터에 매칭된 실시간 뉴스가 아직 없습니다. (텔레그램 방 연동 시 크게 늘어납니다)</div>';
+  return '<div class="sec-news-title">관련 실시간 뉴스 · ' + rel.length + "건</div>" +
+    '<div class="news-grid">' + rel.map(newsCardHTML).join("") + "</div>";
+}
+function sectorCardHTML(s, big) {
+  var tone = s.tone || "flat";
+  return '<div class="sector-card ' + tone + (big ? " big" : "") + '">' +
+    '<div class="sc-h"><span class="sc-name">' + escapeHtml(s.sector) + "</span>" +
+    '<span class="sc-stat">' + escapeHtml(s.stat || "") + "</span></div>" +
+    '<div class="sector-analysis">' + mdRender(s.analysis || "") + "</div>" +
+    (big ? sectorNewsHTML(s) : "") + "</div>";
+}
 function renderSectors() {
   var d = DIGESTS[0];
   var host = $q("#sectors-list");
@@ -315,13 +362,23 @@ function renderSectors() {
     return;
   }
   $q("#sectors-date").textContent = "(" + (d.date || "") + ")";
-  host.innerHTML = '<div class="sector-grid">' + secs.map(function (s) {
-    var tone = s.tone || "flat";
-    return '<div class="sector-card ' + tone + '">' +
-      '<div class="sc-h"><span class="sc-name">' + escapeHtml(s.sector) + "</span>" +
-      '<span class="sc-stat ' + tone + '">' + escapeHtml(s.stat || "") + "</span></div>" +
-      '<div class="sector-analysis">' + mdRender(s.analysis || "") + "</div></div>";
-  }).join("") + "</div>";
+  var chips = ['<button class="sector-chip' + (curSector === "all" ? " on" : "") + '" data-sec="all">전체</button>'];
+  secs.forEach(function (s) {
+    chips.push('<button class="sector-chip' + (curSector === s.sector ? " on" : "") + '" data-sec="' + escapeHtml(s.sector) + '">' + escapeHtml(s.sector) + "</button>");
+  });
+  var body;
+  if (curSector === "all") {
+    body = '<div class="sector-grid">' + secs.map(function (s) { return sectorCardHTML(s, false); }).join("") + "</div>";
+  } else {
+    var sel = secs.filter(function (x) { return x.sector === curSector; })[0];
+    body = sel ? '<div class="sector-grid single">' + sectorCardHTML(sel, true) + "</div>"
+               : '<div class="empty">해당 섹터 없음</div>';
+  }
+  host.innerHTML = '<div class="sector-chips">' + chips.join("") + "</div>" + body;
+  $qa("#sectors-list .sector-chip").forEach(function (b) {
+    b.onclick = function () { curSector = b.dataset.sec; renderSectors(); };
+  });
+  wireFavButtons(host, function () { renderFavs(); });
 }
 
 /* ---------- 탭 ---------- */
