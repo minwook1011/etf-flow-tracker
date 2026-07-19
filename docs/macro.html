@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>매크로 및 투자전략 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260714b">
+<link rel="stylesheet" href="theme.css?v=20260720a">
 <style>
 .gauge-wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
 .gauge-box { flex: 0 0 auto; text-align: center; }
@@ -36,6 +36,25 @@
 .macro-card .mc-latest { font-size: 12px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
 .macro-card .mc-tablewrap { margin-top: 14px; }
 .macro-card .mc-tabletitle { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+/* 최근 발표 수치 — 가로 스크롤 표(월=열, 라벨 열 고정) */
+.mc-hscroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border); border-radius: 8px; cursor: grab; }
+.mc-hscroll.dragging { cursor: grabbing; user-select: none; }
+.mc-hscroll::-webkit-scrollbar { height: 8px; }
+.mc-hscroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+.mc-hscroll::-webkit-scrollbar-track { background: transparent; }
+.mc-table-h { border-collapse: collapse; font-size: 12.5px; white-space: nowrap; min-width: 100%; }
+.mc-table-h th, .mc-table-h td { padding: 7px 12px; border-bottom: 1px solid var(--border); text-align: right; }
+.mc-table-h tbody tr:last-child th, .mc-table-h tbody tr:last-child td { border-bottom: none; }
+.mc-table-h thead th { color: var(--muted); font-weight: 700; font-size: 11.5px; font-family: var(--mono);
+  background: var(--bg2); border-bottom: 1px solid var(--border-strong); }
+.mc-table-h tbody td { font-family: var(--mono); }
+.mc-table-h .rowlbl { position: sticky; left: 0; z-index: 2; text-align: left;
+  background: var(--card); color: var(--muted); font-weight: 700; font-size: 11.5px;
+  border-right: 1px solid var(--border-strong); font-family: var(--sans); }
+.mc-table-h thead .rowlbl { background: var(--bg2); }
+.mc-table-h td .up { color: var(--up); }
+.mc-table-h td .dn { color: var(--dn); }
 .mc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .mc-table th { text-align: left; color: var(--muted); font-weight: 700; padding: 5px 8px; border-bottom: 1px solid var(--border); font-size: 11px; }
 .mc-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); font-family: var(--mono); }
@@ -116,7 +135,7 @@
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
 <script src="theme.js?v=20260708c"></script>
-<script src="stocks-common.js?v=20260714b"></script>
+<script src="stocks-common.js?v=20260720a"></script>
 <script>
 var MACRO = null, VAL = null;
 
@@ -503,19 +522,55 @@ function macroFmtVal(v, unit) {
   var s = (Math.abs(v) >= 1000) ? Math.round(v).toLocaleString() : v.toLocaleString();
   return s + (unit ? " " + unit : "");
 }
+/* 가로 스크롤 영역을 마우스로 끌어서 이동 */
+function wireHScroll(root) {
+  (root || document).querySelectorAll(".mc-hscroll").forEach(function (el) {
+    if (el.__hsWired) return;
+    el.__hsWired = true;
+    var down = false, startX = 0, startL = 0;
+    el.addEventListener("mousedown", function (e) {
+      down = true; startX = e.pageX; startL = el.scrollLeft;
+      el.classList.add("dragging");
+    });
+    window.addEventListener("mouseup", function () { down = false; el.classList.remove("dragging"); });
+    el.addEventListener("mouseleave", function () { down = false; el.classList.remove("dragging"); });
+    el.addEventListener("mousemove", function (e) {
+      if (!down) return;
+      e.preventDefault();
+      el.scrollLeft = startL - (e.pageX - startX);
+    });
+    // 세로 휠을 가로 스크롤로
+    el.addEventListener("wheel", function (e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { el.scrollLeft += e.deltaY; e.preventDefault(); }
+    }, { passive: false });
+  });
+}
+
+/* 최근 발표 수치 — 가로 배치(월=열), 가로 스크롤/드래그 가능 */
 function macroRecentTable(series, unit) {
-  var n = series.length, out = [];
-  for (var i = n - 1; i >= 1 && out.length < 10; i--) {
+  var n = series.length, cols = [];
+  for (var i = n - 1; i >= 1 && cols.length < 10; i--) {
     var p = series[i], prev = series[i - 1];
     var dv = p.value - prev.value;
     var dp = prev.value ? (p.value / prev.value - 1) * 100 : null;
     var cls = dv > 0 ? "up" : dv < 0 ? "dn" : "";
     var dvTxt = (Math.abs(dv) >= 100 ? Math.round(dv).toLocaleString() : dv.toFixed(2));
-    var chg = '<span class="' + cls + '">' + (dv > 0 ? "+" : "") + dvTxt +
-      (dp != null ? " (" + (dp > 0 ? "+" : "") + dp.toFixed(2) + "%)" : "") + "</span>";
-    out.push('<tr><td>' + p.date.slice(0, 7) + '</td><td class="r">' + macroFmtVal(p.value, unit) + '</td><td class="r">' + chg + "</td></tr>");
+    cols.push({
+      month: p.date.slice(0, 7),
+      val: macroFmtVal(p.value, unit),
+      chg: '<span class="' + cls + '">' + (dv > 0 ? "+" : "") + dvTxt +
+        (dp != null ? "<br>(" + (dp > 0 ? "+" : "") + dp.toFixed(2) + "%)" : "") + "</span>"
+    });
   }
-  return '<table class="mc-table"><thead><tr><th>기준월</th><th class="r">값</th><th class="r">직전 대비</th></tr></thead><tbody>' + out.join("") + "</tbody></table>";
+  if (!cols.length) return "";
+  var head = cols.map(function (c) { return "<th>" + c.month + "</th>"; }).join("");
+  var rowV = cols.map(function (c) { return "<td>" + c.val + "</td>"; }).join("");
+  var rowC = cols.map(function (c) { return "<td>" + c.chg + "</td>"; }).join("");
+  return '<div class="mc-hscroll"><table class="mc-table-h">' +
+    '<thead><tr><th class="rowlbl">기준월</th>' + head + "</tr></thead><tbody>" +
+    '<tr><th class="rowlbl">값</th>' + rowV + "</tr>" +
+    '<tr><th class="rowlbl">직전 대비</th>' + rowC + "</tr>" +
+    "</tbody></table></div>";
 }
 function macroCardHTML(def, idx) {
   var series = MACRO.macro_monthly[def.key];
@@ -555,6 +610,7 @@ function renderMacroList() {
     return lb - la; // 데이터 있는 카드 먼저
   });
   $q("#macro-list").innerHTML = defs.map(macroCardHTML).join("");
+  wireHScroll($q("#macro-list"));
   $qa("#macro-list .mc-toggle").forEach(function (btn) {
     btn.onclick = function () {
       var card = btn.closest(".macro-card"), body = card.querySelector(".mc-body");
