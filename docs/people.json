@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-23",
+  "updated": "2026-07-26",
   "people": [
     {
       "id": "musk",
@@ -498,12 +498,82 @@
       "name": "빌 맥더멋",
       "affil": "서비스나우 회장·CEO",
       "type": "tech"
+    },
+    {
+      "id": "christian-klein",
+      "name": "크리스티안 클라인",
+      "affil": "SAP CEO",
+      "type": "tech"
     }
   ],
   "weeks": [
     {
       "week": "2026-W30",
       "statements": [
+        {
+          "person_id": "scott-bessent",
+          "date": "2026-07-24",
+          "source": "Fox Business / Trading Economics",
+          "link": "https://www.foxbusiness.com/economy/bessent-says-market-expects-fed-cut-rates-year-substantial-probability",
+          "statement": "스콧 베선트 미국 재무장관은 7월 하순 시장이 연내 연준의 금리 인하를 높은 확률로 반영하고 있다며 '상당한 확률(substantial probability)'로 올해 인하가 이뤄질 것으로 본다고 밝혔다. 그는 연준이 관세발 인플레이션을 우려해 인하를 미루는 논리에 대해 '다소 논리가 결여됐다'고 비판했다. 시장은 9월 회의에서 25bp 인하 확률을 약 89%로 반영하고 있으며, 연말 기준금리가 현재 4.25~4.5%보다 크게 낮아질 것으로 기대한다. 베선트는 늦어도 9월까지 연준의 첫 인하를 예상한다는 입장을 재확인했다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "bill-mcdermott",
+          "date": "2026-07-23",
+          "source": "Fortune / Futurum",
+          "link": "https://fortune.com/2026/07/23/servicenow-beats-q2-earnings-estimates-market-starts-to-buy-ceo-bill-mcdermott-ai-narrative/",
+          "statement": "빌 맥더멋 서비스나우 CEO는 7월 23일 2026년 2분기 매출 39억9천만 달러(전년 대비 +24%, 컨센서스 39억3천만 달러 상회)를 발표했다. 그는 OpenAI가 경쟁 AI 에이전트 제품 'Presence'를 내놓은 데 대해, 서비스나우의 'AI 컨트롤 타워'에는 통제를 벗어난(rogue) AI 에이전트가 피해를 주기 전에 멈추는 '킬 스위치(kill switch)'가 내장돼 있다고 반박했다. AI 컨트롤 타워·보안·IT운영·CRM·직원경험 제품이 성장의 핵심 서사를 이끌었다. 이는 AI 에이전트 시대에 기업이 요구하는 거버넌스·안전장치를 전면에 내세운 것으로, 자율 에이전트 확산의 이면인 통제 리스크를 부각한다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "christian-klein",
+          "date": "2026-07-23",
+          "source": "SAP IR / Benzinga",
+          "link": "https://www.prnewswire.com/news-releases/sap-quarterly-statement-q2-2026-302833633.html",
+          "statement": "크리스티안 클라인 SAP CEO는 7월 23일 2026년 2분기 실적에서 클라우드 매출이 24% 늘어 63억 유로, 현재 클라우드 백로그가 26% 증가해 약 230억 유로에 달했다며 분기를 '탁월했다(outstanding)'고 평가했다. 그는 사파이어(Sapphire) 고객 콘퍼런스에서 공개한 '자율기업(autonomous enterprise)' 전략을 강조하며 역대 최대 참가와 영업 파이프라인 확대, AI 로드맵에 대한 긍정적 고객 피드백을 성과로 꼽았다. SAP는 연말까지 수십 개의 어시스턴트와 400개 이상의 자율 스위트 에이전트를 배치하고 다수 주요 AI 모델 제공사와 통합하겠다는 계획을 제시했다. 전체 매출은 11% 증가했다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "christine-lagarde",
+          "date": "2026-07-23",
+          "source": "ECB Press Conference / Bloomberg",
+          "link": "https://www.ecb.europa.eu/press/press_conference/monetary-policy-statement/2026/html/ecb.is260723~b6fadd48f4.en.html",
+          "statement": "크리스틴 라가르드 ECB 총재는 7월 23일 프랑크푸르트 기자회견에서 예금금리를 2.25%로 동결한 결정이 '만장일치'였다고 밝혔다. 다만 '일부 위원은 지금 인상해야 하는 것 아니냐는 질문을 던졌다'며 9월 인상 가능성의 여지를 열어뒀다. 그는 특히 유가 등 에너지 가격을 반복적으로 언급하며 중동 분쟁 이후 지정학적 전개가 물가 전망을 빠르게 바꿔놓았다고 지적했다. 현재 에너지 가격 전망은 6월 유로시스템 스태프 전망의 기준선에 근접하지만 분쟁 이전보다는 크게 높은 수준이라고 설명했다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "sam-altman",
+          "date": "2026-07-24",
+          "source": "Sam Altman on X / The Register",
+          "link": "https://www.theregister.com/ai-and-ml/2026/07/24/tech-leaders-issue-letter-to-train-uncle-sam-about-value-of-open-weight-ai/",
+          "statement": "샘 올트먼 OpenAI CEO는 7월 24일 25개 기술기업이 오픈웨이트 AI 지지 공개서한을 발표하자 X에 '나는 미국이 오픈소스와 독점(proprietary) 모델 양쪽 모두에서 AI를 주도하기를 바라며, 이런 흐름을 반갑게 본다'고 적었다. 그는 오픈웨이트 모델의 확산에 동의하되 강력한 독점 모델이 함께 존재하는 것을 전제로 달았다. 앞서 OpenAI는 미국 당국과의 협의 과정에서 모델에 '여러 변화'를 줬다고 밝힌 바 있다. 이 발언은 구글·앤스로픽에 일부 밀린다는 평가 속에서 OpenAI가 개방·폐쇄 전략의 균형을 재정의하려는 신호로 읽힌다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "lisa-su",
+          "date": "2026-07-23",
+          "source": "AMD Newsroom / Yahoo Finance",
+          "link": "https://newsroom.amd.com/press-kits/advancing-ai-2026-all-news/",
+          "statement": "리사 수 AMD 회장 겸 CEO는 7월 23일 샌프란시스코 'Advancing AI 2026' 기조연설에서 차세대 AI 가속기 'Instinct MI400 시리즈'와 이를 담은 랙스케일 시스템 'Helios'의 양산을 발표하며 Helios를 '세계 최고의 AI 랙(simply the best AI rack in the world)'이라고 불렀다. 그는 2027년 MI500 로드맵을 예고하며 MI300X 대비 AI 컴퓨팅 성능을 1,000배로 끌어올리겠다고 밝혔다. OpenAI·메타·마이크로소프트 애저·오라클 등이 신규 칩을 채택하고 있다고 소개하며 엔비디아에 대한 정면 도전을 본격화했다. 6세대 EPYC CPU(코드명 Venice)도 함께 공개됐다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "lip-bu-tan",
+          "date": "2026-07-23",
+          "source": "Intel IR / CNBC",
+          "link": "https://www.intc.com/news-events/press-releases/detail/1776/intel-reports-second-quarter-2026-financial-results",
+          "statement": "립부 탄 인텔 CEO는 7월 23일 2026년 2분기 실적에서 매출 161억 달러(전년 대비 +25%, 2011년 이후 최고 성장률)를 공개하며 'AI가 전례 없는 컴퓨팅 수요를 견인하고 있으며, 인텔은 CPU 프랜차이즈·ASIC·첨단 패키징·방대한 웨이퍼 파운드리망 전반에서 지속가능한 성장을 포착할 위치에 있다'고 말했다. 그는 인텔7·3·18A 공정 팹이 수율 개선과 사이클타임 단축, 웨이퍼 투입 확대로 '내부 물량 목표를 초과 달성'했다고 밝혔다. 내부 제품용 18A의 성공적 양산 램프가 외부 고객 확보의 중요한 검증이 되고 있으며, 14A는 10월 PDK 0.9 배포와 2027년 하반기 리스크 양산 마일스톤을 향해 순항 중이라고 강조했다. 인텔은 2026년 설비투자 가이던스를 200억 달러 이상으로 상향했다.",
+          "added": "2026-07-26"
+        },
+        {
+          "person_id": "jensen-huang",
+          "date": "2026-07-24",
+          "source": "Fortune / The Register",
+          "link": "https://fortune.com/2026/07/24/jensen-huang-open-source-letter-nvidia-kimi/",
+          "statement": "젠슨 황 엔비디아 CEO는 7월 24일 자신의 첫 X(옛 트위터) 게시물로 엔비디아·마이크로소프트·팔란티어 등 25개 기업·단체가 서명한 오픈웨이트(open-weight) AI 지지 공개서한을 공유했다. 그는 앞서 악시오스 인터뷰에서 중국 문샷AI의 '키미(Kimi)' 등 오픈소스 모델을 두고 '이 중국 모델들은 훌륭하다', '무료 AI는 오히려 하드웨어·칩·데이터센터에 호재'라고 밝혔다. 워싱턴이 중국 AI 공포에 휩싸여 오픈소스를 규제하려는 움직임에 대해, 1980년대 소프트웨어가 가까스로 피한 과잉규제의 실수를 반복하지 말라고 경고했다. 미국이 과장된 AI 공포와 '공상과학적 결말' 담론 탓에 오히려 뒤처질 위험이 있다는 것이 그의 핵심 메시지다.",
+          "added": "2026-07-26"
+        },
         {
           "person_id": "lip-bu-tan",
           "date": "2026-07-22",
