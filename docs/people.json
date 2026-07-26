@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-26",
+  "updated": "2026-07-27",
   "people": [
     {
       "id": "musk",
@@ -507,6 +507,59 @@
     }
   ],
   "weeks": [
+    {
+      "week": "2026-W31",
+      "statements": [
+        {
+          "person_id": "david-sacks",
+          "date": "2026-07-24",
+          "source": "Axios·TechCrunch",
+          "link": "https://techcrunch.com/2026/07/24/as-us-weighs-response-to-chinese-ai-industry-urges-against-broad-open-weight-restrictions/",
+          "statement": "백악관 AI·크립토 담당 고문 데이비드 색스는 7월 24일 25개 기업의 오픈웨이트 지지 서한을 두고 '오픈 모델 생태계를 무력화하려는 끊임없는 술책'에 대한 거부라고 규정했다. 그는 이를 '규제 불확실성의 무기화'라고 부르며, 선도적인 폐쇄형 랩(매출 과점 진영)이 정부를 동원해 오픈소스 경쟁자를 제거하려 한다고 주장했다. 다만 그는 이 서한이 모든 소프트웨어를 오픈소스로 하라는 요구는 아니라고 선을 그었다. 이 논쟁은 7월 16일 중국 문샷AI의 오픈웨이트 모델 Kimi K3 공개로 촉발된 경쟁 압력을 배경으로 한다.",
+          "added": "2026-07-27"
+        },
+        {
+          "person_id": "lee-jae-yong",
+          "date": "2026-07-25",
+          "source": "코리아중앙데일리 등",
+          "link": "https://www.koreajoongangdaily.com/business/samsung-chief-meets-with-ceo-of-openai-in-san-francisco/12791726",
+          "statement": "이재용 삼성전자 회장은 7월 25일 오전 샌프란시스코 오픈AI 본사에서 샘 올트먼 CEO와 만나 HBM·DRAM·첨단 파운드리 등 AI 인프라 협력 확대 방안을 논의했다. 양측은 삼성의 메모리·파운드리 역량과 오픈AI의 대규모 AI 인프라 구축 프로젝트를 연결하는 방안을 협의한 것으로 전해졌다. 삼성전자는 전 임직원에게 챗GPT와 AI 코딩도구 코덱스(Codex)를 도입해 사내 AI 전환에도 나서기로 했다. 이는 지난해 10월부터 이어온 삼성-오픈AI 전략적 파트너십의 연장선으로, 회사는 구체적 합의 내용은 공개하지 않았다.",
+          "added": "2026-07-27"
+        },
+        {
+          "person_id": "musk",
+          "date": "2026-07-24",
+          "source": "X(옛 트위터)",
+          "link": "https://techstartups.com/2026/07/25/openai-and-google-join-growing-coalition-for-open-weight-ai-as-elon-musk-endorses-jensen-huangs-call-for-american-ai-leadership/",
+          "statement": "일론 머스크는 7월 24일 젠슨 황이 공유한 오픈웨이트 지지 서한에 대해 X에 '젠슨의 말이 옳다… 전적으로 지지한다(This has my full support)'고 밝혔다. 다만 그의 xAI와 스페이스X는 서한에 공식 서명하지는 않았다. xAI가 그록(Grok)의 구버전을 오픈소스로 공개해온 점을 감안하면, 폐쇄형 랩과 각을 세우며 오픈웨이트 담론에서 자기 진영을 부각하려는 포석으로 읽힌다.",
+          "added": "2026-07-27"
+        },
+        {
+          "person_id": "sundar-pichai",
+          "date": "2026-07-24",
+          "source": "X(옛 트위터)",
+          "link": "https://techstartups.com/2026/07/25/openai-and-google-join-growing-coalition-for-open-weight-ai-as-elon-musk-endorses-jensen-huangs-call-for-american-ai-leadership/",
+          "statement": "순다르 피차이 구글 CEO는 7월 24일 오픈웨이트 지지 서한 흐름에 동참하며 구글이 오랫동안 오픈소스의 수혜를 받고 또 크게 기여해왔으며, 딥마인드가 오픈웨이트 모델 젬마(Gemma)를 꾸준히 출시해왔다고 밝혔다. 폐쇄형 제미나이(Gemini)와 오픈형 젬마를 병행하는 구글의 이원 전략을 강조한 발언이다. 다만 알파벳은 서한 초기 서명 명단에는 이름을 올리지 않았다가 뒤늦게 지지 의사를 표명한 것으로 전해졌다.",
+          "added": "2026-07-27"
+        },
+        {
+          "person_id": "mark-zuckerberg",
+          "date": "2026-07-24",
+          "source": "X(옛 트위터)",
+          "link": "https://www.benzinga.com/markets/tech/26/07/60683802/elon-musk-mark-zuckerberg-satya-nadella-show-overwhelming-support-for-open-weight-ai-models-as-openai-anthropic-stay-silent",
+          "statement": "마크 저커버그 메타 CEO는 7월 24일 오픈웨이트 지지 서한에 대해 X에 '오픈소스는 사람들에게 힘을 실어주고 (권력의) 중앙집중화를 막는 긍정적이고 중요한 힘이다. 이를 지지하게 되어 자랑스럽다'고 적었다. 메타는 라마(Llama) 시리즈로 오픈웨이트 진영을 이끌어온 대표 주자로, 폐쇄형 모델 진영과 뚜렷이 대비되는 전략을 재확인했다. 이는 중국 문샷AI의 오픈웨이트 모델 Kimi K3가 프런티어급 성능을 보이며 미국 오픈소스 진영을 위협하는 국면에서 나온 발언이다.",
+          "added": "2026-07-27"
+        },
+        {
+          "person_id": "satya-nadella",
+          "date": "2026-07-24",
+          "source": "X(옛 트위터)",
+          "link": "https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html",
+          "statement": "사티아 나델라 마이크로소프트 CEO는 7월 24일 엔비디아·메타·IBM 등 25개 기업·단체가 서명한 오픈웨이트 AI 지지 공개서한을 X에 공유하며 오픈웨이트 모델이 '건강한 AI 생태계에 필수적'이라고 밝혔다. 그는 업계가 오픈웨이트 모델을 통해 미국의 경쟁력을 강화하고 경제적 기회를 확대하면서 국가안보도 지키는 길을 제시하고 있다고 평가했다. 마이크로소프트가 오픈AI에 대한 대규모 투자로 폐쇄형 프런티어 모델에 깊이 묶여 있으면서도 오픈웨이트 진영을 공개 지지했다는 점에서 애저(Azure)를 '모든 모델의 플랫폼'으로 만들려는 전략과 맞닿아 있다.",
+          "added": "2026-07-27"
+        }
+      ]
+    },
     {
       "week": "2026-W30",
       "statements": [
