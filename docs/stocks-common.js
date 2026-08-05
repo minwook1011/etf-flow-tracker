@@ -892,23 +892,26 @@ function segmentsChartSVG(candles, segs, w, h) {
   function Y(v) { return padT + ih * (1 - (v - lo) / span); }
   var idx = {}; pts.forEach(function (p, i) { idx[p.d] = i; });
   var base = pts.map(function (p, i) { return X(i).toFixed(1) + "," + Y(p.p).toFixed(1); }).join(" ");
-  var segLines = "", dividers = "", labels = "";
-  segs.forEach(function (g) {
+  var segLines = "", dividers = "", labels = "", bands = "", hits = "";
+  segs.forEach(function (g, k) {
     var s = idx[g.start], e = idx[g.end];
     if (s == null || e == null) return;
     var col = g.dir === "up" ? "var(--up)" : "var(--dn)";
+    var x1 = X(s), x2 = X(e), wseg = Math.max(0, x2 - x1);
+    bands += '<rect class="seg-band" data-seg="' + k + '" x="' + x1.toFixed(1) + '" y="' + padT + '" width="' + wseg.toFixed(1) + '" height="' + ih + '" fill="' + col + '" opacity="0"/>';
     var poly = "";
     for (var i = s; i <= e; i++) poly += (i > s ? " " : "") + X(i).toFixed(1) + "," + Y(pts[i].p).toFixed(1);
-    segLines += '<polyline points="' + poly + '" fill="none" stroke="' + col + '" stroke-width="2.2"/>';
-    dividers += '<line x1="' + X(e).toFixed(1) + '" y1="' + padT + '" x2="' + X(e).toFixed(1) + '" y2="' + (padT + ih) + '" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="3 3"/>';
-    var mx = (X(s) + X(e)) / 2;
-    labels += '<text x="' + mx.toFixed(1) + '" y="13" fill="' + col + '" font-size="10" font-weight="700" text-anchor="middle">' + (g.pct > 0 ? "+" : "") + g.pct + "%</text>";
+    segLines += '<polyline class="seg-poly" data-seg="' + k + '" points="' + poly + '" fill="none" stroke="' + col + '" stroke-width="2.2"/>';
+    dividers += '<line x1="' + x2.toFixed(1) + '" y1="' + padT + '" x2="' + x2.toFixed(1) + '" y2="' + (padT + ih) + '" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="3 3"/>';
+    var mx = (x1 + x2) / 2;
+    labels += '<text class="seg-lab" data-seg="' + k + '" x="' + mx.toFixed(1) + '" y="13" fill="' + col + '" font-size="10" font-weight="700" text-anchor="middle">' + (g.pct > 0 ? "+" : "") + g.pct + "%</text>";
+    hits += '<rect class="seg-hit" data-seg="' + k + '" x="' + x1.toFixed(1) + '" y="' + padT + '" width="' + wseg.toFixed(1) + '" height="' + ih + '" fill="transparent" style="cursor:pointer"><title>' + escapeHtml(g.start) + " → " + escapeHtml(g.end) + " (" + (g.pct > 0 ? "+" : "") + g.pct + "%)</title></rect>";
   });
   var years = "", seen = {};
   pts.forEach(function (p, i) { var y = p.d.slice(0, 4); if (!seen[y]) { seen[y] = 1; years += '<text x="' + X(i).toFixed(1) + '" y="' + (h - 5) + '" fill="var(--muted)" font-size="9" text-anchor="middle">' + y + "</text>"; } });
   return '<svg viewBox="0 0 ' + w + " " + h + '" width="100%" style="display:block">' +
     '<polyline points="' + base + '" fill="none" stroke="var(--border)" stroke-width="1"/>' +
-    dividers + segLines + labels + years + "</svg>";
+    bands + dividers + segLines + labels + years + hits + "</svg>";
 }
 function segSectionHTML(cfg) {
   if (!cfg.candles || cfg.candles.length < 30) return "";
@@ -916,34 +919,47 @@ function segSectionHTML(cfg) {
   var segs = (pdata && pdata.segments && pdata.segments.length) ? pdata.segments : computeSegments(cfg.candles);
   if (!segs.length) return "";
   var chart = segmentsChartSVG(cfg.candles, segs);
-  var rows = segs.slice().reverse().map(function (g, ri) {
-    var k = segs.length - 1 - ri;
-    var arrow = g.dir === "up" ? "▲" : "▼";
-    var cls = g.dir === "up" ? "up" : "dn";
+  // 각 구간의 이유(HTML)와 메타를 숨은 소스로 보관 → 차트 클릭 시 아래 패널로 복사
+  var srcs = segs.map(function (g, k) {
     var hasA = g.analysis && String(g.analysis).trim();
-    return '<div class="seg-row' + (hasA ? " has" : "") + '" data-seg="' + k + '">' +
-      '<span class="seg-dt">' + escapeHtml(g.start) + " → " + escapeHtml(g.end) + "</span>" +
-      '<span class="seg-pct ' + cls + '">' + arrow + " " + (g.pct > 0 ? "+" : "") + g.pct + "%</span>" +
-      '<span class="seg-cta">' + (hasA ? "이유 보기 ▾" : "분석 준비 중") + "</span></div>" +
-      '<div class="seg-analysis" data-seg-body="' + k + '" style="display:none">' + (hasA ? mdRender(g.analysis) : "") + "</div>";
+    return '<div class="seg-src" data-seg="' + k + '"' +
+      ' data-start="' + escapeHtml(g.start) + '" data-end="' + escapeHtml(g.end) + '"' +
+      ' data-pct="' + g.pct + '" data-dir="' + g.dir + '" data-has="' + (hasA ? 1 : 0) + '"' +
+      ' style="display:none">' + (hasA ? mdRender(g.analysis) : "") + "</div>";
   }).join("");
   var done = segs.some(function (g) { return g.analysis; });
-  return '<h4 class="seg-title">5년 구간별 등락 분석 <span class="muted small" style="font-weight:400">20% 추세 기준 · ' +
-    (done ? "구간 클릭 = 상승/하락 이유" : "구간 자동 분할됨 · 이유 분석 순차 작성 중") + "</span></h4>" +
+  var hint = done
+    ? '위 차트에서 <b>색이 바뀌는 구간(빨강=상승·파랑=하락)</b>을 클릭하면 그 구간의 이유가 여기 나옵니다.'
+    : '구간은 자동 분할됐고, 각 구간의 <b>상승·하락 이유</b>는 순차적으로 작성 중입니다.';
+  return '<h4 class="seg-title">5년 구간별 등락 분석 <span class="muted small" style="font-weight:400">20% 추세 기준 · 차트 구간 클릭 = 상승/하락 이유</span></h4>' +
     '<div class="seg-chart">' + chart + "</div>" +
-    '<div class="seg-list">' + rows + "</div>";
+    '<div class="seg-detail" id="seg-detail"><div class="seg-detail-hint">' + hint + "</div></div>" +
+    '<div class="seg-src-box" style="display:none">' + srcs + "</div>";
 }
 function wireSegRows(root) {
   root = root || document.getElementById("modal-back");
   if (!root) return;
-  root.querySelectorAll(".seg-row.has[data-seg]").forEach(function (r) {
-    r.onclick = function () {
-      var body = root.querySelector('.seg-analysis[data-seg-body="' + r.dataset.seg + '"]');
-      if (!body) return;
-      var open = body.style.display === "none";
-      body.style.display = open ? "block" : "none";
-      r.classList.toggle("open", open);
-    };
+  var chart = root.querySelector(".seg-chart");
+  var detail = root.querySelector("#seg-detail");
+  var box = root.querySelector(".seg-src-box");
+  if (!chart || !detail || !box) return;
+  function select(k) {
+    chart.querySelectorAll(".seg-band").forEach(function (b) { b.setAttribute("opacity", b.getAttribute("data-seg") === k ? "0.16" : "0"); });
+    chart.querySelectorAll(".seg-poly").forEach(function (p) { var on = p.getAttribute("data-seg") === k; p.setAttribute("stroke-width", on ? "3.4" : "2.2"); p.setAttribute("opacity", on ? "1" : "0.7"); });
+    chart.querySelectorAll(".seg-lab").forEach(function (t) { t.setAttribute("opacity", t.getAttribute("data-seg") === k ? "1" : "0.4"); });
+    var src = box.querySelector('.seg-src[data-seg="' + k + '"]');
+    if (!src) return;
+    var dir = src.getAttribute("data-dir"), pct = +src.getAttribute("data-pct");
+    var cls = dir === "up" ? "up" : "dn", arrow = dir === "up" ? "▲" : "▼";
+    var head = '<div class="seg-detail-head"><span class="seg-dt">' + escapeHtml(src.getAttribute("data-start")) + " → " + escapeHtml(src.getAttribute("data-end")) + "</span>" +
+      '<span class="seg-pct ' + cls + '">' + arrow + " " + (pct > 0 ? "+" : "") + pct + "%</span></div>";
+    var body = src.getAttribute("data-has") === "1"
+      ? '<div class="seg-detail-body md">' + src.innerHTML + "</div>"
+      : '<div class="seg-detail-hint">이 구간은 아직 이유 분석이 작성되지 않았습니다(순차 작성 중).</div>';
+    detail.innerHTML = head + body;
+  }
+  chart.querySelectorAll(".seg-hit").forEach(function (r) {
+    r.onclick = function () { select(r.getAttribute("data-seg")); };
   });
 }
 function refreshSegSection(cfg) {

@@ -238,6 +238,23 @@ a:hover { text-decoration: underline; }
 .seg-analysis .md strong { color: var(--text); text-decoration: underline;
   text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 
+/* 차트 클릭 → 이유 패널 */
+.seg-chart .seg-hit:hover ~ .seg-band { }
+.seg-chart svg .seg-band { transition: opacity .12s; pointer-events: none; }
+.seg-chart svg .seg-poly, .seg-chart svg .seg-lab { transition: opacity .12s, stroke-width .12s; }
+.seg-detail { border: 1px solid var(--border); border-radius: 9px; background: var(--bg2); padding: 12px 14px; min-height: 54px; }
+.seg-detail-hint { font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.seg-detail-hint b { color: var(--text); font-weight: 700; }
+.seg-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.seg-detail-head .seg-dt { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.seg-detail-head .seg-pct { font-family: var(--mono); font-weight: 800; font-size: 15px; margin-left: auto; }
+.seg-detail-head .seg-pct.up { color: var(--up); }
+.seg-detail-head .seg-pct.dn { color: var(--dn); }
+.seg-detail-body .md p { font-size: 13px; line-height: 1.75; margin: 6px 0; }
+.seg-detail-body .md h2, .seg-detail-body .md h3 { font-size: 13px; font-weight: 800; margin: 10px 0 4px; }
+.seg-detail-body .md strong { color: var(--text); text-decoration: underline;
+  text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
 /* ---------- 색상/배지 ---------- */
 .up { color: var(--up); }
 .dn { color: var(--dn); }
