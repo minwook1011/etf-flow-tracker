@@ -1,1806 +1,1806 @@
 {
- "updated": "2026-08-03 09:17 KST",
+ "updated": "2026-08-10 07:02 KST",
  "count": 300,
  "stocks": [
   {
    "ticker": "NVDA",
    "name": "엔비디아",
    "sector": "반도체",
-   "mcap_usd": 4862365925376
+   "mcap_usd": 5424535306240
   },
   {
    "ticker": "AAPL",
    "name": "애플",
    "sector": "IT하드웨어",
-   "mcap_usd": 4537070911488
+   "mcap_usd": 4572794322944
   },
   {
    "ticker": "GOOGL",
    "name": "알파벳",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 4355446800384
+   "mcap_usd": 4333065732096
   },
   {
    "ticker": "MSFT",
    "name": "마이크로소프트",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 3450799652864
+   "mcap_usd": 3712698548224
   },
   {
    "ticker": "AMZN",
    "name": "아마존",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 2921415835648
+   "mcap_usd": 2960627335168
   },
   {
    "ticker": "TSM",
    "name": "TSMC(ADR)",
    "sector": "반도체",
-   "mcap_usd": 2096632168448
+   "mcap_usd": 2178526609408
   },
   {
    "ticker": "AVGO",
    "name": "브로드컴",
    "sector": "반도체",
-   "mcap_usd": 1852030844928
+   "mcap_usd": 2035102646272
   },
   {
    "ticker": "2222.SR",
    "name": "사우디아람코",
    "sector": "에너지",
-   "mcap_usd": 1712265237008
+   "mcap_usd": 1713873246977
   },
   {
    "ticker": "META",
    "name": "메타플랫폼스",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 1418222239744
+   "mcap_usd": 1508378279936
   },
   {
    "ticker": "TSLA",
    "name": "테슬라",
    "sector": "경기소비재·자동차",
-   "mcap_usd": 1229138690048
-  },
-  {
-   "ticker": "005930.KS",
-   "name": "삼성전자",
-   "sector": "반도체",
-   "mcap_usd": 1198477902819
+   "mcap_usd": 1297742299136
   },
   {
    "ticker": "BRK-B",
    "name": "버크셔해서웨이",
    "sector": "금융",
-   "mcap_usd": 1103317041152
+   "mcap_usd": 1125446320128
+  },
+  {
+   "ticker": "005930.KS",
+   "name": "삼성전자",
+   "sector": "반도체",
+   "mcap_usd": 1077839740882
+  },
+  {
+   "ticker": "LLY",
+   "name": "일라이릴리",
+   "sector": "헬스케어",
+   "mcap_usd": 1056890945536
+  },
+  {
+   "ticker": "MU",
+   "name": "마이크론",
+   "sector": "반도체",
+   "mcap_usd": 991121571840
+  },
+  {
+   "ticker": "JPM",
+   "name": "JP모건",
+   "sector": "금융",
+   "mcap_usd": 950354706432
   },
   {
    "ticker": "WMT",
    "name": "월마트",
    "sector": "필수소비재",
-   "mcap_usd": 884938375168
+   "mcap_usd": 890111131648
+  },
+  {
+   "ticker": "AMD",
+   "name": "AMD",
+   "sector": "반도체",
+   "mcap_usd": 789073100800
   },
   {
    "ticker": "000660.KS",
    "name": "SK하이닉스",
    "sector": "반도체",
-   "mcap_usd": 847920902706
+   "mcap_usd": 717254459752
   },
   {
    "ticker": "V",
    "name": "비자",
    "sector": "금융",
-   "mcap_usd": 683582029824
+   "mcap_usd": 676804624384
   },
   {
    "ticker": "ASML.AS",
    "name": "ASML",
    "sector": "반도체",
-   "mcap_usd": 635748676301
+   "mcap_usd": 665856199388
+  },
+  {
+   "ticker": "XOM",
+   "name": "엑슨모빌",
+   "sector": "에너지",
+   "mcap_usd": 634342670336
   },
   {
    "ticker": "JNJ",
    "name": "존슨앤드존슨",
    "sector": "헬스케어",
-   "mcap_usd": 617777463296
+   "mcap_usd": 624742039552
   },
   {
    "ticker": "0700.HK",
    "name": "텐센트",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 545490625711
-  },
-  {
-   "ticker": "MA",
-   "name": "마스터카드",
-   "sector": "금융",
-   "mcap_usd": 502041247744
-  },
-  {
-   "ticker": "CSCO",
-   "name": "시스코",
-   "sector": "IT하드웨어",
-   "mcap_usd": 457166979072
+   "mcap_usd": 549433972905
   },
   {
    "ticker": "INTC",
    "name": "인텔",
    "sector": "반도체",
-   "mcap_usd": 454968770560
+   "mcap_usd": 512722567168
+  },
+  {
+   "ticker": "MA",
+   "name": "마스터카드",
+   "sector": "금융",
+   "mcap_usd": 493149782016
+  },
+  {
+   "ticker": "CSCO",
+   "name": "시스코",
+   "sector": "IT하드웨어",
+   "mcap_usd": 478608392192
+  },
+  {
+   "ticker": "BAC",
+   "name": "뱅크오브아메리카",
+   "sector": "금융",
+   "mcap_usd": 441731907584
   },
   {
    "ticker": "ABBV",
    "name": "애브비",
    "sector": "헬스케어",
-   "mcap_usd": 443359002624
-  },
-  {
-   "ticker": "COST",
-   "name": "코스트코",
-   "sector": "필수소비재",
-   "mcap_usd": 422143066112
+   "mcap_usd": 434781519872
   },
   {
    "ticker": "AMAT",
    "name": "어플라이드머티어리얼즈",
    "sector": "반도체",
-   "mcap_usd": 403069403136
-  },
-  {
-   "ticker": "CVX",
-   "name": "셰브론",
-   "sector": "에너지",
-   "mcap_usd": 392006172672
-  },
-  {
-   "ticker": "KO",
-   "name": "코카콜라",
-   "sector": "필수소비재",
-   "mcap_usd": 376860246016
-  },
-  {
-   "ticker": "UNH",
-   "name": "유나이티드헬스",
-   "sector": "헬스케어",
-   "mcap_usd": 376335040512
+   "mcap_usd": 428055298048
   },
   {
    "ticker": "ORCL",
    "name": "오라클",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 374086762496
+   "mcap_usd": 423486849024
   },
   {
-   "ticker": "GE",
-   "name": "GE에어로스페이스",
-   "sector": "산업재·방산",
-   "mcap_usd": 373595144192
-  },
-  {
-   "ticker": "LRCX",
-   "name": "램리서치",
-   "sector": "반도체",
-   "mcap_usd": 366649442304
-  },
-  {
-   "ticker": "HSBA.L",
-   "name": "HSBC",
-   "sector": "금융",
-   "mcap_usd": 364461900240
-  },
-  {
-   "ticker": "1398.HK",
-   "name": "중국공상은행",
-   "sector": "금융",
-   "mcap_usd": 341330446461
-  },
-  {
-   "ticker": "MS",
-   "name": "모건스탠리",
-   "sector": "금융",
-   "mcap_usd": 330780246016
-  },
-  {
-   "ticker": "0939.HK",
-   "name": "중국건설은행",
-   "sector": "금융",
-   "mcap_usd": 307247081371
-  },
-  {
-   "ticker": "NFLX",
-   "name": "넷플릭스",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 298596106240
-  },
-  {
-   "ticker": "NOVN.SW",
-   "name": "노바티스",
-   "sector": "헬스케어",
-   "mcap_usd": 298105177014
-  },
-  {
-   "ticker": "PM",
-   "name": "필립모리스",
+   "ticker": "COST",
+   "name": "코스트코",
    "sector": "필수소비재",
-   "mcap_usd": 297414623232
+   "mcap_usd": 420338106368
   },
   {
    "ticker": "PLTR",
    "name": "팔란티어",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 295013220352
+   "mcap_usd": 413350068224
   },
   {
-   "ticker": "RY",
-   "name": "로열뱅크오브캐나다(ADR)",
-   "sector": "금융",
-   "mcap_usd": 291148136448
+   "ticker": "LRCX",
+   "name": "램리서치",
+   "sector": "반도체",
+   "mcap_usd": 389585403904
   },
   {
-   "ticker": "RTX",
-   "name": "RTX",
+   "ticker": "CAT",
+   "name": "캐터필러",
    "sector": "산업재·방산",
-   "mcap_usd": 290064498688
+   "mcap_usd": 387133603840
+  },
+  {
+   "ticker": "GE",
+   "name": "GE에어로스페이스",
+   "sector": "산업재·방산",
+   "mcap_usd": 383981125632
+  },
+  {
+   "ticker": "KO",
+   "name": "코카콜라",
+   "sector": "필수소비재",
+   "mcap_usd": 374536896512
+  },
+  {
+   "ticker": "UNH",
+   "name": "유나이티드헬스",
+   "sector": "헬스케어",
+   "mcap_usd": 369687396352
+  },
+  {
+   "ticker": "CVX",
+   "name": "셰브론",
+   "sector": "에너지",
+   "mcap_usd": 365956726784
+  },
+  {
+   "ticker": "HD",
+   "name": "홈디포",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 354594619392
+  },
+  {
+   "ticker": "HSBA.L",
+   "name": "HSBC",
+   "sector": "금융",
+   "mcap_usd": 353854125097
+  },
+  {
+   "ticker": "MS",
+   "name": "모건스탠리",
+   "sector": "금융",
+   "mcap_usd": 340070760448
+  },
+  {
+   "ticker": "PG",
+   "name": "P&G",
+   "sector": "필수소비재",
+   "mcap_usd": 339486441472
+  },
+  {
+   "ticker": "1398.HK",
+   "name": "중국공상은행",
+   "sector": "금융",
+   "mcap_usd": 324402204872
+  },
+  {
+   "ticker": "MRK",
+   "name": "머크",
+   "sector": "헬스케어",
+   "mcap_usd": 317570056192
+  },
+  {
+   "ticker": "NFLX",
+   "name": "넷플릭스",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 308714471424
+  },
+  {
+   "ticker": "GS",
+   "name": "골드만삭스",
+   "sector": "금융",
+   "mcap_usd": 302704689152
   },
   {
    "ticker": "9988.HK",
    "name": "알리바바",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 286095143434
-  },
-  {
-   "ticker": "PANW",
-   "name": "팔로알토네트웍스",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 270441431040
-  },
-  {
-   "ticker": "MC.PA",
-   "name": "LVMH",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 270393656497
-  },
-  {
-   "ticker": "AZN.L",
-   "name": "아스트라제네카",
-   "sector": "헬스케어",
-   "mcap_usd": 264196224407
-  },
-  {
-   "ticker": "GEV",
-   "name": "GE버노바",
-   "sector": "산업재·방산",
-   "mcap_usd": 263747485696
-  },
-  {
-   "ticker": "DELL",
-   "name": "델테크놀로지스",
-   "sector": "IT하드웨어",
-   "mcap_usd": 261926748160
-  },
-  {
-   "ticker": "WFC",
-   "name": "웰스파고",
-   "sector": "금융",
-   "mcap_usd": 261424726016
-  },
-  {
-   "ticker": "NESN.SW",
-   "name": "네슬레",
-   "sector": "필수소비재",
-   "mcap_usd": 258146118987
+   "mcap_usd": 302618928229
   },
   {
    "ticker": "ARM",
    "name": "ARM홀딩스",
    "sector": "반도체",
-   "mcap_usd": 255988580352
+   "mcap_usd": 301784367104
   },
   {
-   "ticker": "8306.T",
-   "name": "미쓰비시UFJ",
+   "ticker": "RTX",
+   "name": "RTX",
+   "sector": "산업재·방산",
+   "mcap_usd": 300590497792
+  },
+  {
+   "ticker": "PANW",
+   "name": "팔로알토네트웍스",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 296545878016
+  },
+  {
+   "ticker": "NOVN.SW",
+   "name": "노바티스",
+   "sector": "헬스케어",
+   "mcap_usd": 296491014978
+  },
+  {
+   "ticker": "PM",
+   "name": "필립모리스",
+   "sector": "필수소비재",
+   "mcap_usd": 295466336256
+  },
+  {
+   "ticker": "RY",
+   "name": "로열뱅크오브캐나다(ADR)",
    "sector": "금융",
-   "mcap_usd": 253380746167
+   "mcap_usd": 293329928192
   },
   {
-   "ticker": "SHEL.L",
-   "name": "셸",
-   "sector": "에너지",
-   "mcap_usd": 252493878422
+   "ticker": "DELL",
+   "name": "델테크놀로지스",
+   "sector": "IT하드웨어",
+   "mcap_usd": 293200035840
+  },
+  {
+   "ticker": "0939.HK",
+   "name": "중국건설은행",
+   "sector": "금융",
+   "mcap_usd": 293134905372
+  },
+  {
+   "ticker": "MC.PA",
+   "name": "LVMH",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 273722252258
+  },
+  {
+   "ticker": "WFC",
+   "name": "웰스파고",
+   "sector": "금융",
+   "mcap_usd": 263843938304
+  },
+  {
+   "ticker": "GEV",
+   "name": "GE버노바",
+   "sector": "산업재·방산",
+   "mcap_usd": 263755481088
   },
   {
    "ticker": "TXN",
    "name": "텍사스인스트루먼트",
    "sector": "반도체",
-   "mcap_usd": 251818901504
+   "mcap_usd": 261261885440
   },
   {
    "ticker": "KLAC",
    "name": "KLA",
    "sector": "반도체",
-   "mcap_usd": 238813249536
+   "mcap_usd": 258839986176
   },
   {
-   "ticker": "OR.PA",
-   "name": "로레알",
+   "ticker": "NESN.SW",
+   "name": "네슬레",
    "sector": "필수소비재",
-   "mcap_usd": 237751736086
+   "mcap_usd": 258648845992
   },
   {
-   "ticker": "0857.HK",
-   "name": "페트로차이나",
+   "ticker": "8306.T",
+   "name": "미쓰비시UFJ",
+   "sector": "금융",
+   "mcap_usd": 254770248940
+  },
+  {
+   "ticker": "AZN.L",
+   "name": "아스트라제네카",
+   "sector": "헬스케어",
+   "mcap_usd": 248962120857
+  },
+  {
+   "ticker": "SIE.DE",
+   "name": "지멘스",
+   "sector": "산업재·방산",
+   "mcap_usd": 246808799861
+  },
+  {
+   "ticker": "SHEL.L",
+   "name": "셸",
    "sector": "에너지",
-   "mcap_usd": 231994136242
-  },
-  {
-   "ticker": "0941.HK",
-   "name": "차이나모바일",
-   "sector": "통신·미디어",
-   "mcap_usd": 230890160950
+   "mcap_usd": 244458792472
   },
   {
    "ticker": "ANET",
    "name": "아리스타네트웍스",
    "sector": "IT하드웨어",
-   "mcap_usd": 227091218432
+   "mcap_usd": 237955268608
   },
   {
-   "ticker": "AXP",
-   "name": "아메리칸익스프레스",
-   "sector": "금융",
-   "mcap_usd": 227072933888
-  },
-  {
-   "ticker": "3988.HK",
-   "name": "중국은행",
-   "sector": "금융",
-   "mcap_usd": 226403756999
-  },
-  {
-   "ticker": "C",
-   "name": "씨티그룹",
-   "sector": "금융",
-   "mcap_usd": 222171627520
-  },
-  {
-   "ticker": "LIN",
-   "name": "린데",
-   "sector": "소재·화학",
-   "mcap_usd": 221177708544
-  },
-  {
-   "ticker": "7203.T",
-   "name": "도요타",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 219726159105
-  },
-  {
-   "ticker": "BHP",
-   "name": "BHP(ADR)",
-   "sector": "소재·화학",
-   "mcap_usd": 214633758720
-  },
-  {
-   "ticker": "IBM",
-   "name": "IBM",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 210708348928
+   "ticker": "OR.PA",
+   "name": "로레알",
+   "sector": "필수소비재",
+   "mcap_usd": 237600147070
   },
   {
    "ticker": "SAP.DE",
    "name": "SAP",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 210034545529
+   "mcap_usd": 237541580003
   },
   {
-   "ticker": "NVO",
-   "name": "노보노디스크(ADR)",
-   "sector": "헬스케어",
-   "mcap_usd": 208182853632
+   "ticker": "AXP",
+   "name": "아메리칸익스프레스",
+   "sector": "금융",
+   "mcap_usd": 230219874304
+  },
+  {
+   "ticker": "BHP",
+   "name": "BHP(ADR)",
+   "sector": "소재·화학",
+   "mcap_usd": 229672615936
+  },
+  {
+   "ticker": "C",
+   "name": "씨티그룹",
+   "sector": "금융",
+   "mcap_usd": 226453962752
+  },
+  {
+   "ticker": "LIN",
+   "name": "린데",
+   "sector": "소재·화학",
+   "mcap_usd": 225871069184
+  },
+  {
+   "ticker": "0941.HK",
+   "name": "차이나모바일",
+   "sector": "통신·미디어",
+   "mcap_usd": 225844058884
+  },
+  {
+   "ticker": "7203.T",
+   "name": "도요타",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 223680905615
+  },
+  {
+   "ticker": "IBM",
+   "name": "IBM",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 223549652992
   },
   {
    "ticker": "AMGN",
    "name": "암젠",
    "sector": "헬스케어",
-   "mcap_usd": 207874048000
+   "mcap_usd": 221790420992
   },
   {
-   "ticker": "SAN.MC",
-   "name": "산탄데르",
-   "sector": "금융",
-   "mcap_usd": 203059839723
-  },
-  {
-   "ticker": "TTE.PA",
-   "name": "토탈에너지스",
+   "ticker": "0857.HK",
+   "name": "페트로차이나",
    "sector": "에너지",
-   "mcap_usd": 195815861501
+   "mcap_usd": 221765143733
   },
   {
-   "ticker": "VZ",
-   "name": "버라이즌",
-   "sector": "통신·미디어",
-   "mcap_usd": 195457925120
+   "ticker": "TMO",
+   "name": "써모피셔",
+   "sector": "헬스케어",
+   "mcap_usd": 219629895680
   },
   {
    "ticker": "CRWD",
    "name": "크라우드스트라이크",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 194344960000
+   "mcap_usd": 218335150080
   },
   {
-   "ticker": "STX",
-   "name": "씨게이트",
+   "ticker": "3988.HK",
+   "name": "중국은행",
+   "sector": "금융",
+   "mcap_usd": 214824697041
+  },
+  {
+   "ticker": "SAN.MC",
+   "name": "산탄데르",
+   "sector": "금융",
+   "mcap_usd": 212142629127
+  },
+  {
+   "ticker": "ITX.MC",
+   "name": "인디텍스",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 211206295018
+  },
+  {
+   "ticker": "NVO",
+   "name": "노보노디스크(ADR)",
+   "sector": "헬스케어",
+   "mcap_usd": 208924655616
+  },
+  {
+   "ticker": "APH",
+   "name": "암페놀",
    "sector": "IT하드웨어",
-   "mcap_usd": 194341502976
-  },
-  {
-   "ticker": "PEP",
-   "name": "펩시코",
-   "sector": "필수소비재",
-   "mcap_usd": 190638964736
+   "mcap_usd": 208596123648
   },
   {
    "ticker": "9984.T",
    "name": "소프트뱅크그룹",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 190088102374
-  },
-  {
-   "ticker": "SU.PA",
-   "name": "슈나이더일렉트릭",
-   "sector": "산업재·방산",
-   "mcap_usd": 188396849590
-  },
-  {
-   "ticker": "TMUS",
-   "name": "T모바일",
-   "sector": "통신·미디어",
-   "mcap_usd": 185261129728
+   "mcap_usd": 200569388511
   },
   {
    "ticker": "RMS.PA",
    "name": "에르메스",
    "sector": "경기소비재·자동차",
-   "mcap_usd": 185126686323
+   "mcap_usd": 198105651279
   },
   {
-   "ticker": "AIR.PA",
-   "name": "에어버스",
+   "ticker": "SU.PA",
+   "name": "슈나이더일렉트릭",
    "sector": "산업재·방산",
-   "mcap_usd": 183701703731
-  },
-  {
-   "ticker": "SCHW",
-   "name": "찰스슈왑",
-   "sector": "금융",
-   "mcap_usd": 183026614272
-  },
-  {
-   "ticker": "ABT",
-   "name": "애보트",
-   "sector": "헬스케어",
-   "mcap_usd": 182901522432
-  },
-  {
-   "ticker": "NEE",
-   "name": "넥스트에라",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 181313224704
-  },
-  {
-   "ticker": "ABBN.SW",
-   "name": "ABB",
-   "sector": "산업재·방산",
-   "mcap_usd": 178683576376
-  },
-  {
-   "ticker": "2454.TW",
-   "name": "미디어텍",
-   "sector": "반도체",
-   "mcap_usd": 175714474504
-  },
-  {
-   "ticker": "TJX",
-   "name": "TJX",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 173814185984
-  },
-  {
-   "ticker": "UNP",
-   "name": "유니언퍼시픽",
-   "sector": "산업재·방산",
-   "mcap_usd": 173547290624
-  },
-  {
-   "ticker": "UBSG.SW",
-   "name": "UBS",
-   "sector": "금융",
-   "mcap_usd": 172783205117
-  },
-  {
-   "ticker": "BA",
-   "name": "보잉",
-   "sector": "산업재·방산",
-   "mcap_usd": 170830577664
-  },
-  {
-   "ticker": "BUD",
-   "name": "AB인베브(ADR)",
-   "sector": "필수소비재",
-   "mcap_usd": 170316808192
-  },
-  {
-   "ticker": "WELL",
-   "name": "웰타워",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 168930902016
+   "mcap_usd": 197446217562
   },
   {
    "ticker": "MRVL",
    "name": "마벨테크놀로지",
    "sector": "반도체",
-   "mcap_usd": 168343437312
+   "mcap_usd": 196310925312
   },
   {
-   "ticker": "8316.T",
-   "name": "미쓰이스미토모FG",
-   "sector": "금융",
-   "mcap_usd": 164589189009
-  },
-  {
-   "ticker": "RR.L",
-   "name": "롤스로이스",
-   "sector": "산업재·방산",
-   "mcap_usd": 163583731955
-  },
-  {
-   "ticker": "GILD",
-   "name": "길리어드",
-   "sector": "헬스케어",
-   "mcap_usd": 161664827392
-  },
-  {
-   "ticker": "DE",
-   "name": "디어",
-   "sector": "산업재·방산",
-   "mcap_usd": 159983812608
-  },
-  {
-   "ticker": "8035.T",
-   "name": "도쿄일렉트론",
-   "sector": "반도체",
-   "mcap_usd": 159888619600
-  },
-  {
-   "ticker": "T",
-   "name": "AT&T",
+   "ticker": "VZ",
+   "name": "버라이즌",
    "sector": "통신·미디어",
-   "mcap_usd": 159317966848
+   "mcap_usd": 195523723264
   },
   {
-   "ticker": "IBE.MC",
-   "name": "이베르드롤라",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 159031010729
+   "ticker": "AIR.PA",
+   "name": "에어버스",
+   "sector": "산업재·방산",
+   "mcap_usd": 195513163307
   },
   {
-   "ticker": "BX",
-   "name": "블랙스톤",
-   "sector": "금융",
-   "mcap_usd": 158998593536
-  },
-  {
-   "ticker": "RIO.L",
-   "name": "리오틴토",
-   "sector": "소재·화학",
-   "mcap_usd": 157335387481
-  },
-  {
-   "ticker": "QCOM",
-   "name": "퀄컴",
-   "sector": "반도체",
-   "mcap_usd": 154990493696
+   "ticker": "MCD",
+   "name": "맥도날드",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 195019653120
   },
   {
    "ticker": "SHOP",
    "name": "쇼피파이",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 152020238336
+   "mcap_usd": 195016638464
   },
   {
-   "ticker": "9983.T",
-   "name": "패스트리테일링",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 151892381383
+   "ticker": "2454.TW",
+   "name": "미디어텍",
+   "sector": "반도체",
+   "mcap_usd": 193111838720
   },
   {
-   "ticker": "6501.T",
-   "name": "히타치",
+   "ticker": "ALV.DE",
+   "name": "알리안츠",
+   "sector": "금융",
+   "mcap_usd": 190147559783
+  },
+  {
+   "ticker": "TTE.PA",
+   "name": "토탈에너지스",
+   "sector": "에너지",
+   "mcap_usd": 190116239382
+  },
+  {
+   "ticker": "TMUS",
+   "name": "T모바일",
+   "sector": "통신·미디어",
+   "mcap_usd": 190066688000
+  },
+  {
+   "ticker": "ADI",
+   "name": "아나로그디바이시스",
+   "sector": "반도체",
+   "mcap_usd": 189929848832
+  },
+  {
+   "ticker": "PEP",
+   "name": "펩시코",
+   "sector": "필수소비재",
+   "mcap_usd": 189901324288
+  },
+  {
+   "ticker": "RELIANCE.NS",
+   "name": "릴라이언스",
+   "sector": "에너지",
+   "mcap_usd": 189742916487
+  },
+  {
+   "ticker": "ABT",
+   "name": "애보트",
+   "sector": "헬스케어",
+   "mcap_usd": 187784871936
+  },
+  {
+   "ticker": "SCHW",
+   "name": "찰스슈왑",
+   "sector": "금융",
+   "mcap_usd": 187130970112
+  },
+  {
+   "ticker": "BA",
+   "name": "보잉",
    "sector": "산업재·방산",
-   "mcap_usd": 150856688601
+   "mcap_usd": 185143164928
+  },
+  {
+   "ticker": "BLK",
+   "name": "블랙록",
+   "sector": "금융",
+   "mcap_usd": 184636325888
+  },
+  {
+   "ticker": "STX",
+   "name": "씨게이트",
+   "sector": "IT하드웨어",
+   "mcap_usd": 184496521216
+  },
+  {
+   "ticker": "ABBN.SW",
+   "name": "ABB",
+   "sector": "산업재·방산",
+   "mcap_usd": 183570717266
+  },
+  {
+   "ticker": "DIS",
+   "name": "디즈니",
+   "sector": "통신·미디어",
+   "mcap_usd": 181146730496
+  },
+  {
+   "ticker": "TJX",
+   "name": "TJX",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 178255101952
+  },
+  {
+   "ticker": "NEE",
+   "name": "넥스트에라",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 176546496512
+  },
+  {
+   "ticker": "UBSG.SW",
+   "name": "UBS",
+   "sector": "금융",
+   "mcap_usd": 176386685293
+  },
+  {
+   "ticker": "QCOM",
+   "name": "퀄컴",
+   "sector": "반도체",
+   "mcap_usd": 176252993536
+  },
+  {
+   "ticker": "ETN",
+   "name": "이튼",
+   "sector": "산업재·방산",
+   "mcap_usd": 174222442496
+  },
+  {
+   "ticker": "UNP",
+   "name": "유니언퍼시픽",
+   "sector": "산업재·방산",
+   "mcap_usd": 174141358080
+  },
+  {
+   "ticker": "SAF.PA",
+   "name": "사프란",
+   "sector": "산업재·방산",
+   "mcap_usd": 171286709568
+  },
+  {
+   "ticker": "WELL",
+   "name": "웰타워",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 170717921280
+  },
+  {
+   "ticker": "BX",
+   "name": "블랙스톤",
+   "sector": "금융",
+   "mcap_usd": 170673012736
+  },
+  {
+   "ticker": "RR.L",
+   "name": "롤스로이스",
+   "sector": "산업재·방산",
+   "mcap_usd": 170641204448
+  },
+  {
+   "ticker": "DE",
+   "name": "디어",
+   "sector": "산업재·방산",
+   "mcap_usd": 167690715136
   },
   {
    "ticker": "BKNG",
    "name": "부킹홀딩스",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 149474050048
+   "mcap_usd": 166149439488
+  },
+  {
+   "ticker": "RIO.L",
+   "name": "리오틴토",
+   "sector": "소재·화학",
+   "mcap_usd": 165269958489
+  },
+  {
+   "ticker": "GILD",
+   "name": "길리어드",
+   "sector": "헬스케어",
+   "mcap_usd": 165174444032
+  },
+  {
+   "ticker": "BUD",
+   "name": "AB인베브(ADR)",
+   "sector": "필수소비재",
+   "mcap_usd": 164959928320
+  },
+  {
+   "ticker": "8316.T",
+   "name": "미쓰이스미토모FG",
+   "sector": "금융",
+   "mcap_usd": 163882703659
+  },
+  {
+   "ticker": "T",
+   "name": "AT&T",
+   "sector": "통신·미디어",
+   "mcap_usd": 163018260480
   },
   {
    "ticker": "DTE.DE",
    "name": "도이체텔레콤",
    "sector": "통신·미디어",
-   "mcap_usd": 149411995342
+   "mcap_usd": 160618711752
   },
   {
-   "ticker": "6857.T",
-   "name": "어드반테스트",
+   "ticker": "IBE.MC",
+   "name": "이베르드롤라",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 159747936378
+  },
+  {
+   "ticker": "6501.T",
+   "name": "히타치",
+   "sector": "산업재·방산",
+   "mcap_usd": 159463905849
+  },
+  {
+   "ticker": "CRM",
+   "name": "세일즈포스",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 157854056448
+  },
+  {
+   "ticker": "8035.T",
+   "name": "도쿄일렉트론",
    "sector": "반도체",
-   "mcap_usd": 149089835704
+   "mcap_usd": 157071430062
   },
   {
-   "ticker": "COP",
-   "name": "코노코필립스",
-   "sector": "에너지",
-   "mcap_usd": 146780061696
-  },
-  {
-   "ticker": "0883.HK",
-   "name": "CNOOC",
-   "sector": "에너지",
-   "mcap_usd": 144377296317
+   "ticker": "9983.T",
+   "name": "패스트리테일링",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 154268717954
   },
   {
    "ticker": "UBER",
    "name": "우버",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 143224750080
+   "mcap_usd": 153232850944
   },
   {
-   "ticker": "6758.T",
-   "name": "소니그룹",
+   "ticker": "PFE",
+   "name": "화이자",
+   "sector": "헬스케어",
+   "mcap_usd": 152523259904
+  },
+  {
+   "ticker": "WDC",
+   "name": "웨스턴디지털",
    "sector": "IT하드웨어",
-   "mcap_usd": 140916461717
+   "mcap_usd": 149695447040
   },
   {
-   "ticker": "CFR.SW",
-   "name": "리치몬트",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 139045835140
+   "ticker": "6857.T",
+   "name": "어드반테스트",
+   "sector": "반도체",
+   "mcap_usd": 147753698819
   },
   {
-   "ticker": "BNP.PA",
-   "name": "BNP파리바",
+   "ticker": "UCG.MI",
+   "name": "우니크레디트",
    "sector": "금융",
-   "mcap_usd": 138704403527
-  },
-  {
-   "ticker": "PLD",
-   "name": "프로로지스",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 138078535680
-  },
-  {
-   "ticker": "ULVR.L",
-   "name": "유니레버",
-   "sector": "필수소비재",
-   "mcap_usd": 137731979334
+   "mcap_usd": 146241017957
   },
   {
    "ticker": "DHR",
    "name": "다나허",
    "sector": "헬스케어",
-   "mcap_usd": 137068216320
+   "mcap_usd": 143943417856
   },
   {
-   "ticker": "2318.HK",
-   "name": "핑안보험",
+   "ticker": "BNP.PA",
+   "name": "BNP파리바",
    "sector": "금융",
-   "mcap_usd": 135431499439
-  },
-  {
-   "ticker": "CB",
-   "name": "처브",
-   "sector": "금융",
-   "mcap_usd": 135292297216
-  },
-  {
-   "ticker": "LMT",
-   "name": "록히드마틴",
-   "sector": "산업재·방산",
-   "mcap_usd": 134490996736
-  },
-  {
-   "ticker": "BMY",
-   "name": "브리스톨마이어스",
-   "sector": "헬스케어",
-   "mcap_usd": 133409685504
-  },
-  {
-   "ticker": "CVS",
-   "name": "CVS헬스",
-   "sector": "헬스케어",
-   "mcap_usd": 133245091840
-  },
-  {
-   "ticker": "APP",
-   "name": "앱러빈",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 132998455296
-  },
-  {
-   "ticker": "ISP.MI",
-   "name": "인테사산파올로",
-   "sector": "금융",
-   "mcap_usd": 132292227670
-  },
-  {
-   "ticker": "2308.TW",
-   "name": "델타전자",
-   "sector": "IT하드웨어",
-   "mcap_usd": 131920329286
-  },
-  {
-   "ticker": "BHARTIARTL.NS",
-   "name": "바르티에어텔",
-   "sector": "통신·미디어",
-   "mcap_usd": 128737328520
-  },
-  {
-   "ticker": "COF",
-   "name": "캐피털원",
-   "sector": "금융",
-   "mcap_usd": 128224468992
-  },
-  {
-   "ticker": "ISRG",
-   "name": "인튜이티브서지컬",
-   "sector": "헬스케어",
-   "mcap_usd": 126590377984
-  },
-  {
-   "ticker": "8411.T",
-   "name": "미즈호FG",
-   "sector": "금융",
-   "mcap_usd": 126239613709
-  },
-  {
-   "ticker": "PDD",
-   "name": "PDD홀딩스(ADR)",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 126055989248
-  },
-  {
-   "ticker": "AI.PA",
-   "name": "에어리퀴드",
-   "sector": "소재·화학",
-   "mcap_usd": 125280490052
-  },
-  {
-   "ticker": "SYK",
-   "name": "스트라이커",
-   "sector": "헬스케어",
-   "mcap_usd": 124860604416
-  },
-  {
-   "ticker": "6861.T",
-   "name": "키엔스",
-   "sector": "IT하드웨어",
-   "mcap_usd": 124276901538
-  },
-  {
-   "ticker": "PH",
-   "name": "파커하니핀",
-   "sector": "산업재·방산",
-   "mcap_usd": 123127144448
-  },
-  {
-   "ticker": "PGR",
-   "name": "프로그레시브",
-   "sector": "금융",
-   "mcap_usd": 122919583744
-  },
-  {
-   "ticker": "SPGI",
-   "name": "S&P글로벌",
-   "sector": "금융",
-   "mcap_usd": 121436962816
-  },
-  {
-   "ticker": "VRTX",
-   "name": "버텍스",
-   "sector": "헬스케어",
-   "mcap_usd": 121090572288
-  },
-  {
-   "ticker": "HDFCBANK.NS",
-   "name": "HDFC은행",
-   "sector": "금융",
-   "mcap_usd": 120823707647
-  },
-  {
-   "ticker": "SBUX",
-   "name": "스타벅스",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 119984996352
+   "mcap_usd": 142516760739
   },
   {
    "ticker": "GLW",
    "name": "코닝",
    "sector": "IT하드웨어",
-   "mcap_usd": 118844932096
+   "mcap_usd": 142424784896
   },
   {
-   "ticker": "FTNT",
-   "name": "포티넷",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 118824927232
+   "ticker": "CFR.SW",
+   "name": "리치몬트",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 142285893634
   },
   {
-   "ticker": "BP.L",
-   "name": "BP",
+   "ticker": "COP",
+   "name": "코노코필립스",
    "sector": "에너지",
-   "mcap_usd": 115122414704
+   "mcap_usd": 141289308160
+  },
+  {
+   "ticker": "0883.HK",
+   "name": "CNOOC",
+   "sector": "에너지",
+   "mcap_usd": 140934517898
+  },
+  {
+   "ticker": "6758.T",
+   "name": "소니그룹",
+   "sector": "IT하드웨어",
+   "mcap_usd": 138516727991
+  },
+  {
+   "ticker": "ISP.MI",
+   "name": "인테사산파올로",
+   "sector": "금융",
+   "mcap_usd": 138345510422
+  },
+  {
+   "ticker": "PLD",
+   "name": "프로로지스",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 136248336384
+  },
+  {
+   "ticker": "ULVR.L",
+   "name": "유니레버",
+   "sector": "필수소비재",
+   "mcap_usd": 135762883437
+  },
+  {
+   "ticker": "ISRG",
+   "name": "인튜이티브서지컬",
+   "sector": "헬스케어",
+   "mcap_usd": 135719305216
+  },
+  {
+   "ticker": "LMT",
+   "name": "록히드마틴",
+   "sector": "산업재·방산",
+   "mcap_usd": 135693426688
+  },
+  {
+   "ticker": "PH",
+   "name": "파커하니핀",
+   "sector": "산업재·방산",
+   "mcap_usd": 135400390656
+  },
+  {
+   "ticker": "CB",
+   "name": "처브",
+   "sector": "금융",
+   "mcap_usd": 135149551616
+  },
+  {
+   "ticker": "COF",
+   "name": "캐피털원",
+   "sector": "금융",
+   "mcap_usd": 133595766784
+  },
+  {
+   "ticker": "2308.TW",
+   "name": "델타전자",
+   "sector": "IT하드웨어",
+   "mcap_usd": 132963535483
+  },
+  {
+   "ticker": "BMY",
+   "name": "브리스톨마이어스",
+   "sector": "헬스케어",
+   "mcap_usd": 132204494848
+  },
+  {
+   "ticker": "2318.HK",
+   "name": "핑안보험",
+   "sector": "금융",
+   "mcap_usd": 131922365280
+  },
+  {
+   "ticker": "6861.T",
+   "name": "키엔스",
+   "sector": "IT하드웨어",
+   "mcap_usd": 130845778054
+  },
+  {
+   "ticker": "PDD",
+   "name": "PDD홀딩스(ADR)",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 130610864128
+  },
+  {
+   "ticker": "8411.T",
+   "name": "미즈호FG",
+   "sector": "금융",
+   "mcap_usd": 130445432391
+  },
+  {
+   "ticker": "SYK",
+   "name": "스트라이커",
+   "sector": "헬스케어",
+   "mcap_usd": 130042773504
   },
   {
    "ticker": "NOW",
    "name": "서비스나우",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 114996477952
+   "mcap_usd": 129108688896
   },
   {
-   "ticker": "MO",
-   "name": "알트리아",
-   "sector": "필수소비재",
-   "mcap_usd": 114093604864
+   "ticker": "BHARTIARTL.NS",
+   "name": "바르티에어텔",
+   "sector": "통신·미디어",
+   "mcap_usd": 128439108976
   },
   {
-   "ticker": "ZURN.SW",
-   "name": "취리히보험",
-   "sector": "금융",
-   "mcap_usd": 113951431167
+   "ticker": "AI.PA",
+   "name": "에어리퀴드",
+   "sector": "소재·화학",
+   "mcap_usd": 126761982974
   },
   {
-   "ticker": "HWM",
-   "name": "하우멧에어로스페이스",
-   "sector": "산업재·방산",
-   "mcap_usd": 112934346752
+   "ticker": "VRTX",
+   "name": "버텍스",
+   "sector": "헬스케어",
+   "mcap_usd": 125654532096
   },
   {
-   "ticker": "ENEL.MI",
-   "name": "에넬",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 112219340846
-  },
-  {
-   "ticker": "8058.T",
-   "name": "미쓰비시상사",
-   "sector": "산업재·방산",
-   "mcap_usd": 110273940190
-  },
-  {
-   "ticker": "6098.T",
-   "name": "리크루트",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 109562141426
-  },
-  {
-   "ticker": "1211.HK",
-   "name": "BYD",
+   "ticker": "LOW",
+   "name": "로우스",
    "sector": "경기소비재·자동차",
-   "mcap_usd": 109464035920
+   "mcap_usd": 125299351552
   },
   {
-   "ticker": "SO",
-   "name": "서던컴퍼니",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 108755320832
-  },
-  {
-   "ticker": "2317.TW",
-   "name": "혼하이정밀",
-   "sector": "IT하드웨어",
-   "mcap_usd": 108617642225
-  },
-  {
-   "ticker": "ICICIBANK.NS",
-   "name": "ICICI은행",
+   "ticker": "PGR",
+   "name": "프로그레시브",
    "sector": "금융",
-   "mcap_usd": 107851128062
+   "mcap_usd": 125186785280
   },
   {
-   "ticker": "ADP",
-   "name": "ADP",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 105997787136
-  },
-  {
-   "ticker": "CS.PA",
-   "name": "악사",
-   "sector": "금융",
-   "mcap_usd": 105511052310
-  },
-  {
-   "ticker": "GSK.L",
-   "name": "GSK",
+   "ticker": "CVS",
+   "name": "CVS헬스",
    "sector": "헬스케어",
-   "mcap_usd": 104370922720
+   "mcap_usd": 122397458432
   },
   {
-   "ticker": "1299.HK",
-   "name": "AIA",
+   "ticker": "SBUX",
+   "name": "스타벅스",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 120361205760
+  },
+  {
+   "ticker": "SPGI",
+   "name": "S&P글로벌",
    "sector": "금융",
-   "mcap_usd": 104146332625
-  },
-  {
-   "ticker": "GD",
-   "name": "제너럴다이내믹스",
-   "sector": "산업재·방산",
-   "mcap_usd": 103737040896
-  },
-  {
-   "ticker": "ATCO-A.ST",
-   "name": "아틀라스콥코",
-   "sector": "산업재·방산",
-   "mcap_usd": 103237276059
-  },
-  {
-   "ticker": "SAN.PA",
-   "name": "사노피",
-   "sector": "헬스케어",
-   "mcap_usd": 102966162317
-  },
-  {
-   "ticker": "SPOT",
-   "name": "스포티파이",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 102797697024
-  },
-  {
-   "ticker": "SNOW",
-   "name": "스노우플레이크",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 101650849792
-  },
-  {
-   "ticker": "ACN",
-   "name": "액센츄어",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 101533425664
-  },
-  {
-   "ticker": "EQIX",
-   "name": "에퀴닉스",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 100574085120
-  },
-  {
-   "ticker": "PWR",
-   "name": "콴타서비스",
-   "sector": "산업재·방산",
-   "mcap_usd": 100333166592
-  },
-  {
-   "ticker": "TT",
-   "name": "트레인테크놀로지스",
-   "sector": "산업재·방산",
-   "mcap_usd": 100099547136
-  },
-  {
-   "ticker": "ADBE",
-   "name": "어도비",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 99537977344
-  },
-  {
-   "ticker": "CNQ",
-   "name": "캐나디안내추럴(ADR)",
-   "sector": "에너지",
-   "mcap_usd": 99446652928
-  },
-  {
-   "ticker": "NET",
-   "name": "클라우드플레어",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 99021037568
+   "mcap_usd": 120334409728
   },
   {
    "ticker": "NEM",
    "name": "뉴몬트",
    "sector": "소재·화학",
-   "mcap_usd": 98741501952
+   "mcap_usd": 119046160384
   },
   {
-   "ticker": "PRX.AS",
-   "name": "프로수스",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 98275932604
-  },
-  {
-   "ticker": "DUK",
-   "name": "듀크에너지",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 97784758272
-  },
-  {
-   "ticker": "EQNR.OL",
-   "name": "에퀴노르",
-   "sector": "에너지",
-   "mcap_usd": 96896430124
-  },
-  {
-   "ticker": "CME",
-   "name": "CME그룹",
+   "ticker": "HDFCBANK.NS",
+   "name": "HDFC은행",
    "sector": "금융",
-   "mcap_usd": 96291733504
+   "mcap_usd": 118291047873
   },
   {
-   "ticker": "8766.T",
-   "name": "도쿄해상",
-   "sector": "금융",
-   "mcap_usd": 95640286468
-  },
-  {
-   "ticker": "DDOG",
-   "name": "데이터독",
+   "ticker": "FTNT",
+   "name": "포티넷",
    "sector": "소프트웨어·클라우드",
-   "mcap_usd": 95386656768
+   "mcap_usd": 117130051584
   },
   {
-   "ticker": "BN",
-   "name": "브룩필드",
-   "sector": "금융",
-   "mcap_usd": 94994817024
+   "ticker": "6098.T",
+   "name": "리크루트",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 116181215450
   },
   {
-   "ticker": "KKR",
-   "name": "KKR",
-   "sector": "금융",
-   "mcap_usd": 94577549312
+   "ticker": "APP",
+   "name": "앱러빈",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 116056801280
   },
   {
-   "ticker": "1810.HK",
-   "name": "샤오미",
-   "sector": "IT하드웨어",
-   "mcap_usd": 94298608258
-  },
-  {
-   "ticker": "CEG",
-   "name": "컨스텔레이션에너지",
+   "ticker": "ENEL.MI",
+   "name": "에넬",
    "sector": "유틸리티·부동산",
-   "mcap_usd": 93828554752
+   "mcap_usd": 115264543999
   },
   {
-   "ticker": "CDNS",
-   "name": "케이던스",
-   "sector": "반도체",
-   "mcap_usd": 93639122944
+   "ticker": "SNOW",
+   "name": "스노우플레이크",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 114547826688
   },
   {
-   "ticker": "CSX",
-   "name": "CSX",
+   "ticker": "MO",
+   "name": "알트리아",
+   "sector": "필수소비재",
+   "mcap_usd": 114126987264
+  },
+  {
+   "ticker": "8058.T",
+   "name": "미쓰비시상사",
    "sector": "산업재·방산",
-   "mcap_usd": 93364740096
+   "mcap_usd": 112987862222
   },
   {
-   "ticker": "6669.TW",
-   "name": "위윈",
+   "ticker": "2317.TW",
+   "name": "혼하이정밀",
    "sector": "IT하드웨어",
-   "mcap_usd": 93058512817
+   "mcap_usd": 112939723965
   },
   {
-   "ticker": "VRT",
-   "name": "버티브",
-   "sector": "IT하드웨어",
-   "mcap_usd": 93001588736
-  },
-  {
-   "ticker": "IFX.DE",
-   "name": "인피니언",
-   "sector": "반도체",
-   "mcap_usd": 92487180722
-  },
-  {
-   "ticker": "MPC",
-   "name": "마라톤페트롤리엄",
-   "sector": "에너지",
-   "mcap_usd": 92389187584
-  },
-  {
-   "ticker": "MMM",
-   "name": "3M",
+   "ticker": "HWM",
+   "name": "하우멧에어로스페이스",
    "sector": "산업재·방산",
-   "mcap_usd": 90911547392
+   "mcap_usd": 112414146560
   },
   {
-   "ticker": "WM",
-   "name": "웨이스트매니지먼트",
-   "sector": "산업재·방산",
-   "mcap_usd": 90555482112
-  },
-  {
-   "ticker": "VLO",
-   "name": "발레로",
+   "ticker": "ENB",
+   "name": "엔브리지(ADR)",
    "sector": "에너지",
-   "mcap_usd": 90092503040
+   "mcap_usd": 111999901696
+  },
+  {
+   "ticker": "MDT",
+   "name": "메드트로닉",
+   "sector": "헬스케어",
+   "mcap_usd": 111568740352
+  },
+  {
+   "ticker": "ZURN.SW",
+   "name": "취리히보험",
+   "sector": "금융",
+   "mcap_usd": 109712310272
+  },
+  {
+   "ticker": "ATCO-A.ST",
+   "name": "아틀라스콥코",
+   "sector": "산업재·방산",
+   "mcap_usd": 108152590730
+  },
+  {
+   "ticker": "BP.L",
+   "name": "BP",
+   "sector": "에너지",
+   "mcap_usd": 107844308027
+  },
+  {
+   "ticker": "ADP",
+   "name": "ADP",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 107785330688
+  },
+  {
+   "ticker": "ACN",
+   "name": "액센츄어",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 107530461184
+  },
+  {
+   "ticker": "ICICIBANK.NS",
+   "name": "ICICI은행",
+   "sector": "금융",
+   "mcap_usd": 107073967480
+  },
+  {
+   "ticker": "NET",
+   "name": "클라우드플레어",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 106920050688
+  },
+  {
+   "ticker": "SO",
+   "name": "서던컴퍼니",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 106627153920
   },
   {
    "ticker": "ABNB",
    "name": "에어비앤비",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 89927868416
+   "mcap_usd": 106625769472
   },
   {
-   "ticker": "JCI",
-   "name": "존슨컨트롤스",
+   "ticker": "TT",
+   "name": "트레인테크놀로지스",
    "sector": "산업재·방산",
-   "mcap_usd": 88838045696
+   "mcap_usd": 106119380992
   },
   {
-   "ticker": "8001.T",
-   "name": "이토추상사",
+   "ticker": "GD",
+   "name": "제너럴다이내믹스",
    "sector": "산업재·방산",
-   "mcap_usd": 87585950908
+   "mcap_usd": 106071941120
   },
   {
-   "ticker": "CMI",
-   "name": "커민스",
-   "sector": "산업재·방산",
-   "mcap_usd": 87512670208
-  },
-  {
-   "ticker": "WMB",
-   "name": "윌리엄스",
-   "sector": "에너지",
-   "mcap_usd": 87493296128
-  },
-  {
-   "ticker": "HCA",
-   "name": "HCA헬스케어",
-   "sector": "헬스케어",
-   "mcap_usd": 87161339904
-  },
-  {
-   "ticker": "8031.T",
-   "name": "미쓰이물산",
-   "sector": "산업재·방산",
-   "mcap_usd": 87135616766
-  },
-  {
-   "ticker": "INTU",
-   "name": "인튜이트",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 86456836096
-  },
-  {
-   "ticker": "GLEN.L",
-   "name": "글렌코어",
-   "sector": "소재·화학",
-   "mcap_usd": 85808715669
-  },
-  {
-   "ticker": "ICE",
-   "name": "인터컨티넨탈익스체인지",
+   "ticker": "CS.PA",
+   "name": "악사",
    "sector": "금융",
-   "mcap_usd": 85601427456
+   "mcap_usd": 105989479830
+  },
+  {
+   "ticker": "GSK.L",
+   "name": "GSK",
+   "sector": "헬스케어",
+   "mcap_usd": 105971263370
+  },
+  {
+   "ticker": "6669.TW",
+   "name": "위윈",
+   "sector": "IT하드웨어",
+   "mcap_usd": 105506184222
+  },
+  {
+   "ticker": "ADBE",
+   "name": "어도비",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 105420972032
+  },
+  {
+   "ticker": "VRT",
+   "name": "버티브",
+   "sector": "IT하드웨어",
+   "mcap_usd": 104870772736
+  },
+  {
+   "ticker": "1211.HK",
+   "name": "BYD",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 104777340761
+  },
+  {
+   "ticker": "PRX.AS",
+   "name": "프로수스",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 104677888279
+  },
+  {
+   "ticker": "SAN.PA",
+   "name": "사노피",
+   "sector": "헬스케어",
+   "mcap_usd": 104344344003
+  },
+  {
+   "ticker": "EQIX",
+   "name": "에퀴닉스",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 102877077504
+  },
+  {
+   "ticker": "MCK",
+   "name": "맥케슨",
+   "sector": "헬스케어",
+   "mcap_usd": 101384650752
+  },
+  {
+   "ticker": "PWR",
+   "name": "콴타서비스",
+   "sector": "산업재·방산",
+   "mcap_usd": 101009711104
+  },
+  {
+   "ticker": "SPOT",
+   "name": "스포티파이",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 100371382272
+  },
+  {
+   "ticker": "BN",
+   "name": "브룩필드",
+   "sector": "금융",
+   "mcap_usd": 98456903680
+  },
+  {
+   "ticker": "FCX",
+   "name": "프리포트맥모란",
+   "sector": "소재·화학",
+   "mcap_usd": 97468006400
+  },
+  {
+   "ticker": "1299.HK",
+   "name": "AIA",
+   "sector": "금융",
+   "mcap_usd": 97410639374
+  },
+  {
+   "ticker": "DUK",
+   "name": "듀크에너지",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 97345822720
+  },
+  {
+   "ticker": "CEG",
+   "name": "컨스텔레이션에너지",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 95624028160
+  },
+  {
+   "ticker": "8766.T",
+   "name": "도쿄해상",
+   "sector": "금융",
+   "mcap_usd": 95606831657
+  },
+  {
+   "ticker": "KKR",
+   "name": "KKR",
+   "sector": "금융",
+   "mcap_usd": 94954340352
+  },
+  {
+   "ticker": "CME",
+   "name": "CME그룹",
+   "sector": "금융",
+   "mcap_usd": 94806671360
+  },
+  {
+   "ticker": "MMM",
+   "name": "3M",
+   "sector": "산업재·방산",
+   "mcap_usd": 94325628928
+  },
+  {
+   "ticker": "CNQ",
+   "name": "캐나디안내추럴(ADR)",
+   "sector": "에너지",
+   "mcap_usd": 93818863616
   },
   {
    "ticker": "DASH",
    "name": "도어대시",
    "sector": "인터넷·플랫폼",
-   "mcap_usd": 85470584832
+   "mcap_usd": 93704511488
   },
   {
-   "ticker": "RCL",
-   "name": "로열캐리비언",
+   "ticker": "CDNS",
+   "name": "케이던스",
+   "sector": "반도체",
+   "mcap_usd": 93567819776
+  },
+  {
+   "ticker": "IFX.DE",
+   "name": "인피니언",
+   "sector": "반도체",
+   "mcap_usd": 93295868678
+  },
+  {
+   "ticker": "EQNR.OL",
+   "name": "에퀴노르",
+   "sector": "에너지",
+   "mcap_usd": 93255368572
+  },
+  {
+   "ticker": "TCS.NS",
+   "name": "TCS",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 93217118562
+  },
+  {
+   "ticker": "CSX",
+   "name": "CSX",
+   "sector": "산업재·방산",
+   "mcap_usd": 93123911680
+  },
+  {
+   "ticker": "MAR",
+   "name": "메리어트",
    "sector": "경기소비재·자동차",
-   "mcap_usd": 85129994240
+   "mcap_usd": 92287795200
+  },
+  {
+   "ticker": "JCI",
+   "name": "존슨컨트롤스",
+   "sector": "산업재·방산",
+   "mcap_usd": 92199911424
+  },
+  {
+   "ticker": "8001.T",
+   "name": "이토추상사",
+   "sector": "산업재·방산",
+   "mcap_usd": 92163174318
+  },
+  {
+   "ticker": "HCA",
+   "name": "HCA헬스케어",
+   "sector": "헬스케어",
+   "mcap_usd": 91699699712
+  },
+  {
+   "ticker": "WM",
+   "name": "웨이스트매니지먼트",
+   "sector": "산업재·방산",
+   "mcap_usd": 91007156224
   },
   {
    "ticker": "CMCSA",
    "name": "컴캐스트",
    "sector": "통신·미디어",
-   "mcap_usd": 85025333248
-  },
-  {
-   "ticker": "PSX",
-   "name": "필립스66",
-   "sector": "에너지",
-   "mcap_usd": 84869922816
-  },
-  {
-   "ticker": "9999.HK",
-   "name": "넷이즈",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 84831085775
-  },
-  {
-   "ticker": "EMR",
-   "name": "에머슨",
-   "sector": "산업재·방산",
-   "mcap_usd": 83914178560
-  },
-  {
-   "ticker": "MCO",
-   "name": "무디스",
-   "sector": "금융",
-   "mcap_usd": 82846326784
-  },
-  {
-   "ticker": "BA.L",
-   "name": "BAE시스템즈",
-   "sector": "산업재·방산",
-   "mcap_usd": 82756402404
+   "mcap_usd": 89993428992
   },
   {
    "ticker": "SHW",
    "name": "셔윈윌리엄스",
    "sector": "소재·화학",
-   "mcap_usd": 82744115200
+   "mcap_usd": 89754968064
   },
   {
-   "ticker": "ITW",
-   "name": "일리노이툴웍스",
+   "ticker": "INTU",
+   "name": "인튜이트",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 88967905280
+  },
+  {
+   "ticker": "UPS",
+   "name": "UPS",
    "sector": "산업재·방산",
-   "mcap_usd": 82555518976
+   "mcap_usd": 88906670080
   },
   {
-   "ticker": "6981.T",
-   "name": "무라타제작소",
+   "ticker": "CMI",
+   "name": "커민스",
+   "sector": "산업재·방산",
+   "mcap_usd": 88900837376
+  },
+  {
+   "ticker": "1810.HK",
+   "name": "샤오미",
    "sector": "IT하드웨어",
-   "mcap_usd": 81961863631
+   "mcap_usd": 88812401861
   },
   {
-   "ticker": "CTAS",
-   "name": "신타스",
+   "ticker": "EMR",
+   "name": "에머슨",
    "sector": "산업재·방산",
-   "mcap_usd": 81886699520
+   "mcap_usd": 88641421312
   },
   {
-   "ticker": "ELV",
-   "name": "엘레번스헬스",
-   "sector": "헬스케어",
-   "mcap_usd": 81508155392
+   "ticker": "8031.T",
+   "name": "미쓰이물산",
+   "sector": "산업재·방산",
+   "mcap_usd": 88626207126
   },
   {
-   "ticker": "AMT",
-   "name": "아메리칸타워",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 80778838016
+   "ticker": "GLEN.L",
+   "name": "글렌코어",
+   "sector": "소재·화학",
+   "mcap_usd": 88076919274
   },
   {
-   "ticker": "NG.L",
-   "name": "내셔널그리드",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 80670553369
+   "ticker": "BA.L",
+   "name": "BAE시스템즈",
+   "sector": "산업재·방산",
+   "mcap_usd": 87782502513
   },
   {
-   "ticker": "GM",
-   "name": "제너럴모터스",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 80369565696
-  },
-  {
-   "ticker": "ENI.MI",
-   "name": "ENI",
+   "ticker": "MPC",
+   "name": "마라톤페트롤리엄",
    "sector": "에너지",
-   "mcap_usd": 80187381735
-  },
-  {
-   "ticker": "MDLZ",
-   "name": "몬델리즈",
-   "sector": "필수소비재",
-   "mcap_usd": 79526756352
-  },
-  {
-   "ticker": "EOG",
-   "name": "EOG리소시스",
-   "sector": "에너지",
-   "mcap_usd": 79196536832
+   "mcap_usd": 87055507456
   },
   {
    "ticker": "7011.T",
    "name": "미쓰비시중공업",
    "sector": "산업재·방산",
-   "mcap_usd": 78864857971
+   "mcap_usd": 86139005687
   },
   {
-   "ticker": "9432.T",
-   "name": "NTT",
-   "sector": "통신·미디어",
-   "mcap_usd": 78525602441
+   "ticker": "WMB",
+   "name": "윌리엄스",
+   "sector": "에너지",
+   "mcap_usd": 86110994432
   },
   {
-   "ticker": "REGN",
-   "name": "리제네론",
+   "ticker": "VLO",
+   "name": "발레로",
+   "sector": "에너지",
+   "mcap_usd": 85891637248
+  },
+  {
+   "ticker": "RCL",
+   "name": "로열캐리비언",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 85584666624
+  },
+  {
+   "ticker": "ELV",
+   "name": "엘레번스헬스",
    "sector": "헬스케어",
-   "mcap_usd": 78516568064
+   "mcap_usd": 85489876992
   },
   {
-   "ticker": "ECL",
-   "name": "에코랩",
-   "sector": "소재·화학",
-   "mcap_usd": 78135492608
+   "ticker": "SPG",
+   "name": "사이먼프로퍼티",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 84701257728
   },
   {
-   "ticker": "2914.T",
-   "name": "JT",
-   "sector": "필수소비재",
-   "mcap_usd": 78015071372
-  },
-  {
-   "ticker": "VOLV-B.ST",
-   "name": "볼보",
+   "ticker": "ITW",
+   "name": "일리노이툴웍스",
    "sector": "산업재·방산",
-   "mcap_usd": 77950787703
+   "mcap_usd": 84488765440
+  },
+  {
+   "ticker": "ICE",
+   "name": "인터컨티넨탈익스체인지",
+   "sector": "금융",
+   "mcap_usd": 84377591808
+  },
+  {
+   "ticker": "DDOG",
+   "name": "데이터독",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 83998416896
   },
   {
    "ticker": "HOOD",
    "name": "로빈후드",
    "sector": "금융",
-   "mcap_usd": 77824565248
+   "mcap_usd": 83875389440
   },
   {
-   "ticker": "MUV2.DE",
-   "name": "뮌헨재보험",
+   "ticker": "6981.T",
+   "name": "무라타제작소",
+   "sector": "IT하드웨어",
+   "mcap_usd": 83807774877
+  },
+  {
+   "ticker": "9999.HK",
+   "name": "넷이즈",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 83740847373
+  },
+  {
+   "ticker": "MCO",
+   "name": "무디스",
    "sector": "금융",
-   "mcap_usd": 77116790340
+   "mcap_usd": 82737217536
+  },
+  {
+   "ticker": "9432.T",
+   "name": "NTT",
+   "sector": "통신·미디어",
+   "mcap_usd": 81587521506
+  },
+  {
+   "ticker": "NG.L",
+   "name": "내셔널그리드",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 81400193158
+  },
+  {
+   "ticker": "PSX",
+   "name": "필립스66",
+   "sector": "에너지",
+   "mcap_usd": 81364361216
+  },
+  {
+   "ticker": "CTAS",
+   "name": "신타스",
+   "sector": "산업재·방산",
+   "mcap_usd": 81254432768
   },
   {
    "ticker": "NOC",
    "name": "노스롭그루먼",
    "sector": "산업재·방산",
-   "mcap_usd": 77066346496
+   "mcap_usd": 81200381952
   },
   {
-   "ticker": "HON",
-   "name": "하니웰",
-   "sector": "산업재·방산",
-   "mcap_usd": 77032267776
+   "ticker": "REGN",
+   "name": "리제네론",
+   "sector": "헬스케어",
+   "mcap_usd": 80753778688
   },
   {
-   "ticker": "6503.T",
-   "name": "미쓰비시전기",
-   "sector": "산업재·방산",
-   "mcap_usd": 76661756747
+   "ticker": "AMT",
+   "name": "아메리칸타워",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 80396746752
+  },
+  {
+   "ticker": "MDLZ",
+   "name": "몬델리즈",
+   "sector": "필수소비재",
+   "mcap_usd": 80369311744
+  },
+  {
+   "ticker": "2914.T",
+   "name": "JT",
+   "sector": "필수소비재",
+   "mcap_usd": 79993669845
+  },
+  {
+   "ticker": "ECL",
+   "name": "에코랩",
+   "sector": "소재·화학",
+   "mcap_usd": 79941312512
   },
   {
    "ticker": "SNPS",
    "name": "시놉시스",
    "sector": "반도체",
-   "mcap_usd": 74439507968
+   "mcap_usd": 79653486592
   },
   {
-   "ticker": "CI",
-   "name": "시그나",
-   "sector": "헬스케어",
-   "mcap_usd": 73736306688
+   "ticker": "GM",
+   "name": "제너럴모터스",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 79211864064
   },
   {
-   "ticker": "SLB",
-   "name": "슐룸버거",
+   "ticker": "HON",
+   "name": "하니웰",
+   "sector": "산업재·방산",
+   "mcap_usd": 78033797120
+  },
+  {
+   "ticker": "ENI.MI",
+   "name": "ENI",
    "sector": "에너지",
-   "mcap_usd": 73598664704
+   "mcap_usd": 77874829402
+  },
+  {
+   "ticker": "VOLV-B.ST",
+   "name": "볼보",
+   "sector": "산업재·방산",
+   "mcap_usd": 76479368208
   },
   {
    "ticker": "ORLY",
    "name": "오라일리",
    "sector": "경기소비재·자동차",
-   "mcap_usd": 72924413952
+   "mcap_usd": 76335988736
   },
   {
-   "ticker": "3690.HK",
-   "name": "메이투안",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 72802488708
+   "ticker": "6503.T",
+   "name": "미쓰비시전기",
+   "sector": "산업재·방산",
+   "mcap_usd": 75577231702
   },
   {
    "ticker": "FDX",
    "name": "페덱스",
    "sector": "산업재·방산",
-   "mcap_usd": 72725053440
+   "mcap_usd": 75367669760
   },
   {
-   "ticker": "APO",
-   "name": "아폴로글로벌",
-   "sector": "금융",
-   "mcap_usd": 72404828160
-  },
-  {
-   "ticker": "4519.T",
-   "name": "주가이제약",
-   "sector": "헬스케어",
-   "mcap_usd": 72288974887
-  },
-  {
-   "ticker": "HLT",
-   "name": "힐튼",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 72131051520
-  },
-  {
-   "ticker": "KMI",
-   "name": "킨더모건",
+   "ticker": "SLB",
+   "name": "슐룸버거",
    "sector": "에너지",
-   "mcap_usd": 71658496000
+   "mcap_usd": 74993754112
   },
   {
-   "ticker": "DLR",
-   "name": "디지털리얼티",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 70934233088
+   "ticker": "MUV2.DE",
+   "name": "뮌헨재보험",
+   "sector": "금융",
+   "mcap_usd": 74991069275
+  },
+  {
+   "ticker": "CI",
+   "name": "시그나",
+   "sector": "헬스케어",
+   "mcap_usd": 74645291008
+  },
+  {
+   "ticker": "CL",
+   "name": "콜게이트",
+   "sector": "필수소비재",
+   "mcap_usd": 74352304128
   },
   {
    "ticker": "005380.KS",
    "name": "현대차",
    "sector": "경기소비재·자동차",
-   "mcap_usd": 70635086981
+   "mcap_usd": 73582870647
   },
   {
-   "ticker": "9433.T",
-   "name": "KDDI",
-   "sector": "통신·미디어",
-   "mcap_usd": 70408883995
-  },
-  {
-   "ticker": "MPWR",
-   "name": "모놀리식파워",
-   "sector": "반도체",
-   "mcap_usd": 70060859392
-  },
-  {
-   "ticker": "AEP",
-   "name": "AEP",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 69601206272
-  },
-  {
-   "ticker": "BSX",
-   "name": "보스턴사이언티픽",
-   "sector": "헬스케어",
-   "mcap_usd": 69457379328
-  },
-  {
-   "ticker": "RACE",
-   "name": "페라리",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 69233205248
+   "ticker": "APO",
+   "name": "아폴로글로벌",
+   "sector": "금융",
+   "mcap_usd": 73471393792
   },
   {
    "ticker": "0981.HK",
    "name": "SMIC",
    "sector": "반도체",
-   "mcap_usd": 69050200413
+   "mcap_usd": 73009782448
+  },
+  {
+   "ticker": "DLR",
+   "name": "디지털리얼티",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 73004687360
+  },
+  {
+   "ticker": "3690.HK",
+   "name": "메이투안",
+   "sector": "인터넷·플랫폼",
+   "mcap_usd": 72541396033
+  },
+  {
+   "ticker": "RACE",
+   "name": "페라리",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 72460812288
+  },
+  {
+   "ticker": "EOG",
+   "name": "EOG리소시스",
+   "sector": "에너지",
+   "mcap_usd": 71766376448
   },
   {
    "ticker": "4063.T",
    "name": "신에츠화학",
    "sector": "소재·화학",
-   "mcap_usd": 68711735950
+   "mcap_usd": 71711752411
   },
   {
-   "ticker": "0388.HK",
-   "name": "홍콩거래소",
-   "sector": "금융",
-   "mcap_usd": 65863664354
+   "ticker": "4519.T",
+   "name": "주가이제약",
+   "sector": "헬스케어",
+   "mcap_usd": 71535860880
   },
   {
-   "ticker": "APD",
-   "name": "에어프로덕츠",
-   "sector": "소재·화학",
-   "mcap_usd": 65667739648
+   "ticker": "HLT",
+   "name": "힐튼",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 71480614912
+  },
+  {
+   "ticker": "BSX",
+   "name": "보스턴사이언티픽",
+   "sector": "헬스케어",
+   "mcap_usd": 71461511168
   },
   {
    "ticker": "HPE",
    "name": "HPE",
    "sector": "IT하드웨어",
-   "mcap_usd": 63429349376
+   "mcap_usd": 70474113024
   },
   {
-   "ticker": "NKE",
-   "name": "나이키",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 61876731904
+   "ticker": "9433.T",
+   "name": "KDDI",
+   "sector": "통신·미디어",
+   "mcap_usd": 69861767266
   },
   {
-   "ticker": "RHM.DE",
-   "name": "라인메탈",
-   "sector": "산업재·방산",
-   "mcap_usd": 61382023762
+   "ticker": "MPWR",
+   "name": "모놀리식파워",
+   "sector": "반도체",
+   "mcap_usd": 68875878400
   },
   {
-   "ticker": "REL.L",
-   "name": "렐엑스",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 61381321773
-  },
-  {
-   "ticker": "D",
-   "name": "도미니언",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 60836806656
-  },
-  {
-   "ticker": "PSA",
-   "name": "퍼블릭스토리지",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 60537368576
-  },
-  {
-   "ticker": "BKR",
-   "name": "베이커휴즈",
+   "ticker": "KMI",
+   "name": "킨더모건",
    "sector": "에너지",
-   "mcap_usd": 60046856192
+   "mcap_usd": 68635877376
   },
   {
-   "ticker": "TEL",
-   "name": "TE커넥티비티",
-   "sector": "IT하드웨어",
-   "mcap_usd": 59637899264
+   "ticker": "TDG",
+   "name": "트랜스다임",
+   "sector": "산업재·방산",
+   "mcap_usd": 68532625408
   },
   {
-   "ticker": "F",
-   "name": "포드",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 58537906176
+   "ticker": "AEP",
+   "name": "AEP",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 68447084544
+  },
+  {
+   "ticker": "TGT",
+   "name": "타깃",
+   "sector": "필수소비재",
+   "mcap_usd": 67992408064
+  },
+  {
+   "ticker": "APD",
+   "name": "에어프로덕츠",
+   "sector": "소재·화학",
+   "mcap_usd": 67571699712
+  },
+  {
+   "ticker": "0388.HK",
+   "name": "홍콩거래소",
+   "sector": "금융",
+   "mcap_usd": 66324411024
   },
   {
    "ticker": "HO.PA",
    "name": "탈레스",
    "sector": "산업재·방산",
-   "mcap_usd": 58306828208
+   "mcap_usd": 62927110931
   },
   {
-   "ticker": "TRGP",
-   "name": "타르가리소시스",
+   "ticker": "TEL",
+   "name": "TE커넥티비티",
+   "sector": "IT하드웨어",
+   "mcap_usd": 62722867200
+  },
+  {
+   "ticker": "NUE",
+   "name": "뉴코",
+   "sector": "소재·화학",
+   "mcap_usd": 62089015296
+  },
+  {
+   "ticker": "NKE",
+   "name": "나이키",
+   "sector": "경기소비재·자동차",
+   "mcap_usd": 61861900288
+  },
+  {
+   "ticker": "RHM.DE",
+   "name": "라인메탈",
+   "sector": "산업재·방산",
+   "mcap_usd": 61855111925
+  },
+  {
+   "ticker": "REL.L",
+   "name": "렐엑스",
+   "sector": "소프트웨어·클라우드",
+   "mcap_usd": 61840558748
+  },
+  {
+   "ticker": "PSA",
+   "name": "퍼블릭스토리지",
+   "sector": "유틸리티·부동산",
+   "mcap_usd": 61327302656
+  },
+  {
+   "ticker": "BKR",
+   "name": "베이커휴즈",
    "sector": "에너지",
-   "mcap_usd": 58033270784
+   "mcap_usd": 61099085824
   },
   {
    "ticker": "NXPI",
    "name": "NXP반도체",
    "sector": "반도체",
-   "mcap_usd": 57785942016
-  },
-  {
-   "ticker": "FANG",
-   "name": "다이아몬드백",
-   "sector": "에너지",
-   "mcap_usd": 57092534272
-  },
-  {
-   "ticker": "OXY",
-   "name": "옥시덴탈",
-   "sector": "에너지",
-   "mcap_usd": 56763801600
-  },
-  {
-   "ticker": "4502.T",
-   "name": "다케다약품",
-   "sector": "헬스케어",
-   "mcap_usd": 55779103872
-  },
-  {
-   "ticker": "7974.T",
-   "name": "닌텐도",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 55416693123
-  },
-  {
-   "ticker": "2881.TW",
-   "name": "푸본금융",
-   "sector": "금융",
-   "mcap_usd": 55014983070
-  },
-  {
-   "ticker": "KEYS",
-   "name": "키사이트",
-   "sector": "IT하드웨어",
-   "mcap_usd": 54529290240
-  },
-  {
-   "ticker": "BAYN.DE",
-   "name": "바이엘",
-   "sector": "헬스케어",
-   "mcap_usd": 54478332623
-  },
-  {
-   "ticker": "AAL.L",
-   "name": "앵글로아메리칸",
-   "sector": "소재·화학",
-   "mcap_usd": 53941424189
+   "mcap_usd": 60446277632
   },
   {
    "ticker": "373220.KS",
    "name": "LG에너지솔루션",
    "sector": "소재·화학",
-   "mcap_usd": 53364479219
+   "mcap_usd": 59858033837
   },
   {
-   "ticker": "CTVA",
-   "name": "코르테바",
-   "sector": "소재·화학",
-   "mcap_usd": 52642820096
+   "ticker": "TER",
+   "name": "테라다인",
+   "sector": "반도체",
+   "mcap_usd": 59301609472
   },
   {
-   "ticker": "MBG.DE",
-   "name": "메르세데스벤츠",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 51628433618
-  },
-  {
-   "ticker": "LHX",
-   "name": "L3해리스",
-   "sector": "산업재·방산",
-   "mcap_usd": 51592622080
-  },
-  {
-   "ticker": "7741.T",
-   "name": "HOYA",
-   "sector": "IT하드웨어",
-   "mcap_usd": 51369977952
-  },
-  {
-   "ticker": "BAS.DE",
-   "name": "BASF",
-   "sector": "소재·화학",
-   "mcap_usd": 50075555610
-  },
-  {
-   "ticker": "VST",
-   "name": "비스트라",
+   "ticker": "D",
+   "name": "도미니언",
    "sector": "유틸리티·부동산",
-   "mcap_usd": 49967071232
-  },
-  {
-   "ticker": "RWE.DE",
-   "name": "RWE",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 49472987437
-  },
-  {
-   "ticker": "ADSK",
-   "name": "오토데스크",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 49450217472
-  },
-  {
-   "ticker": "DGE.L",
-   "name": "디아지오",
-   "sector": "필수소비재",
-   "mcap_usd": 49013502824
-  },
-  {
-   "ticker": "PYPL",
-   "name": "페이팔",
-   "sector": "금융",
-   "mcap_usd": 48940916736
-  },
-  {
-   "ticker": "XEL",
-   "name": "엑셀에너지",
-   "sector": "유틸리티·부동산",
-   "mcap_usd": 48846401536
-  },
-  {
-   "ticker": "INFY.NS",
-   "name": "인포시스",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 47984007113
-  },
-  {
-   "ticker": "207940.KS",
-   "name": "삼성바이오로직스",
-   "sector": "헬스케어",
-   "mcap_usd": 47795295924
-  },
-  {
-   "ticker": "CMG",
-   "name": "치폴레",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 47188930560
-  },
-  {
-   "ticker": "2303.TW",
-   "name": "UMC",
-   "sector": "반도체",
-   "mcap_usd": 46986392935
-  },
-  {
-   "ticker": "STM",
-   "name": "ST마이크로",
-   "sector": "반도체",
-   "mcap_usd": 46725451776
-  },
-  {
-   "ticker": "ASM.AS",
-   "name": "ASM인터내셔널",
-   "sector": "반도체",
-   "mcap_usd": 45290269387
-  },
-  {
-   "ticker": "9618.HK",
-   "name": "징둥닷컴",
-   "sector": "인터넷·플랫폼",
-   "mcap_usd": 44275041241
-  },
-  {
-   "ticker": "VOW3.DE",
-   "name": "폭스바겐",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 43192966080
-  },
-  {
-   "ticker": "AXON",
-   "name": "액손엔터프라이즈",
-   "sector": "산업재·방산",
-   "mcap_usd": 42538553344
-  },
-  {
-   "ticker": "6954.T",
-   "name": "화낙",
-   "sector": "산업재·방산",
-   "mcap_usd": 42188624360
-  },
-  {
-   "ticker": "YUM",
-   "name": "얌브랜즈",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 41845440512
-  },
-  {
-   "ticker": "105560.KS",
-   "name": "KB금융",
-   "sector": "금융",
-   "mcap_usd": 41133994338
-  },
-  {
-   "ticker": "6367.T",
-   "name": "다이킨공업",
-   "sector": "산업재·방산",
-   "mcap_usd": 40996363091
-  },
-  {
-   "ticker": "BMW.DE",
-   "name": "BMW",
-   "sector": "경기소비재·자동차",
-   "mcap_usd": 40834284553
-  },
-  {
-   "ticker": "6146.T",
-   "name": "디스코",
-   "sector": "반도체",
-   "mcap_usd": 40667578904
-  },
-  {
-   "ticker": "MCHP",
-   "name": "마이크로칩",
-   "sector": "반도체",
-   "mcap_usd": 40340094976
-  },
-  {
-   "ticker": "WDAY",
-   "name": "워크데이",
-   "sector": "소프트웨어·클라우드",
-   "mcap_usd": 39599726592
-  },
-  {
-   "ticker": "6723.T",
-   "name": "르네사스",
-   "sector": "반도체",
-   "mcap_usd": 39569898568
-  },
-  {
-   "ticker": "6301.T",
-   "name": "고마쓰",
-   "sector": "산업재·방산",
-   "mcap_usd": 39508987384
-  },
-  {
-   "ticker": "032830.KS",
-   "name": "삼성생명",
-   "sector": "금융",
-   "mcap_usd": 38892512065
+   "mcap_usd": 59271254016
   }
  ]
 }
