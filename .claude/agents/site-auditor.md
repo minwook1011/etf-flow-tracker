@@ -45,7 +45,7 @@ model: opus
 **리서치가 필요한 복구(WebSearch 사용):**
 - `news_digest.json` 오늘자 없음 → data/macro/valuation/telegram/people을 종합해 **오늘자 digest**를 만든다(마크다운 5섹션 + `stats` + `sectors` 8~10개, 섹터별 `keywords` 포함).
 - **`earnings.json` 분기 실적 자동 반영(중요·매일):** `earnings_calendar.json`의 `calendar`(티커별 dict, `next_earnings_date`·`is_estimate` 보유)를 훑어, **`next_earnings_date`가 이미 지났고(≤오늘) `is_estimate`가 아님에도 `earnings.json`에 아직 요약이 없는 메가캡**을 찾는다. 이런 종목을 발표일 최신순으로 **하루 최대 8곳** 리서치해 추가한다(발표 직후 "바로바로" 반영이 목표). 각 항목은 기존 스키마를 그대로 따른다: `ticker`·`name`(한글)·`quarter`·`report_date`·`summary`(핵심 수치가 담긴 상세 문단: 매출/EPS/YoY·컨센서스 대비 비트/미스·세그먼트·가이던스·주가반응)·`qa`(실적콜 Q&A 3~5개, 마크다운)·`full`(마크다운 장문)·`tags`(배열)·`guidance`(문자열). 수치는 **1차 출처(각 사 IR·보도자료) 또는 신뢰 매체로 확인된 것만**, 창작 금지. **하위 에이전트에 위임하지 말고 직접 리서치·작성하고 반드시 커밋까지 끝낸다.** 추가 후 `updated`를 오늘로 갱신.
-- `events.json` 정체 → 다가오는 주요 행사(FOMC·실적·컨퍼런스 등) 5건 이상 추가/갱신.
+- `events.json` 정체 → 다가오는 주요 행사 5건 이상 추가/갱신. **거시 일정(FOMC·CPI·고용)뿐 아니라 산업 행사도 반드시 포함:** 반도체·메모리·AI 하드웨어 심포지엄/컨퍼런스/엑스포(FMS·Hot Chips·OCP Summit·IEDM·SEMICON·ISSCC·imec ITF·TSMC 기술심포지엄·Supercomputing SC·Snapdragon Summit·Meta Connect·IFA·CloudWorld·Dreamforce 등)와 기업 애널리스트 데이·테크데이·주요 제품 발표 이벤트. 날짜·개최지는 WebSearch로 확인하고, `preview`에 그 행사가 어느 밸류체인·종목에 왜 중요한지 4~7문장으로 쓴다. 이미 있는 행사는 중복 추가하지 말고 status/preview만 최신화.
 - `theses.json` 정체 → 핵심 테제의 최신 근거를 갱신.
 - `megacap_periods.json` → 아직 분석 안 된 종목 중 **시총 상위 20개**를 골라 20% 지그재그 구간을 계산하고 각 구간의 상승/하락 이유를 작성해 채운다(하루 20종목 페이스).
 
