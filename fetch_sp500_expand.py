@@ -31,8 +31,14 @@ def main():
     existing = {}
     if os.path.exists(OUT):
         existing = json.load(open(OUT, encoding="utf-8")).get("calendar", {})
-    missing = [tk for tk in const if tk not in existing]
-    print(f"기존 캘린더 {len(existing)}곳 · 신규 수집 대상 {len(missing)}곳")
+    # megacap(글로벌 TOP300)은 fetch_earnings_calendar.py가 매일 갱신하므로 중복 수집 제외.
+    # 여기선 S&P500 중 megacap에 없는 종목만 매일 갱신한다(eps_history 병합).
+    mega = set()
+    uni = os.path.join(BASE, "docs", "megacap.json")
+    if os.path.exists(uni):
+        mega = set(s["ticker"] for s in json.load(open(uni, encoding="utf-8")).get("stocks", []))
+    targets = [tk for tk in const if tk not in mega]
+    print(f"기존 캘린더 {len(existing)}곳 · 갱신 대상(S&P500 비-메가캡) {len(targets)}곳")
 
     cookie, crumb = F.get_crumb()
     if not crumb:
@@ -40,17 +46,19 @@ def main():
 
     out = dict(existing)  # 기존 유지
     got = 0
-    for i, tk in enumerate(missing, 1):
+    for i, tk in enumerate(targets, 1):
+        prev = existing.get(tk, {})
         r = F.fetch_one(tk, cookie, crumb)
         if r is None:
-            if i % 40 == 0: print(f"  {i}/{len(missing)} (확보 {got})")
+            if prev: out[tk] = prev  # 실패 시 기존 보존
+            if i % 40 == 0: print(f"  {i}/{len(targets)} (확보 {got})")
             continue
-        eps_hist = F.enrich_eps_yoy(F.merge_eps_history(None, r["eps_history_new"]))[-10:]
-        snaps = {}
+        eps_hist = F.enrich_eps_yoy(F.merge_eps_history(prev.get("eps_history"), r["eps_history_new"]))[-10:]
+        snaps = dict(prev.get("rev_consensus_snapshots") or {})
         if r["consensus_quarter_end"] and r["consensus_rev"] is not None:
             snaps[r["consensus_quarter_end"]] = r["consensus_rev"]
         out[tk] = {
-            "name": const[tk]["name"],
+            "name": prev.get("name") or const[tk]["name"],
             "sector": const[tk]["sector"],
             "next_earnings_date": r["next_earnings_date"],
             "is_estimate": r["is_estimate"],
