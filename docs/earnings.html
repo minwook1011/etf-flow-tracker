@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>미국 주요 실적 정리 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260805a">
+<link rel="stylesheet" href="theme.css?v=20260810a">
 <style>
 .ern-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: border-color .15s ease, box-shadow .15s ease; }
 .ern-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
@@ -85,7 +85,7 @@
     <span class="upd" id="updated"></span>
   </div>
   <p class="note">
-    글로벌 메가캡(시총 TOP300) 기업의 <b>실적 서프라이즈(매출·EPS 컨센서스 대비)</b>와 <b>예정된 실적 발표일</b>,
+    S&P500 전 종목 + 글로벌 메가캡의 <b>실적 서프라이즈(매출·EPS 컨센서스 대비)</b>와 <b>예정된 실적 발표일</b>,
     최근 5개년·8개 분기의 <b>매출·영업이익·OPM·증가율</b>을 봅니다. 카드를 클릭하면 차트·재무 추이가 열리고,
     별도로 정리된 종목은 요약·어닝콜 Q&amp;A·전문 분석도 함께 봅니다 (원문 복제가 아닌 요약이며 투자 권유가 아닙니다).
     매출 컨센서스 서프라이즈는 발표 전 시점의 애널리스트 평균 추정치를 미리 저장해두었다가 비교하는 방식이라,
@@ -134,8 +134,8 @@
 
 <div class="modal-back" id="modal-back-holder" style="display:none"></div>
 
-<script src="theme.js?v=20260805a"></script>
-<script src="stocks-common.js?v=20260805a"></script>
+<script src="theme.js?v=20260810a"></script>
+<script src="stocks-common.js?v=20260810a"></script>
 <script>
 var MEGA = {}, FIN = {}, ERN = [], PROFILES = {}, CAL = {};
 var finMode = {};  // ticker -> 'annual'|'quarterly' (모달 내 토글 상태)
@@ -248,8 +248,9 @@ function ernCard2(tk) {
   var curated = ERN.filter(function (e) { return e.ticker === tk; })
     .sort(function (a, b) { return String(b.report_date).localeCompare(String(a.report_date)); })[0];
   var g = guidanceOf(tk, eps.quarter_end);
+  var nm = (s && s.name) || (curated && curated.name) || (CAL[tk] && CAL[tk].name) || tk;
   return '<div class="ern-card" data-t="' + escapeHtml(tk) + '">' +
-    '<div class="ern-head"><span class="e-nm">' + escapeHtml((s && s.name) || tk) + "</span>" +
+    '<div class="ern-head"><span class="e-nm">' + escapeHtml(nm) + "</span>" +
     (curated ? '<span class="curated-badge">정리됨</span>' : "") +
     '<span class="e-q">' + escapeHtml(eps.quarter_end) + "</span></div>" +
     '<div class="ern-metrics">' +
@@ -306,8 +307,8 @@ function recentTickers(query, sector) {
   var q = (query || "").trim().toLowerCase();
   return Object.keys(CAL)
     .filter(function (tk) { return latestEpsRow(tk); })
-    .filter(function (tk) { return !sector || (MEGA[tk] && MEGA[tk].sector === sector); })
-    .filter(function (tk) { return !q || ((MEGA[tk] ? MEGA[tk].name : tk) + " " + tk).toLowerCase().indexOf(q) >= 0; })
+    .filter(function (tk) { return !sector || (MEGA[tk] && MEGA[tk].sector === sector) || (CAL[tk] && CAL[tk].sector === sector); })
+    .filter(function (tk) { return !q || (((MEGA[tk] && MEGA[tk].name) || (CAL[tk] && CAL[tk].name) || tk) + " " + tk).toLowerCase().indexOf(q) >= 0; })
     .sort(function (a, b) { return String(latestEpsRow(b).quarter_end).localeCompare(String(latestEpsRow(a).quarter_end)); });
 }
 function renderRecent() {
@@ -382,7 +383,10 @@ function renderSectorBeat() {
 }
 
 function populateSectorSelect(sel) {
-  var sectors = Array.from(new Set(Object.keys(MEGA).map(function (tk) { return MEGA[tk].sector; }).filter(Boolean))).sort();
+  var sectors = Array.from(new Set(
+    Object.keys(MEGA).map(function (tk) { return MEGA[tk].sector; })
+      .concat(Object.keys(CAL).map(function (tk) { return CAL[tk] && CAL[tk].sector; }))
+      .filter(Boolean))).sort();
   sel.innerHTML = '<option value="">전체 섹터</option>' + sectors.map(function (s) { return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + "</option>"; }).join("");
 }
 
