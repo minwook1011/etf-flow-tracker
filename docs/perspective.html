@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>핵심 테제 트래킹 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260805a">
+<link rel="stylesheet" href="theme.css?v=20260811a">
 <style>
 .krtoggle-wrap { margin-left: auto; }
 .th-num { color: var(--accent); font-size: 12.5px; font-weight: 800; font-family: var(--mono); }
@@ -17,6 +17,10 @@
   font-family: var(--serif); font-size: 15px; line-height: 1.85; color: var(--text);
   border-left: 2px solid var(--accent); padding: 2px 0 8px 16px; margin: 4px 0 12px; max-width: 800px;
 }
+.th-source { display: inline-block; margin: 0 0 12px; font-size: 12px; font-weight: 700; color: var(--accent);
+  text-decoration: none; background: rgba(91,140,255,0.1); border: 1px solid rgba(91,140,255,0.3);
+  border-radius: 6px; padding: 3px 9px; }
+a.th-source:hover { background: rgba(91,140,255,0.2); }
 .kr-label, .rel-label {
   font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase;
   margin: 14px 0 7px; padding-top: 11px; border-top: 1px dashed var(--border-strong);
@@ -66,8 +70,8 @@
   <div id="board"><div class="spin">로딩 중…</div></div>
 </div>
 
-<script src="theme.js?v=20260805a"></script>
-<script src="stocks-common.js?v=20260805a"></script>
+<script src="theme.js?v=20260811a"></script>
+<script src="stocks-common.js?v=20260811a"></script>
 <script>
 var THESES = null, DATA = null, MEGA = null, META = {}, FIN = {};
 var QUOTES = {};
@@ -260,6 +264,9 @@ function renderBoard() {
       '<span class="th-score"><span class="muted">스코어(등록후)</span> <b class="' + (score == null ? "" : pctClass(score)) + '">' +
       (score == null ? "–" : fmtPct(score)) + "</b></span></div>" +
       '<div class="th-summary">' + escapeHtml(t.summary) + "</div>" +
+      (t.source_url
+        ? '<a class="th-source" href="' + escapeHtml(t.source_url) + '" target="_blank" rel="noopener">📄 출처: ' + escapeHtml(t.source || "원문 보기") + " ↗</a>"
+        : (t.source ? '<div class="th-source">📄 출처: ' + escapeHtml(t.source) + "</div>" : "")) +
       '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">' +
       (usCards || '<div class="muted small">매칭 종목 없음</div>') + "</div>" +
       krBlock + relBlock +
