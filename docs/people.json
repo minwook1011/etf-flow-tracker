@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-10",
+  "updated": "2026-08-11",
   "people": [
     {
       "id": "musk",
@@ -612,9 +612,84 @@
       "name": "코제마 십찬들러",
       "affil": "트윌리오 CEO",
       "type": "tech"
+    },
+    {
+      "id": "jon-gray",
+      "name": "존 그레이",
+      "affil": "블랙스톤 사장 겸 COO",
+      "type": "investor"
     }
   ],
   "weeks": [
+    {
+      "week": "2026-W33",
+      "statements": [
+        {
+          "person_id": "jensen-huang",
+          "date": "2026-08-10",
+          "source": "CNBC (엔비디아 5,000억 달러 컴퓨트 파이낸싱 플랫폼)",
+          "link": "https://www.cnbc.com/2026/08/10/nvidia-wall-street-asset-managers-500-billion-ai-push.html",
+          "statement": "젠슨 황 엔비디아 창업자 겸 CEO는 8월 10일 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스·KKR 등 6개 대형 자본운용사와 5,000억 달러 이상의 제3자 자본을 동원하는 'AI 컴퓨트 인프라 파이낸싱 플랫폼' 설립 양해각서를 체결했다고 발표했다. 그는 CNBC 생중계 공동 인터뷰에서 \"기술 칩이 투자 가능한 자산군(investable asset class)이 된 것은 이번이 사실상 처음\"이라고 말했다. 황 CEO는 이 6개사에만 참여를 제안했고 단 한 곳도 거절하지 않았다고 밝혔으며, 조성 자금은 하이퍼스케일러·프런티어 AI 랩·기업 고객이 데이터센터를 짓고 엔비디아 하드웨어를 조달하는 데 \"상당한 규모로, 매력적인 금리에\" 투입되는 전용 자본 풀 형태가 된다고 설명했다. 다만 엔비디아 대차대조표 밖에서 자사 GPU 수요를 떠받치는 구조라는 점에서 벤더 파이낸싱·순환출자 논란도 즉각 제기됐다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "larry-fink",
+          "date": "2026-08-10",
+          "source": "CNBC·엔비디아 뉴스룸 (컴퓨트 파이낸싱 플랫폼 공동 발표)",
+          "link": "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+          "statement": "래리 핑크 블랙록 회장 겸 CEO는 8월 10일 엔비디아와의 컴퓨트 파이낸싱 플랫폼 공동 발표에서 컴퓨트가 글로벌 경제 성장의 다음 국면을 이끄는 핵심 자산군으로 빠르게 진화했다고 평가했다. 그는 이번 프로젝트가 1970년대 주택저당증권(MBS)의 탄생에 견줄 만한 \"금융공학의 다음 미래\"의 출발점이라고 말했다. 이는 GPU·데이터센터라는 실물 자산을 표준화된 현금흐름 상품으로 바꿔 연기금·보험사 등 장기 자본을 끌어들이겠다는 구상으로, 블랙록이 GIP 인수 이후 밀어붙여 온 인프라 사모 전략의 연장선이다. 동시에 MBS 비유 자체가 2008년의 기억을 소환하며 신용 리스크 전가 논쟁을 낳았다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "jon-gray",
+          "date": "2026-08-10",
+          "source": "엔비디아 뉴스룸·CNBC (블랙스톤 코멘트)",
+          "link": "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+          "statement": "존 그레이 블랙스톤 사장 겸 COO는 8월 10일 엔비디아 컴퓨트 파이낸싱 플랫폼 참여를 발표하며 AI 컴퓨트가 \"모기지 대출기관이 주택을 보는 것과 같은 방식으로 자금 조달 가능한 자산군(financeable asset class)\"으로 인식될 것이라고 말했다. 그는 컴퓨트가 이미 글로벌 경제 성장의 다음 단계를 견인하는 핵심 자산군으로 자리 잡았다고 덧붙였다. 부동산 담보대출의 논리를 GPU·데이터센터에 이식하겠다는 발언으로, 감가상각이 빠른 반도체를 담보 가치가 안정적인 실물 자산처럼 취급할 수 있느냐가 이번 구조의 핵심 쟁점이 됐다. 블랙스톤은 QTS 등 데이터센터 플랫폼을 통해 이미 전력·부지 단에서 대규모 익스포저를 쌓아 온 상태다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "david-solomon",
+          "date": "2026-08-10",
+          "source": "엔비디아 뉴스룸 (골드만삭스 코멘트)",
+          "link": "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+          "statement": "데이비드 솔로몬 골드만삭스 회장 겸 CEO는 8월 10일 엔비디아 컴퓨트 파이낸싱 플랫폼 참여를 밝히며 \"엔비디아의 풀스택 플랫폼은 수요가 매우 강하고, 글로벌 데이터센터 구축의 중심에 독보적으로 자리 잡고 있다\"고 말했다. 그는 특히 \"엔비디아 컴퓨트를 담보로 한 신용 시장을 새로 만드는 기회\"에 기대를 나타냈다. 이는 골드만삭스가 단순 대출자가 아니라 컴퓨트 연계 채권을 구조화·유동화해 시장에 배포하는 주간사 역할을 맡겠다는 뜻으로 읽힌다. 신용 시장이 실제로 형성되면 GPU 조달 자금의 조달금리와 만기 구조가 AI 캐펙스 사이클의 새로운 변수로 부상하게 된다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "cc-wei",
+          "date": "2026-08-10",
+          "source": "CNBC (TSMC 7월 매출 공시)",
+          "link": "https://www.cnbc.com/2026/08/10/tsmc-revenue-surge-ai-chip-big-tech.html",
+          "statement": "웨이저자 TSMC 회장 겸 CEO는 8월 10일 공시된 7월 매출과 관련해 \"AI 관련 수요가 계속해서 극도로 견조하다\"고 밝혔다. TSMC의 7월 연결 매출은 대만달러 4,675.8억 원(약 160.3억 달러)으로 전년 동월 대비 44.7% 급증했고 전월 대비로도 5.6% 늘며 AI 가속기·HPC 물량이 여름 비수기를 압도했음을 보여줬다. 웨이 회장은 앞선 7월 실적 컨퍼런스콜에서도 AI 성장세가 \"갈수록 더, 더, 더 강해지고 있다\"고 표현한 바 있다. 회사는 2026년 달러 기준 매출이 40%를 소폭 상회하는 성장을 보일 것으로 보고 올해 설비투자 계획을 600억~640억 달러로 상향했다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "musk",
+          "date": "2026-08-10",
+          "source": "스페이스X 2026년 2분기 실적 컨퍼런스콜",
+          "link": "https://www.teslaoracle.com/2026/08/10/space-connectivity-ai-key-takeaways-from-elon-musks-spacex-q2-2026-earnings-call/",
+          "statement": "일론 머스크는 8월 10일 스페이스X 2026년 2분기 실적 컨퍼런스콜에서 AI 반도체 조달과 관련해 \"우리는 엔비디아에 전속(exclusive to Nvidia)\"이라고 못박았다. 그는 \"베라 루빈 아키텍처가 최고의 아키텍처이자 최고의 AI 컴퓨터라고 본다\"며 엔비디아와의 긴밀한 협력 관계를 높이 평가한다고 덧붙였다. 스타링크에 대해서는 \"어느 시점이 되면 스타링크가 최소한 우리가 영업이 허용된 국가에서는 전 세계 인터넷의 과반을 전달하게 될 것\"이라며 \"사람들이 스타링크를 정말 과소평가하고 있다\"고 말했다. 스타십에 대해서도 \"대부분의 사람들에게 스타십의 엄청난 중요성을 설명하기가 어렵다\"며 궤도 투입 능력 관점에서 문명 차원의 변화를 가져올 것이라고 강조했다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "mark-zuckerberg",
+          "date": "2026-08-10",
+          "source": "CNBC·TechCrunch (메타 Muse Glimmer 오픈웨이트 모델 공개)",
+          "link": "https://www.cnbc.com/2026/08/10/meta-muse-glimmer-open-weight-ai.html",
+          "statement": "마크 저커버그 메타 창업자 겸 CEO는 8월 10일 300억 파라미터 오픈웨이트 에이전트 모델 'Muse Glimmer'를 아파치 2.0 라이선스로 무료 공개하면서 6,500단어 분량의 에세이 '미래는 모두의 것: 긍정적인 AI 미래로 가는 길'을 함께 발표했다. 그는 초지능이 소수의 기업·정부·AI 시스템에 집중되면 그 외 모두에게 불리한 결과가 나올 수밖에 없다고 주장하며 오픈웨이트 노선을 정당화했다. 저커버그는 미국 정책 당국을 향해 학습 데이터와 증류(distillation)에 걸린 마찰을 줄여 달라고 요구하며, 미국 오픈소스 랩이 해외 랩보다 추가 규제를 받고 있어 경쟁에서 불리하다고 지적했다. 아울러 2026년 한 해에만 1,450억 달러에 달할 데이터센터 투자로 영향을 받는 지역사회를 위해 10억 달러 규모의 커뮤니티 펀드를 조성하겠다고 밝혔다.",
+          "added": "2026-08-11"
+        },
+        {
+          "person_id": "scott-bessent",
+          "date": "2026-08-10",
+          "source": "24/7 Wall St.·언론 종합 (호르무즈 해협 발언)",
+          "link": "https://247wallst.com/investing/2026/08/10/scott-bessent-calls-the-strait-of-hormuz-irrelevant-chevron-shows-exactly-how-it-happens/",
+          "statement": "스콧 베센트 미 재무장관은 8월 10일 호르무즈 해협이 앞으로 2년 안에 \"무의미(irrelevant)\"해질 수 있다고 말했다. 더 많은 원유가 파이프라인으로 이동하게 되면서 해협 봉쇄 카드의 위력이 구조적으로 약해진다는 논리다. 그는 이란이 해협 교란 의사를 반복적으로 내비친 결과 협상력이 강해진 것이 아니라 오히려 시장의 이탈을 앞당겼다고 지적하며, 사우디의 동서 송유관 증설, UAE의 푸자이라 우회 터미널 개발, 이라크의 육상 수출 회랑 재검토를 근거로 들었다. 자본은 병목을 용인하지 않고 우회한다는 것이 발언의 골자로, 미국이 파이프라인 대안을 밀어 이란의 원유 레버리지를 깨겠다는 정책 방향을 드러냈다.",
+          "added": "2026-08-11"
+        }
+      ]
+    },
     {
       "week": "2026-W32",
       "statements": [
