@@ -1,5 +1,5 @@
 {
- "updated": "2026-08-11",
+ "updated": "2026-08-12",
  "count": 503,
  "map": {
   "MMM": {
@@ -1311,7 +1311,7 @@
    "sector": "Information Technology"
   },
   "MSCI": {
-   "name": "MSCI Inc.",
+   "name": "MSCI",
    "sector": "Financials"
   },
   "NDAQ": {
@@ -1391,7 +1391,7 @@
    "sector": "Information Technology"
   },
   "ORLY": {
-   "name": "O’Reilly Automotive",
+   "name": "O'Reilly Automotive",
    "sector": "Consumer Discretionary"
   },
   "OXY": {
@@ -1579,7 +1579,7 @@
    "sector": "Industrials"
   },
   "RMD": {
-   "name": "ResMed",
+   "name": "ResMed|",
    "sector": "Health Care"
   },
   "RVTY": {
