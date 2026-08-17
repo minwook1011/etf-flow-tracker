@@ -28,7 +28,9 @@ model: opus
 | 매크로 및 투자전략 | `macro.json`, `valuation.json` | 영업일+1 | `macro_monthly`의 **dgs10·cpi 비어있지 않음** |
 | 구간별 등락 분석 | `megacap_periods.json` | — | 등록 종목의 **모든 segment에 analysis** 존재 |
 
-**★ 인사이트 1:1 무결성(중요):** `insights.json`의 어떤 인사이트도 `linked_statement_keys` 길이가 2 이상이면 안 된다. 위반 시 → 해당 인사이트는 키 1개만 남기고, 떨어져 나온 발언에는 **관점을 달리한 새 인사이트**를 만들어라(`insight-researcher` 에이전트 사용 권장).
+**★ 인사이트 1:1 무결성(중요):** `insights.json`의 어떤 인사이트도 `linked_statement_keys` 길이가 2 이상이면 안 된다. 위반 시 → 해당 인사이트는 키 1개만 남기고, 떨어져 나온 발언에는 **관점을 달리한 새 인사이트**를 만들어라.
+
+**★ 인사이트 누락 백필(안전망·중요):** `people.json`의 모든 발언 키(`person_id::date`)와 `insights.json`의 `linked_statement_keys`를 파이썬으로 대조해, **인사이트가 없는 발언**을 찾아라. 최근 7일 이내 발언 중 인사이트 없는 것이 있으면(일일 발언 작업이 인사이트 생성에 실패한 것) **네가 직접 그 발언들에 1:1 딥인사이트를 만들어 채운다**(하위 에이전트 위임 금지, 직접 작성). 한 번에 최대 8건, body 3,000자+·차트 1~3·출처 3+·linked_statement_keys 정확히 1개. 8건 초과면 최신순 8건 처리하고 남은 건수를 보고에 남긴다.
 
 ## 2. 복구 규칙 (문제 발견 시 반드시 실행)
 
