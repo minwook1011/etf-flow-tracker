@@ -1,5 +1,5 @@
 {
- "updated": "2026-08-15",
+ "updated": "2026-08-19",
  "events": [
   {
    "id": "fomc-2026-07",
@@ -1145,6 +1145,56 @@
    "full": "",
    "added": "2026-08-10",
    "updated": "2026-08-10"
+  },
+  {
+   "id": "us-jobs-2026-08",
+   "name": "미국 8월 고용보고서 (Employment Situation)",
+   "org": "미국 노동통계국(BLS)",
+   "desc": "8월 비농업 신규고용·실업률·시간당임금 발표. 9월 4일 오전 8시 30분(ET).",
+   "date_start": "2026-09-04",
+   "date_end": "2026-09-04",
+   "month": "2026-09",
+   "status": "previewed",
+   "preview": "9월 FOMC(15~16일) 직전에 나오는 마지막 고용 지표다. 7월 보고서에서 비농업 고용이 2만 3,000명 **감소**하고 5~6월 수정치가 합계 10만 3,000명 하향되면서 고용 모멘텀 균열이 드러났고, 실업률 4.1%도 경제활동참가율이 61.4%로 5년여 만의 최저까지 떨어진 결과여서 질이 나빴다. 시간당 임금 상승률은 3.2%로 2021년 5월 이후 최저였다. 핵심은 7월의 마이너스가 일시적 노이즈였는지, 아니면 추세적 둔화의 시작인지다. 두 달 연속 마이너스 또는 추가 대폭 하향 수정이 나오면 인상론은 사실상 소멸하고 인하 논의가 시작될 수 있다. 반대로 반등과 참가율 회복이 동시에 나오면 9월 인상 베팅이 되살아난다. 8월 27~29일 잭슨홀에서 워시 의장이 제시할 프레임워크와 함께 읽어야 할 지표다.",
+   "summary": "",
+   "full": "",
+   "added": "2026-08-19",
+   "updated": "2026-08-19",
+   "sources": [
+    {
+     "label": "BLS — Schedule of Releases for the Employment Situation",
+     "url": "https://www.bls.gov/schedule/news_release/empsit.htm"
+    },
+    {
+     "label": "BLS — Employment Situation Summary, July 2026",
+     "url": "https://www.bls.gov/news.release/empsit.nr0.htm"
+    }
+   ]
+  },
+  {
+   "id": "us-cpi-2026-08",
+   "name": "미국 8월 소비자물가지수(CPI)",
+   "org": "미국 노동통계국(BLS)",
+   "desc": "8월 CPI 발표. 9월 11일 오전 8시 30분(ET).",
+   "date_start": "2026-09-11",
+   "date_end": "2026-09-11",
+   "month": "2026-09",
+   "status": "previewed",
+   "preview": "9월 FOMC(15~16일) 나흘 전에 나오는 마지막 물가 지표로, 사실상 이번 사이클의 최종 판정선이다. 7월 CPI는 헤드라인 전년비 3.4%(6월 3.5%), 근원 2.5%(6월 2.6%)로 각각 0.1%p씩 내려왔고 대체로 예상에 부합했다. 다만 주거비가 헤드라인 상승분의 약 3분의 2를 차지하며 2% 복귀를 막는 구조는 그대로였고, 숙박비 -2.8% 같은 변동성 큰 항목이 지수를 눌렀다는 점에서 하락의 질은 아직 확인이 필요하다. 관건은 근원 2.5%의 하락 추세가 이어지느냐, 아니면 주거비 재가속으로 헤드라인 3%대가 고착되느냐다. 7월 발표 후 9월 인상 확률은 CME 페드워치 기준 42%까지 내려온 상태여서, 상방 서프라이즈가 나오면 되돌림 폭이 클 수 있다.",
+   "summary": "",
+   "full": "",
+   "added": "2026-08-19",
+   "updated": "2026-08-19",
+   "sources": [
+    {
+     "label": "BLS — CPI Home / release schedule",
+     "url": "https://www.bls.gov/cpi/"
+    },
+    {
+     "label": "BLS — Consumer Price Index Summary, July 2026",
+     "url": "https://www.bls.gov/news.release/cpi.nr0.htm"
+    }
+   ]
   }
  ]
 }
