@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-31",
+  "updated": "2026-09-01",
   "people": [
     {
       "id": "musk",
@@ -846,9 +846,74 @@
       "name": "델시 로드리게스",
       "affil": "베네수엘라 임시 대통령",
       "type": "policy"
+    },
+    {
+      "id": "rick-tsai",
+      "name": "릭 차이",
+      "affil": "미디어텍 부회장 겸 CEO",
+      "type": "tech"
+    },
+    {
+      "id": "ha-jung-woo",
+      "name": "하정우",
+      "affil": "국가인공지능전략위원회 상근부위원장",
+      "type": "policy"
     }
   ],
   "weeks": [
+    {
+      "week": "2026-W36",
+      "statements": [
+        {
+          "person_id": "jensen-huang",
+          "date": "2026-08-31",
+          "source": "NVIDIA·MediaTek 공동 보도자료 / 블룸버그 Open Interest 인터뷰",
+          "link": "https://www.globenewswire.com/news-release/2026/08/31/3353306/0/en/nvidia-and-mediatek-deepen-long-standing-partnership-to-build-ai-edge-to-cloud-computing-platforms.html",
+          "statement": "젠슨 황 엔비디아 CEO는 8월 31일 미디어텍과의 파트너십 확대를 발표하며 \"우리는 이미 미디어텍과 큰 파트너십을 맺고 있었다. 오늘 우리는 그것을 훨씬 더 크게 만들려 한다\"고 말했다. 엔비디아는 미디어텍이 발행하는 전환사채에 35억 달러를 투자하고, 미디어텍은 NVLink 퓨전 플랫폼을 채택해 커스텀 XPU를 엔비디아의 NVLink 연결 랙스케일 AI 팩토리에 붙일 수 있게 된다. 황 CEO는 블룸버그 인터뷰에서 커스텀 AI 칩의 부상에 대해 \"위협을 느끼지 않는다\"며, 전용 프로세서는 이미 시장에 나와 있고 엔비디아는 그것들을 자사 인프라에 쉽게 통합시켜 오히려 수혜를 볼 수 있다고 했다. 양사는 \"에이전트 시대를 위한 윈도 PC의 재발명\"을 겨냥한 AI PC 칩도 함께 개발하며, 엔지니어링 로드맵이 10년에 걸쳐 있다고 밝혔다.",
+          "added": "2026-09-01"
+        },
+        {
+          "person_id": "rick-tsai",
+          "date": "2026-08-31",
+          "source": "NVIDIA·MediaTek 공동 보도자료(GlobeNewswire)",
+          "link": "https://www.globenewswire.com/news-release/2026/08/31/3353306/0/en/nvidia-and-mediatek-deepen-long-standing-partnership-to-build-ai-edge-to-cloud-computing-platforms.html",
+          "statement": "릭 차이 미디어텍 부회장 겸 CEO는 8월 31일 엔비디아의 35억 달러 투자를 발표하며 \"엔비디아의 투자는 클라우드 AI 인프라, 로컬 AI 컴퓨팅, 그리고 피지컬 AI 시대의 자동차를 아우르는 우리의 협력을 강화한다\"고 말했다. 그는 \"미디어텍과 엔비디아는 첨단 AI 컴퓨팅을 어디에나 보편화한다는 비전을 공유한다\"고도 밝혔다. 확대되는 협력에는 커스텀 XPU를 엔비디아 스케일업 패브릭에 붙이는 NVLink 퓨전 칩렛, 고대역폭 연결을 담당하는 NVLink-C2C, 그리고 맞춤형 메모리 NVHBM이 포함된다. 미디어텍은 디멘시티 오토 플랫폼에 엔비디아 기술을 통합하고 RTX 스파크·DGX 스파크용 PC 칩도 공동 공급한다.",
+          "added": "2026-09-01"
+        },
+        {
+          "person_id": "tim-cook",
+          "date": "2026-08-31",
+          "source": "팀 쿡 사내 메모(야후 파이낸스·9to5Mac 보도)",
+          "link": "https://finance.yahoo.com/technology/article/what-tim-cook-told-employees-on-his-last-day-at-apple-171506698.html",
+          "statement": "팀 쿡 애플 CEO는 8월 31일 CEO로서 마지막 날 사내 메모에서 애플 직원들이 \"우리가 만드는 것이 중요하다는 믿음을 공유한다\"고 썼다. 그는 \"우리가 누구이며 무엇을 믿는지, 무엇을 가치 있게 여기고 세상을 어떻게 보는지 덕분에 스티브가 말했던 '우주에 흔적을 남기는' 일이 가능했다\"며 스티브 잡스를 인용했다. 후임에 대해서는 \"존처럼 뛰어나고 훌륭하며 유능한 사람에게 키를 넘기게 되어 큰 위안이 된다\", \"세상을 바꾸는 제품을 만드는 데 무엇이 필요한지 존만큼 이해하는 사람은 드물다\"고 했다. 쿡은 9월 1일부터 존 터너스에게 CEO직을 넘기고 이사회 의장(executive chairman)으로 남아 트럼프 행정부·중국 정부와의 관계 관리에 집중하겠다고 밝혔다.",
+          "added": "2026-09-01"
+        },
+        {
+          "person_id": "kevin-warsh",
+          "date": "2026-08-31",
+          "source": "G20 재무장관·중앙은행총재 회의 개회세션(아셰빌), Investing.com·CNBC 보도",
+          "link": "https://www.investing.com/news/economy-news/feds-warsh-tells-g20-world-seeing-global-investment-surge-93CH-4883178",
+          "statement": "케빈 워시 연준 의장은 8월 31일 노스캐롤라이나 아셰빌에서 열린 G20 재무장관·중앙은행총재 회의 개회 세션에서 \"장기침체(secular stagnation)는 아주 먼 과거를 묘사하는 말처럼 들린다\"며 \"새로운 시대는 장기성장(secular growth)의 시대\"라고 말했다. 그는 지금을 \"글로벌 투자 급증(global investment surge)의 국면\"으로 규정했다. 과거 G20에서는 금융위기 전후 모두 '글로벌 저축 과잉'을 논했지만 지금은 조건이 정반대로 뒤집혔다고 진단했다. 5월 취임 후 첫 국제 경제정책 회의에서 나온 발언으로, 사흘 전 잭슨홀에서 인플레이션을 \"더 우려스럽다\"고 평가한 데 이어 시장의 9월 인상 기대를 더 굳혔다.",
+          "added": "2026-09-01"
+        },
+        {
+          "person_id": "scott-bessent",
+          "date": "2026-08-31",
+          "source": "G20 개회 연설·CNBC 인터뷰(아셰빌), 폭스비즈니스 보도",
+          "link": "https://www.foxbusiness.com/economy/bessent-urges-g20-get-back-basics-deregulation-growth-first-agenda",
+          "statement": "스콧 베센트 미 재무장관은 8월 31일 G20 개회 연설에서 \"세계는 부채로 넘쳐나고 있고, 여기서 빠져나올 유일한 길은 성장해서 벗어나는 것\"이라고 말했다. 그는 CNBC 인터뷰에서 \"우리는 세계를 향해 미국식 성장 어젠다를 강하게 밀고 있다\"고 밝혔다. 성장 분과에서는 참가국들이 과도한 규제·행정 부담, 잘못 설계된 금융 인센티브와 조세제도, 부족한 공공·민간 투자, 역내 시장 분절, 노동력 숙련·이동성 격차를 성장의 걸림돌로 지목했다고 전했다. 베센트는 또 자신의 최근 국채시장 개입을 비판한 옛 스승 스탠리 드러켄밀러와 통화했다고 밝히며, 그 조치 덕분에 미 국채가 상대적으로 좋은 성과를 냈다고 주장했다.",
+          "added": "2026-09-01"
+        },
+        {
+          "person_id": "ha-jung-woo",
+          "date": "2026-08-31",
+          "source": "국가AI전략위 상근부위원장 취임 기자간담회, 서울경제·아주경제 보도",
+          "link": "https://www.sedaily.com/article/20085446",
+          "statement": "하정우 국가인공지능전략위원회 신임 상근부위원장은 8월 31일 취임 기자간담회에서 \"데이터센터 인허가에 어려움이 있는데 이 문제를 해결해서 AI 인프라를 빠르게 확충할 수 있도록 돕겠다\"고 말했다. 그는 \"특정 기업에 GPU를 종속받게 되면 위험요소가 있다 보니 공급망 다각화 차원에서 AI를 활용할 때 쓸 수 있는 국산 NPU를 강화하는 게 필요하다\"고 밝혔다. 반도체·피지컬AI·AI데이터센터 3대 메가프로젝트에 대해서는 \"발표 이후 한국이 AI 시대 핵심 공급망 역할을 할 수 있도록 추진해야 할 시점\"이라고 했다. 회전문 인사 논란에는 \"성과를 보이면 문제가 안 되지 않느냐\"며 국민이 체감할 성과로 우려를 불식시키겠다고 답했다.",
+          "added": "2026-09-01"
+        }
+      ]
+    },
     {
       "week": "2026-W35",
       "statements": [
@@ -1075,6 +1140,14 @@
           "link": "https://www.usnews.com/news/top-news/articles/2026-08-29/venezuelas-interim-president-says-us-energy-deal-will-last-25-years",
           "statement": "델시 로드리게스 베네수엘라 임시 대통령은 현지시간 8월 29일 심야 대국민 연설에서 미국과 체결한 에너지 합의가 25년간 유효하다고 밝혔다. 그는 이 합의가 원유 생산을 하루 150만 배럴까지 끌어올리는 것을 목표로 하며, 17개 전략 유전 개발을 담고 있다고 설명했다. 동시에 \"베네수엘라는 자국 천연자원에 대한 주권을 유지한다\"고 못 박아 자원 통제권 이양 논란에 선을 그었다. 그는 이 합의를 \"역사적\"이라고 표현하며 경제를 되살리고 정부 재정 수입을 늘리는 계기가 될 것이라고 주장했다. 베네수엘라 당국은 다음 주 셰브런을 포함한 여러 기업에 신규 탐사·생산 권리를 부여하는 계약에 서명할 준비를 하고 있는 것으로 알려졌다. 기간과 목표 물량이 함께 공개된 것은 이번이 처음이다.",
           "added": "2026-08-31"
+        },
+        {
+          "person_id": "openai-official",
+          "date": "2026-08-29",
+          "source": "OpenAI 공식 발표 \"Our decision on Cursor following its acquisition by SpaceX\", CNBC 보도",
+          "link": "https://www.cnbc.com/2026/08/29/openai-cursor-spacex-model-access.html",
+          "statement": "OpenAI는 8월 29일 스페이스X에 인수된 커서(Anysphere)에 대한 모델 공급 계약을 종료하겠다고 공식 발표했다. 회사는 8월 28일 스페이스X에 계약 해지 의사를 통보했으며, 공급 중단 예정일로 11월 12일을 제시했다. OpenAI는 \"일론 머스크의 회사들이 계약을 위반해온 경험에 비춰볼 때, 스페이스X가 우리 기술을 이용약관 범위 안에서 사용할 것이라고 확신할 수 없다\"고 사유를 밝혔다. 다만 개발자들이 커서를 통해 모델에 접근할 수 있는 기간을 최대한 늘리기 위해 계약상 허용된 최대 통지 기간을 부여했고, 계약 종료 절차가 진행되는 동안 신규 모델은 커서에 제공하지 않겠다고 덧붙였다.",
+          "added": "2026-09-01"
         }
       ]
     },
