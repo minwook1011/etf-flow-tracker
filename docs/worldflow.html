@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260904a">
+<link rel="stylesheet" href="theme.css?v=20260904b">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -92,11 +92,31 @@
 .dir-toggle .dir-caret { color: var(--muted); font-size: 12px; transition: transform .15s; }
 .dir-toggle .sub { font-weight: 400; }
 .dir-body { padding: 4px 14px 12px; }
+function wireFavBackup() {
+  var ex = $q("#fav-export"), ib = $q("#fav-import-btn"), inp = $q("#fav-import");
+  if (ex && !ex._wired) { ex._wired = 1; ex.onclick = favExport; }
+  if (ib && inp && !ib._wired) {
+    ib._wired = 1;
+    ib.onclick = function () { inp.click(); };
+    inp.onchange = function () { if (inp.files && inp.files[0]) { favImport(inp.files[0]); inp.value = ""; } };
+  }
+}
+
 /* 핵심 인물 서브탭 */
 .ppsub { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 16px; }
 .ppsub button { background: var(--card); border: 1px solid var(--border); color: var(--muted);
   padding: 9px 18px; border-radius: 9px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
 .ppsub button.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+/* ===== 즐겨찾기 백업/복원 ===== */
+.fav-backup { border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); padding: 12px 14px; margin-bottom: 14px; }
+.fav-backup .fb-warn { display: block; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.fav-backup .fb-warn b { color: var(--gold); }
+.fav-backup .fb-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.fav-backup .fb-btn { background: var(--card); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 7px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.fav-backup .fb-btn:hover { border-color: var(--accent); color: var(--accent); }
+.fav-backup .fb-msg { font-size: 12px; color: var(--accent); font-weight: 700; }
 
 /* ===== 주간 브리핑 (한눈에) ===== */
 .brief-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
@@ -249,6 +269,15 @@
     <div id="ppsub-fav" style="display:none">
       <div class="section">
         <h2>즐겨찾기 <span class="sub">발언 우측 ☆를 눌러 담은 항목 · 이 브라우저에 저장</span></h2>
+        <div class="fav-backup">
+          <span class="fb-warn">⚠️ 즐겨찾기는 <b>이 브라우저에만</b> 저장됩니다. 캐시 삭제·기기 변경 시 사라지니 백업해 두세요.</span>
+          <div class="fb-btns">
+            <button class="fb-btn" id="fav-export">💾 백업 내보내기</button>
+            <button class="fb-btn" id="fav-import-btn">📂 백업 가져오기</button>
+            <input type="file" id="fav-import" accept="application/json,.json" style="display:none">
+            <span class="fb-msg" id="fav-msg"></span>
+          </div>
+        </div>
         <div id="stmt-favs"></div>
       </div>
     </div>
@@ -263,8 +292,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260805b"></script>
-<script src="stocks-common.js?v=20260805b"></script>
+<script src="theme.js?v=20260904b"></script>
+<script src="stocks-common.js?v=20260904b"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -666,13 +695,53 @@ function renderStmtFavs() {
     : '<div class="empty">즐겨찾기한 발언이 없습니다. 발언 우측 ☆를 눌러 담아보세요.</div>';
   wireStmtFav($q("#stmt-favs"));
 }
+/* ---------- 즐겨찾기 백업/복원 (3종 전부: 종목·뉴스·발언) ---------- */
+var FAV_KEYS = ["etf_favs_v1", "etf_news_favs_v1", "etf_stmt_favs_v1"];
+function favMsg(t, ok) {
+  var el = $q("#fav-msg"); if (!el) return;
+  el.textContent = t; el.style.color = ok === false ? "var(--dn)" : "var(--accent)";
+  setTimeout(function () { if (el.textContent === t) el.textContent = ""; }, 5000);
+}
+function favExport() {
+  var out = { _type: "flowtracker-favorites", _exported: new Date().toISOString() };
+  var total = 0;
+  FAV_KEYS.forEach(function (k) {
+    var v = null; try { v = JSON.parse(localStorage.getItem(k)); } catch (e) {}
+    out[k] = v || {}; total += Object.keys(out[k]).length;
+  });
+  var blob = new Blob([JSON.stringify(out, null, 1)], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "flowtracker-favorites-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  favMsg("백업 완료 — 총 " + total + "건 저장됨");
+}
+function favImport(file) {
+  var r = new FileReader();
+  r.onload = function () {
+    var data; try { data = JSON.parse(r.result); } catch (e) { favMsg("파일을 읽을 수 없습니다(JSON 아님)", false); return; }
+    if (!data || data._type !== "flowtracker-favorites") { favMsg("이 앱의 백업 파일이 아닙니다", false); return; }
+    var added = 0;
+    FAV_KEYS.forEach(function (k) {
+      var incoming = data[k] || {};
+      var cur = {}; try { cur = JSON.parse(localStorage.getItem(k)) || {}; } catch (e) {}
+      Object.keys(incoming).forEach(function (id) { if (!cur[id]) { cur[id] = incoming[id]; added++; } });  // 병합(기존 유지)
+      try { localStorage.setItem(k, JSON.stringify(cur)); } catch (e) {}
+    });
+    favMsg("복원 완료 — " + added + "건 추가됨");
+    renderStmtFavs();
+  };
+  r.readAsText(file);
+}
+
 /* 핵심 인물 서브탭 */
 function showPpSub(name) {
   ["brief", "stmt", "fav", "ins"].forEach(function (n) { var el = $q("#ppsub-" + n); if (el) el.style.display = n === name ? "" : "none"; });
   $qa("#pp-subtabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.sub === name); });
   if (name === "brief") renderBrief();
   if (name === "stmt") { renderDirectory(); renderStatements(); }
-  if (name === "fav") renderStmtFavs();
+  if (name === "fav") { renderStmtFavs(); wireFavBackup(); }
   if (name === "ins") renderInsightList();
 }
 $qa("#pp-subtabs button").forEach(function (b) { b.onclick = function () { showPpSub(b.dataset.sub); }; });
