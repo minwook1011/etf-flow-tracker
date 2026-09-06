@@ -333,6 +333,8 @@ table.tbl tbody tr:hover { background: var(--card-hover); cursor: pointer; }
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 11px 12px 10px; cursor: pointer;
   box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  content-visibility: auto;            /* 화면 밖 카드는 렌더 건너뜀 → 대량 카드 스크롤 랙 해소 */
+  contain-intrinsic-size: auto 148px;  /* 렌더 전 예상 높이(스크롤바 튐 방지) */
 }
 .stock-card:hover { background: var(--card-hover); border-color: var(--border-strong); box-shadow: 0 4px 12px rgba(0,0,0,0.28); }
 .stock-card.lead { border-color: var(--accent); }
