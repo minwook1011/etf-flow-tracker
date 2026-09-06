@@ -149,21 +149,25 @@ function wireFavBackup() {
 .flow-card.up { border-left-color: var(--up); }
 .flow-card.dn { border-left-color: var(--dn); }
 .flow-card.flat { border-left-color: var(--muted); }
-.fc-head { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 11px; }
-.fc-badge { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center;
-  font-size: 11px; font-weight: 900; color: #fff; }
-.fc-badge.up { background: var(--up); } .fc-badge.dn { background: var(--dn); } .fc-badge.flat { background: var(--muted); }
+.fc-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 11px; }
+.fc-badge { flex: 0 0 auto; background: none; font-size: 17px; font-weight: 900; line-height: 1.25; }
+.fc-badge.up { color: var(--up); } .fc-badge.dn { color: var(--dn); } .fc-badge.flat { color: var(--muted); }
 .fc-theme { font-weight: 800; font-size: 14.5px; line-height: 1.4; }
 .fc-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
-.fc-node { background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+.fc-node { background: color-mix(in srgb, var(--accent) 16%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   color: var(--text); border-radius: 7px; padding: 4px 9px; font-size: 12px; font-weight: 700; }
 .fc-arw { color: var(--muted); font-size: 12px; }
 .fc-tks { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 11px; }
 .fc-tk { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--accent);
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 6px; padding: 2px 7px; }
+.fc-points { list-style: none; margin: 0 0 12px; padding: 11px 13px; background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.fc-points li { font-size: 13.5px; line-height: 1.65; color: var(--text); font-weight: 600; margin: 4px 0; padding-left: 14px; position: relative; }
+.fc-points li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); font-weight: 900; }
+.fc-points li b { color: var(--gold); }
 .fc-drivers .fcd-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
 .fc-drivers ul { margin: 0; padding-left: 16px; }
-.fc-drivers li { font-size: 12.5px; line-height: 1.6; color: var(--muted); margin: 3px 0; }
+.fc-drivers li { font-size: 12.5px; line-height: 1.7; color: var(--text); margin: 5px 0; }
 .brief-empty { text-align: center; padding: 60px 20px; border: 1px dashed var(--border); border-radius: 16px; background: var(--card); }
 .brief-empty .be-emoji { font-size: 40px; margin-bottom: 12px; }
 .brief-empty .be-title { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
@@ -757,6 +761,9 @@ $q("#ins-search").addEventListener("input", function () { renderInsightList(); }
 
 /* ============ 주간 브리핑 (한눈에 보는 흐름 → 밸류체인) ============ */
 var BRIEF = null;
+function mdInline(t) {
+  return escapeHtml(String(t || "")).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+}
 function briefToneClass(d) { return d === "up" ? "up" : d === "down" ? "dn" : "flat"; }
 function renderBrief() {
   var host = $q("#brief-wrap");
@@ -787,9 +794,11 @@ function renderBrief() {
       }).join("");
       var tks = (f.tickers || []).map(function (t) { return '<span class="fc-tk">' + escapeHtml(t) + "</span>"; }).join("");
       var drivers = (f.drivers || []).map(function (d) { return "<li>" + escapeHtml(d) + "</li>"; }).join("");
+      var pts = (f.points || []).map(function (p) { return "<li>" + mdInline(p) + "</li>"; }).join("");
       return '<div class="flow-card ' + tone + '">' +
         '<div class="fc-head"><span class="fc-badge ' + tone + '">' + arrow + "</span>" +
         '<span class="fc-theme">' + escapeHtml(f.theme || "") + "</span></div>" +
+        (pts ? '<ul class="fc-points">' + pts + "</ul>" : "") +
         (chainHtml ? '<div class="fc-chain">' + chainHtml + "</div>" : "") +
         (tks ? '<div class="fc-tks">' + tks + "</div>" : "") +
         (drivers ? '<div class="fc-drivers"><div class="fcd-label">근거가 된 발언</div><ul>' + drivers + "</ul></div>" : "") +
