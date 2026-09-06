@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260904c">
+<link rel="stylesheet" href="theme.css?v=20260904e">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -69,6 +69,14 @@
 .ins-bar-val { flex: 0 0 auto; font-family: var(--mono); font-size: 11.5px; min-width: 64px; text-align: right; }
 .ins-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; font-size: 11.5px; color: var(--muted); }
 .ins-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+.ins-bullets { list-style: none; margin: 0 0 16px; padding: 13px 15px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; }
+.ins-bullets li { font-size: 13.5px; line-height: 1.7; color: var(--text); font-weight: 600;
+  margin: 6px 0; padding-left: 16px; position: relative; }
+.ins-bullets li::before { content: "●"; position: absolute; left: 0; top: 0;
+  color: var(--accent); font-size: 9px; line-height: 2.1; }
+.ins-bullets li b { color: var(--gold); }
 .ins-sources { margin-top: 10px; font-size: 12px; }
 .ins-sources a { color: var(--accent); }
 /* 인사이트 리서치 카드(목록) */
@@ -287,8 +295,8 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260904c"></script>
-<script src="stocks-common.js?v=20260904c"></script>
+<script src="theme.js?v=20260904e"></script>
+<script src="stocks-common.js?v=20260904e"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -358,6 +366,11 @@ function openInsightModal(id) {
   var body = "";
   if (x.added) body += '<div class="muted small" style="margin-bottom:8px;font-family:var(--mono)">작성일 ' + escapeHtml(x.added) + "</div>";
   if (x.trigger) body += '<div class="insight-hero">' + escapeHtml(x.trigger) + "</div>";
+  if (x.bullets && x.bullets.length) {                       /* 5줄 요약(신규 인사이트부터) */
+    body += '<ul class="ins-bullets">' + x.bullets.slice(0, 6).map(function (b) {
+      return "<li>" + mdInline(b) + "</li>";
+    }).join("") + "</ul>";
+  }
   body += mdRender(x.body || x.summary || "");
   body += (x.charts || []).map(insightChartHTML).join("");
   if (x.tags && x.tags.length) body += '<div class="tags" style="margin-top:12px">' + x.tags.map(function (t) { return "<span>#" + escapeHtml(t) + "</span>"; }).join("") + "</div>";
