@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — FLOW·TRACKER</title>
-<link rel="stylesheet" href="theme.css?v=20260904b">
+<link rel="stylesheet" href="theme.css?v=20260904c">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -92,16 +92,6 @@
 .dir-toggle .dir-caret { color: var(--muted); font-size: 12px; transition: transform .15s; }
 .dir-toggle .sub { font-weight: 400; }
 .dir-body { padding: 4px 14px 12px; }
-function wireFavBackup() {
-  var ex = $q("#fav-export"), ib = $q("#fav-import-btn"), inp = $q("#fav-import");
-  if (ex && !ex._wired) { ex._wired = 1; ex.onclick = favExport; }
-  if (ib && inp && !ib._wired) {
-    ib._wired = 1;
-    ib.onclick = function () { inp.click(); };
-    inp.onchange = function () { if (inp.files && inp.files[0]) { favImport(inp.files[0]); inp.value = ""; } };
-  }
-}
-
 /* 핵심 인물 서브탭 */
 .ppsub { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 16px; }
 .ppsub button { background: var(--card); border: 1px solid var(--border); color: var(--muted);
@@ -145,14 +135,15 @@ function wireFavBackup() {
 .flow-label { font-size: 15px; font-weight: 900; margin: 4px 0 12px; }
 .flow-label .sub { color: var(--muted); font-size: 12px; font-weight: 600; margin-left: 8px; }
 .flow-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
-.flow-card { border: 1px solid var(--border); border-left-width: 3px; border-radius: 13px; padding: 15px 16px; background: var(--card); }
-.flow-card.up { border-left-color: var(--up); }
-.flow-card.dn { border-left-color: var(--dn); }
-.flow-card.flat { border-left-color: var(--muted); }
+.flow-card { border: 1px solid var(--border); border-left-width: 3px; border-radius: 13px; padding: 16px 18px;
+  background: var(--card); color: var(--text); }            /* ★ color 고정: .up/.dn 색 상속 차단 */
+.flow-card.up { border-left-color: color-mix(in srgb, var(--up) 70%, transparent); }
+.flow-card.dn { border-left-color: color-mix(in srgb, var(--dn) 70%, transparent); }
+.flow-card.flat { border-left-color: var(--border-strong); }
 .fc-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 11px; }
 .fc-badge { flex: 0 0 auto; background: none; font-size: 17px; font-weight: 900; line-height: 1.25; }
 .fc-badge.up { color: var(--up); } .fc-badge.dn { color: var(--dn); } .fc-badge.flat { color: var(--muted); }
-.fc-theme { font-weight: 800; font-size: 14.5px; line-height: 1.4; }
+.fc-theme { font-weight: 800; font-size: 15.5px; line-height: 1.5; color: var(--text); letter-spacing: -.01em; }
 .fc-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
 .fc-node { background: color-mix(in srgb, var(--accent) 16%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   color: var(--text); border-radius: 7px; padding: 4px 9px; font-size: 12px; font-weight: 700; }
@@ -296,8 +287,8 @@ function wireFavBackup() {
   </div>
 </div>
 
-<script src="theme.js?v=20260904b"></script>
-<script src="stocks-common.js?v=20260904b"></script>
+<script src="theme.js?v=20260904c"></script>
+<script src="stocks-common.js?v=20260904c"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [];
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -740,6 +731,16 @@ function favImport(file) {
 }
 
 /* 핵심 인물 서브탭 */
+function wireFavBackup() {
+  var ex = $q("#fav-export"), ib = $q("#fav-import-btn"), inp = $q("#fav-import");
+  if (ex && !ex._wired) { ex._wired = 1; ex.onclick = favExport; }
+  if (ib && inp && !ib._wired) {
+    ib._wired = 1;
+    ib.onclick = function () { inp.click(); };
+    inp.onchange = function () { if (inp.files && inp.files[0]) { favImport(inp.files[0]); inp.value = ""; } };
+  }
+}
+
 function showPpSub(name) {
   ["brief", "stmt", "fav", "ins"].forEach(function (n) { var el = $q("#ppsub-" + n); if (el) el.style.display = n === name ? "" : "none"; });
   $qa("#pp-subtabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.sub === name); });

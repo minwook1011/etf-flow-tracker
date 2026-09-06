@@ -1280,3 +1280,49 @@ function captureStatChart() {
   }
   buildChartPNGBlob().then(function (b) { downloadChartPNG(b); flashCapBtn("저장됨 ↓"); }).catch(function () { flashCapBtn("실패"); });
 }
+
+/* ---------- 스크롤 리빌 (전 페이지 공용) ----------
+   화면에 들어오는 카드/섹션을 부드럽게 등장시킨다. 동적으로 렌더되는 노드도 자동 감지.
+   대량 카드(.stock-card 300개)는 성능상 제외. */
+var REVEAL_SEL = ".flow-card, .ins-card, .ev-card, .thesis, .brief-hero, .ern-card, .sec-head, .digest-card, .sector-card, .stmt, .card.hm";
+var _revealObs = null, _revealMo = null;
+function _revealTag(root) {
+  if (!_revealObs) return;
+  var nodes = (root || document).querySelectorAll(REVEAL_SEL);
+  for (var i = 0; i < nodes.length; i++) {
+    var n = nodes[i];
+    if (n._rv) continue;
+    n._rv = 1; n.classList.add("reveal"); _revealObs.observe(n);
+  }
+}
+function _revealAll() {   /* 안전장치: 어떤 이유로든 옵저버가 안 울려도 콘텐츠는 반드시 보이게 */
+  var n = document.querySelectorAll(".reveal:not(.in)");
+  for (var i = 0; i < n.length; i++) n[i].classList.add("in");
+}
+function initReveal() {
+  try {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!("IntersectionObserver" in window)) return;
+    if (!window.innerHeight) return;   /* 뷰포트 높이 0(숨겨진 컨텍스트)이면 애니메이션 미적용 */
+    if (_revealObs) { _revealTag(document); return; }
+    _revealObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); _revealObs.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+    _revealTag(document);
+    _revealMo = new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var added = muts[i].addedNodes;
+        for (var k = 0; k < added.length; k++) {
+          if (added[k].nodeType === 1) { _revealTag(added[k].parentNode || added[k]); return; }
+        }
+      }
+    });
+    _revealMo.observe(document.body, { childList: true, subtree: true });
+    setTimeout(_revealAll, 2500);              /* 초기 백스톱 */
+    window.addEventListener("pageshow", _revealAll);
+  } catch (e) { _revealAll(); }
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initReveal);
+else initReveal();
