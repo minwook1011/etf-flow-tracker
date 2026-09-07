@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>세상 흐름 파악 — VANTAGE</title>
-<link rel="stylesheet" href="theme.css?v=20260907b">
+<link rel="stylesheet" href="theme.css?v=20260907c">
 <style>
 .subtabs { display: flex; gap: 6px; margin: 4px 0 18px; }
 .subtabs button {
@@ -106,6 +106,19 @@
   padding: 9px 18px; border-radius: 9px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
 .ppsub button.on { color: #fff; background: var(--accent); border-color: var(--accent); }
 
+/* 공개 투자자 포트폴리오 */
+.portfolio-note { margin: 0 0 14px; padding: 11px 13px; color: var(--muted); font-size: 12.5px; line-height: 1.65; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); }
+.portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.portfolio-card { border: 1px solid var(--border); border-radius: 12px; background: linear-gradient(145deg, rgba(25,31,45,.96), var(--card)); overflow: hidden; }
+.portfolio-card:hover { border-color: var(--border-strong); transform: translateY(-1px); transition: border-color .18s, transform .18s; }
+.pc-head { display: flex; align-items: start; gap: 10px; padding: 14px 14px 11px; border-bottom: 1px solid var(--border); }
+.pc-rank { flex: 0 0 auto; font: 800 11px/22px var(--mono); color: var(--accent); letter-spacing: .06em; }
+.pc-who { min-width: 0; flex: 1; }.pc-name { font-size: 15px; font-weight: 800; }.pc-firm { color: var(--muted); font-size: 12px; margin-top: 1px; }
+.pc-date { color: var(--faint); font: 11px/1.4 var(--mono); text-align: right; white-space: nowrap; }
+.pc-holdings { padding: 4px 14px 10px; }.pc-row { display: grid; grid-template-columns: 1fr 43px; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(50,59,79,.55); }
+.pc-row:last-child { border-bottom: 0; }.pc-security { min-width: 0; font-size: 12.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.pc-security .ticker { color: var(--accent); font: 700 11px var(--mono); margin-right: 5px; }.pc-class { color: var(--faint); font-size: 10.5px; margin-left: 4px; }.pc-weight { text-align: right; color: var(--text); font: 700 12px var(--mono); }
+.pc-foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--border); color: var(--faint); font-size: 11px; }.pc-foot a { color: var(--muted); font-weight: 700; }.pc-foot a:hover { color: var(--accent); text-decoration: none; }
+
 /* ===== 즐겨찾기 백업/복원 ===== */
 .fav-backup { border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); padding: 12px 14px; margin-bottom: 14px; }
 .fav-backup .fb-warn { display: block; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
@@ -132,9 +145,10 @@
   background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 30%, transparent)); }
 .bh-week { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--accent); font-weight: 800; text-transform: uppercase; }
 .bh-headline { font-size: 25px; line-height: 1.28; font-weight: 900; margin: 8px 0 12px; letter-spacing: -.01em; }
-.bh-summary.md p { font-size: 14px; line-height: 1.8; color: var(--text); margin: 7px 0; }
-.bh-summary.md strong { color: var(--text); text-decoration: underline; text-decoration-color: var(--gold);
-  text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.bh-three { display: grid; gap: 6px; margin: 14px 0 4px; }
+.bh-three-line { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 9px; align-items: start; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: rgba(11,14,20,.36); color: var(--text); font-size: 13.5px; line-height: 1.55; }
+.bh-three-line .n { color: var(--accent); font: 800 10px/1.8 var(--mono); }
+.bh-summary { margin-top: 10px; }.bh-summary summary { cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 700; }.bh-summary.md p { font-size: 14px; line-height: 1.8; color: var(--text); margin: 9px 0 3px; }.bh-summary.md strong { color: var(--text); text-decoration: none; }
 .brief-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 .brief-stats .bs-item { flex: 1 1 120px; min-width: 110px; border: 1px solid var(--border); border-radius: 11px;
   padding: 11px 13px; background: color-mix(in srgb, var(--bg2) 70%, transparent); }
@@ -248,6 +262,7 @@
     <div class="ppsub" id="pp-subtabs">
       <button data-sub="brief" class="on">주간 브리핑</button>
       <button data-sub="stmt">주차별 발언</button>
+      <button data-sub="portfolio">투자자 포트폴리오</button>
       <button data-sub="fav">즐겨찾기</button>
       <button data-sub="ins">인사이트 리서치</button>
     </div>
@@ -267,6 +282,10 @@
         <div class="wk-nav" id="week-nav"></div>
         <div id="stmt-weeks"><div class="spin">로딩 중…</div></div>
       </div>
+    </div>
+
+    <div id="ppsub-portfolio" style="display:none">
+      <div id="portfolio-wrap"><div class="spin">공개 포트폴리오 불러오는 중…</div></div>
     </div>
 
     <div id="ppsub-fav" style="display:none">
@@ -295,10 +314,10 @@
   </div>
 </div>
 
-<script src="theme.js?v=20260907b"></script>
+<script src="theme.js?v=20260907c"></script>
 <script src="stocks-common.js?v=20260904e"></script>
 <script>
-var EV = null, PP = null, INSIGHTS = [];
+var EV = null, PP = null, INSIGHTS = [], PORTFOLIOS = null;
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
 var TYPE_ORDER = ["tech", "investor", "policy", "corp"];
 var selPerson = null;   // 인물 칩 필터
@@ -754,11 +773,31 @@ function wireFavBackup() {
   }
 }
 
+/* ============ 영향력 있는 투자자의 공개 포트폴리오 ============ */
+function portfolioDate(p) {
+  if (p.source_type === "daily_etf") return p.as_of ? "기준 " + p.as_of : "거래일 기준";
+  return (p.as_of ? "기준 " + p.as_of : "기준일 미표기") + (p.filing_date ? " · 신고 " + p.filing_date : "");
+}
+function renderPortfolios() {
+  var host = $q("#portfolio-wrap");
+  if (!host) return;
+  if (!PORTFOLIOS) { host.innerHTML = '<div class="spin">공개 포트폴리오 불러오는 중…</div>'; return; }
+  var list = (PORTFOLIOS.investors || []).slice().sort(function (a, b) { return a.rank - b.rank; });
+  if (!list.length) { host.innerHTML = '<div class="empty">공개 포트폴리오 데이터가 아직 준비되지 않았습니다.</div>'; return; }
+  host.innerHTML = '<div class="portfolio-note"><b>공개 자료 기준.</b> 13F는 분기 공시이므로 최신 실제 매매와 다를 수 있습니다. 캐시 우드는 ARKK의 거래일 마감 후 공개 보유종목을 표시합니다. 투자 판단은 반드시 별도 확인이 필요합니다.</div><div class="portfolio-grid">' + list.map(function (p) {
+    var rows = (p.holdings || []).slice(0, 10).map(function (h) {
+      return '<div class="pc-row"><div class="pc-security">' + (h.ticker ? '<span class="ticker">' + escapeHtml(h.ticker) + '</span>' : '') + escapeHtml(h.name || '') + (h.class ? '<span class="pc-class">' + escapeHtml(h.class) + '</span>' : '') + '</div><div class="pc-weight">' + (Number(h.weight || 0)).toFixed(2) + '%</div></div>';
+    }).join("") || '<div class="empty">이 신고서의 보유종목을 읽지 못했습니다.</div>';
+    return '<article class="portfolio-card"><div class="pc-head"><div class="pc-rank">#0' + p.rank + '</div><div class="pc-who"><div class="pc-name">' + escapeHtml(p.name) + '</div><div class="pc-firm">' + escapeHtml(p.firm) + '</div></div><div class="pc-date">' + escapeHtml(portfolioDate(p)) + '</div></div><div class="pc-holdings">' + rows + '</div><div class="pc-foot"><span>' + escapeHtml(p.disclosure || '') + '</span><a href="' + escapeHtml(p.source_url || '#') + '" target="_blank" rel="noopener">원문 ↗</a></div></article>';
+  }).join("") + '</div>';
+}
+
 function showPpSub(name) {
-  ["brief", "stmt", "fav", "ins"].forEach(function (n) { var el = $q("#ppsub-" + n); if (el) el.style.display = n === name ? "" : "none"; });
+  ["brief", "stmt", "portfolio", "fav", "ins"].forEach(function (n) { var el = $q("#ppsub-" + n); if (el) el.style.display = n === name ? "" : "none"; });
   $qa("#pp-subtabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.sub === name); });
   if (name === "brief") renderBrief();
   if (name === "stmt") { renderDirectory(); renderStatements(); }
+  if (name === "portfolio") renderPortfolios();
   if (name === "fav") { renderStmtFavs(); wireFavBackup(); }
   if (name === "ins") renderInsightList();
 }
@@ -777,6 +816,17 @@ $q("#ins-search").addEventListener("input", function () { renderInsightList(); }
 var BRIEF = null;
 function mdInline(t) {
   return escapeHtml(String(t || "")).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+}
+function briefThreeLines(markdown, highlights) {
+  var lines = Array.isArray(highlights) && highlights.length ? highlights.slice(0, 3) : [];
+  if (!lines.length) {
+    var plain = String(markdown || "").replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+    lines = plain.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+    lines = lines.slice(0, 3);
+  }
+  return lines.length ? '<div class="bh-three">' + lines.map(function (line, i) {
+    return '<div class="bh-three-line"><span class="n">0' + (i + 1) + '</span><span>' + mdInline(line) + '</span></div>';
+  }).join("") + '</div>' : "";
 }
 function briefToneClass(d) { return d === "up" ? "up" : d === "down" ? "dn" : "flat"; }
 function renderBrief() {
@@ -825,7 +875,7 @@ function renderBrief() {
       '<div class="brief-hero">' +
         '<div class="bh-week">' + escapeHtml(b.week || "") + (b.date_range ? " · " + escapeHtml(b.date_range) : "") + "</div>" +
         '<h2 class="bh-headline">' + escapeHtml(b.headline || "") + "</h2>" +
-        (b.summary ? '<div class="bh-summary md">' + mdRender(b.summary) + "</div>" : "") +
+        (b.summary ? briefThreeLines(b.summary, b.highlights) + '<details class="bh-summary"><summary>전체 브리핑 보기</summary><div class="md">' + mdRender(b.summary) + "</div></details>" : "") +
         (stats ? '<div class="brief-stats">' + stats + "</div>" : "") +
       "</div>" +
       (flows ? '<div class="flow-label">발언은 어디로 향하나 <span class="sub">방향 → 밸류체인</span></div><div class="flow-grid">' + flows + "</div>" : "");
@@ -844,15 +894,18 @@ Promise.all([
   fetchJSON("events.json").catch(function () { return { updated: "", events: [] }; }),
   fetchJSON("people.json").catch(function () { return { updated: "", people: [], weeks: [] }; }),
   fetchJSON("insights.json").catch(function () { return { insights: [] }; }),
-  fetchJSON("weekly_brief.json").catch(function () { return { updated: "", briefs: [] }; })
+  fetchJSON("weekly_brief.json").catch(function () { return { updated: "", briefs: [] }; }),
+  fetchJSON("investor_portfolios.json").catch(function () { return { updated: "", investors: [] }; })
 ]).then(function (rs) {
   EV = rs[0]; PP = rs[1];
   INSIGHTS = rs[2].insights || [];
   BRIEF = rs[3] || { briefs: [] };
-  $q("#updated").textContent = "인물/발언 갱신: " + (PP.updated || "-") + " · 브리핑: " + (BRIEF.updated || "-");
+  PORTFOLIOS = rs[4] || { investors: [] };
+  $q("#updated").textContent = "인물/발언 갱신: " + (PP.updated || "-") + " · 브리핑: " + (BRIEF.updated || "-") + " · 포트폴리오: " + (PORTFOLIOS.updated || "-");
   renderEvents();
   renderDirectory();
   renderBrief();
+  renderPortfolios();
 });
 </script>
 </body>

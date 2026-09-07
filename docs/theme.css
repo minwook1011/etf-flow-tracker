@@ -463,3 +463,25 @@ html.route-leaving-back body { animation: route-leave-back .35s cubic-bezier(.55
 @keyframes route-leave { to { opacity: 0; transform: translateX(-30px) scale(.99); filter: blur(4px); } }
 @keyframes route-leave-back { to { opacity: 0; transform: translateX(26px) scale(.99); filter: blur(4px); } }
 @media (prefers-reduced-motion: reduce) { html.route-enter body, html.route-return body, html.route-leaving body, html.route-leaving-back body { animation: none; } }
+
+/* ---------- VANTAGE / 더 밀도 있는 리서치 화면 ---------- */
+body { background: radial-gradient(900px 480px at 92% -8%, rgba(70,105,180,.10), transparent 62%), var(--bg); }
+#topnav { background: rgba(8,11,17,.88); border-bottom-color: rgba(78,93,122,.45); backdrop-filter: blur(16px) saturate(125%); }
+#topnav .nav-inner { max-width: 1360px; height: 58px; gap: 6px; }
+#topnav .brand { letter-spacing: .11em; font-size: 13px; color: #f3f6ff; margin-right: 18px; }
+#topnav a.navlink { border: 1px solid transparent; padding: 7px 12px; font-size: 13px; }
+#topnav a.navlink:hover { border-color: rgba(85,105,145,.5); background: rgba(26,32,48,.72); }
+#topnav a.navlink.active { border-color: rgba(91,140,255,.38); background: linear-gradient(135deg, rgba(63,94,160,.28), rgba(24,30,45,.9)); box-shadow: none; }
+.container { max-width: 1360px; padding-top: 24px; }
+.page-head { margin-bottom: 8px; }.page-head h1 { letter-spacing: -.045em; }
+.section, .card, .breadth, .signal, .stock-card, .tbl-wrap, .macro-card { box-shadow: 0 9px 26px rgba(0,0,0,.12); }
+.card, .breadth, .signal, .stock-card { border-color: rgba(64,76,103,.76); background: linear-gradient(145deg, rgba(25,31,45,.96), rgba(19,24,36,.98)); }
+.card:hover, .stock-card:hover { border-color: rgba(109,143,223,.7); box-shadow: 0 13px 31px rgba(0,0,0,.25); }
+.section > h2 { padding-bottom: 10px; border-bottom: 1px solid rgba(68,82,110,.66); letter-spacing: -.02em; }
+.tbl-wrap { border-color: rgba(67,81,108,.86); background: rgba(13,17,26,.72); }
+table.tbl thead th { background: rgba(22,28,42,.92); border-bottom-color: rgba(74,90,121,.86); }
+table.tbl tbody tr { border-bottom-color: rgba(51,63,86,.78); }
+.chip, .toggle button, .subtabs button { border-color: rgba(67,81,108,.86); background: rgba(19,25,38,.88); }
+.chip:hover, .toggle button:hover, .subtabs button:hover { border-color: rgba(103,136,216,.75); }
+.kicker { letter-spacing: .09em; font-size: 11px; }
+.macro-empty { min-height: calc(100vh - 92px); }
