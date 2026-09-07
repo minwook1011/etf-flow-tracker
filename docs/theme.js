@@ -1,7 +1,8 @@
 /* 공통 상단 내비게이션 + 티커 테이프 + 유틸 — 모든 페이지에서 로드 */
 (function () {
   var PAGES = [
-    ["index.html", "섹터 대시보드"],
+    ["index.html", "시작"],
+    ["dashboard.html", "섹터 대시보드"],
     ["megacap.html", "글로벌 메가캡"],
     ["bottomup.html", "Bottom-up 발굴"],
     ["perspective.html", "핵심 테제 트래킹"],
@@ -15,10 +16,11 @@
   if (nav) {
     var links = PAGES.map(function (p) {
       var act = p[0] === here ? " active" : "";
-      return '<a class="navlink' + act + '" href="' + p[0] + '">' + p[1] + "</a>";
+      var route = p[0] === "index.html" ? " data-route-home" : " data-route";
+      return '<a class="navlink' + act + '"' + route + ' href="' + p[0] + '">' + p[1] + "</a>";
     }).join("");
     nav.innerHTML =
-      '<div class="nav-inner"><span class="brand">FLOW<span class="dot">·</span>TRACKER</span>' +
+      '<div class="nav-inner"><a class="brand route-home" data-route-home href="index.html">VANTAGE<span class="dot">·</span></a>' +
       links + '</div><div id="tape"></div>';
   }
 
@@ -38,7 +40,7 @@
         var cls = v > 0 ? "up" : v < 0 ? "dn" : "flat";
         var ccy = /\.K[SQ]$/.test(e.ticker) ? "₩" : "$";
         var px = e.price >= 1000 ? Math.round(e.price).toLocaleString() : (+e.price).toFixed(2);
-        return '<a class="tape-item" href="index.html">' +
+        return '<a class="tape-item" data-route href="dashboard.html">' +
           '<span class="t-nm">' + esc(e.name) + '</span>' +
           '<span class="t-px">' + ccy + px + '</span>' +
           '<span class="' + cls + '">' + (v > 0 ? "+" : "") + v.toFixed(2) + "%</span></a>";
@@ -49,6 +51,35 @@
   }).catch(function () {
     var tape = document.getElementById("tape");
     if (tape) tape.style.display = "none";
+  });
+})();
+
+/* ---------- 화면 간 진입·복귀 모션 ---------- */
+(function () {
+  var KEY = "vantage-route-motion";
+  function readMotion() {
+    try { var v = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); return v; } catch (e) { return null; }
+  }
+  function showEnter(backward) {
+    document.documentElement.classList.remove("route-leaving", "route-leaving-back");
+    document.documentElement.classList.add(backward ? "route-return" : "route-enter");
+    setTimeout(function () { document.documentElement.classList.remove("route-return", "route-enter"); }, 700);
+  }
+  if (readMotion() === "enter") showEnter(false);
+  window.addEventListener("pageshow", function (event) {
+    var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+    if (event.persisted || (nav && nav.type === "back_forward")) showEnter(true);
+  });
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest && event.target.closest("a[data-route], a[data-route-home]");
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return;
+    var href = link.getAttribute("href");
+    if (!href || href.charAt(0) === "#" || /^(https?:|mailto:|tel:)/.test(href)) return;
+    event.preventDefault();
+    var goingHome = link.hasAttribute("data-route-home");
+    try { sessionStorage.setItem(KEY, goingHome ? "back" : "enter"); } catch (e) {}
+    document.documentElement.classList.add(goingHome ? "route-leaving-back" : "route-leaving");
+    setTimeout(function () { location.href = link.href; }, goingHome ? 340 : 300);
   });
 })();
 

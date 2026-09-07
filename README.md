@@ -7,7 +7,8 @@ API 키·pip 의존성·빌드 도구 없음. GitHub Pages(`docs/`)로 서빙.
 
 | 페이지 | 내용 | 데이터 소스 |
 |---|---|---|
-| `index.html` 섹터 대시보드 | 기간별 수익률 바차트, 누적 트렌드, 그룹 히트맵(자금유입 배지), 전 종목 테이블, 종목 모달(캔들+구성종목+뉴스) | `data.json` (자동) |
+| `index.html` VANTAGE 시작 화면 | 8개 분석 화면 선택, 진입·되돌아가기 모션, 투자 원칙용 빈 영역 | — |
+| `dashboard.html` 섹터 대시보드 | 기간별 수익률 바차트, 누적 트렌드, 그룹 히트맵(자금유입 배지), 전 종목 테이블, 종목 모달(캔들+구성종목+뉴스) | `data.json` (자동) |
 | `megacap.html` 글로벌 메가캡 | TOP100/300 토글, 13개 섹터 강세 순위(중앙값), 섹터별 종목 카드(선행PER), 종목 모달(캔들+회사개요+재무추이+뉴스) | `megacap.json`·`financials.json` (자동), `megacap_profiles.json` (반자동 — 회사 개요) |
 | `bottomup.html` Bottom-up 발굴 | 섹터 무관 메가캡 전체를 기술점수순(또는 수익률순)으로 정렬. 기술점수 = 이동평균선·거래량·이평선지지·RSI·MACD·볼린저·일목균형표·삼각수렴/돌파를 0~100 가중합(stocks-common.js `computeTA`, 캔들에서 클라이언트 계산 → 자동 갱신) | `megacap.json`·`financials.json` (자동) |
 | `perspective.html` 핵심 테제 트래킹 | 주차 탭, 테제별 종목 카드+관련 ETF 자동매칭, 등록일 이후 평균 수익률(테제 스코어) | `theses.json` (수동) + `data.json`/`megacap.json`의 시세 |
