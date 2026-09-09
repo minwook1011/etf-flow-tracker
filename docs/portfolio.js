@@ -21,13 +21,14 @@
     document.querySelectorAll(".account-tab").forEach(function (b) { b.onclick = function () { activeId = b.dataset.account; render(); }; });
   }
   function ring(items, total, holdingCount) {
-    if (!items.length || !total) return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle></svg><div class="ring-center"><span class="label">구성 비중</span><b>0%</b><small>예수금 또는 매수 기록을 추가하세요</small></div></div></div>';
+    if (!items.length || !total) return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle></svg><div class="ring-center"><span class="label">주식 비중</span><b>0.0%</b><small>현금 비중 0.0%</small><em>원화 환산 기준</em></div></div></div>';
     var circumference = 2 * Math.PI * 88, offset = 0, paths = items.map(function (h, i) {
       var ratio = (h.valueKrw || 0) / total, length = Math.max(0, circumference * ratio - 4), item = '<circle class="ring-segment" cx="110" cy="110" r="88" stroke="' + COLORS[i % COLORS.length] + '" stroke-dasharray="' + length + ' ' + (circumference - length) + '" stroke-dashoffset="' + (-offset) + '"></circle>';
       offset += circumference * ratio; return item;
     }).join("");
     var legend = items.map(function (h, i) { var label = h.ticker === "원화 예수금" || h.ticker === "외화 예수금" ? h.ticker : S.displayTicker(h.ticker), ratio = (h.valueKrw || 0) / total * 100; return '<div class="ring-legend-item"><i style="background:' + COLORS[i % COLORS.length] + '"></i><span>' + esc(label) + '</span><b>' + ratio.toFixed(1) + '%</b></div>'; }).join("");
-    return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">구성 비중</span><b>100%</b><small>보유 종목 ' + holdingCount + '개</small></div></div><div class="ring-legend">' + legend + '</div></div>';
+    var stockValue = items.reduce(function (sum, h) { return sum + (h.ticker === "원화 예수금" || h.ticker === "외화 예수금" ? 0 : Number(h.valueKrw) || 0); }, 0), stockPct = stockValue / total * 100, cashPct = Math.max(0, 100 - stockPct);
+    return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">주식 비중</span><b>' + stockPct.toFixed(1) + '%</b><small>현금 비중 ' + cashPct.toFixed(1) + '%</small><em>원화 환산 기준</em></div></div><div class="ring-legend">' + legend + '</div></div>';
   }
   function renderSummary() {
     var account = active(), holdings = S.aggregate(state, activeId), invested = holdingsValue(), cash = cashInfo(), total = allValue(), cost = holdings.reduce(function (sum, h) { return sum + h.costKrw; }, 0), pnl = invested - cost, rate = cost ? pnl / cost * 100 : null, fxLabel = num(cash.fx, 2);
