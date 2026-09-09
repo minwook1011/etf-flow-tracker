@@ -22,7 +22,11 @@
     }).join("");
     nav.innerHTML =
       '<div class="nav-inner"><a class="brand route-home" data-route-home href="index.html">VANTAGE<span class="dot">·</span></a>' +
-      links + '</div><div id="tape"></div>';
+      links + '<button class="gate-logout" type="button" title="이 기기에서 다시 잠그기" aria-label="다시 잠그기">🔒 잠금</button></div><div id="tape"></div>';
+    var logout = nav.querySelector(".gate-logout");
+    if (logout) logout.addEventListener("click", function () {
+      if (typeof window.vantageGateLogout === "function") window.vantageGateLogout();
+    });
   }
 
   /* 티커 테이프: 주요 벤치마크·섹터 등락을 흐르는 띠로 표시 */

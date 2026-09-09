@@ -58,6 +58,12 @@ a:hover { text-decoration: underline; }
 }
 #topnav a.navlink:hover { color: var(--text); text-decoration: none; background: var(--card); }
 #topnav a.navlink.active { color: var(--text); background: var(--card); box-shadow: inset 0 -2px 0 var(--accent); }
+#topnav .gate-logout {
+  margin-left: auto; flex: 0 0 auto; background: transparent; color: var(--faint);
+  border: 1px solid var(--border); border-radius: 7px; padding: 5px 9px;
+  font: 700 11px var(--sans); cursor: pointer;
+}
+#topnav .gate-logout:hover { color: var(--text); border-color: var(--border-strong); }
 
 /* ---------- 티커 테이프 (전 페이지 상단) ---------- */
 #tape {
