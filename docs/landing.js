@@ -10,14 +10,6 @@
     link.addEventListener("click", function (event) { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return; event.preventDefault(); remember("enter"); document.body.classList.add("is-leaving"); setTimeout(function () { location.href = link.href; }, 390); });
     link.addEventListener("pointermove", function (event) { var rect = link.getBoundingClientRect(); link.style.setProperty("--mx", (event.clientX - rect.left) + "px"); link.style.setProperty("--my", (event.clientY - rect.top) + "px"); });
   });
-  var portfolioBrief = document.getElementById("landing-portfolio-brief");
-  if (portfolioBrief && window.PortfolioStore) {
-    var data = window.PortfolioStore.load();
-    portfolioBrief.innerHTML = '<span class="lp-label">PORTFOLIO<br>STATUS</span>' + data.accounts.slice(0, 2).map(function (account) {
-      var total = window.PortfolioStore.aggregate(data, account.id).reduce(function (sum, h) { return sum + (h.valueKrw || 0); }, 0);
-      return '<span class="lp-account"><span>' + String(account.name).replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span><b>' + (total ? '₩' + Math.round(total).toLocaleString("ko-KR") : '기록 추가') + '</b></span>';
-    }).join("") + '<i class="lp-go">↗</i>';
-  }
   var canvas = document.getElementById("pulse-chart"); if (!canvas || !canvas.getContext) return;
   var ctx = canvas.getContext("2d"), width = 0, height = 0, phase = 0;
   function resize() { var box = canvas.getBoundingClientRect(), scale = Math.min(window.devicePixelRatio || 1, 2); width = Math.max(1, box.width); height = Math.max(1, box.height); canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale); ctx.setTransform(scale, 0, 0, scale, 0, 0); }
