@@ -56,12 +56,20 @@
     }).filter(Boolean).sort(function (a, b) { return (b.valueKrw || 0) - (a.valueKrw || 0); });
   }
   async function priceOne(market, ticker) {
-    var symbol = tickerFor(ticker, market), url = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?range=5d&interval=1d";
-    var response = await fetch(url, { cache: "no-store" }); if (!response.ok) throw new Error("quote unavailable");
-    var json = await response.json(), res = json && json.chart && json.chart.result && json.chart.result[0];
+    var symbol = tickerFor(ticker, market), source = "http://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?range=5d%26interval=1d";
+    /* Yahoo는 브라우저 CORS를 허용하지 않아 읽기 전용 중계로 응답만 가져온다. 요청에는 티커만 포함된다. */
+    var response = await fetch("https://r.jina.ai/" + source, { cache: "no-store" }); if (!response.ok) throw new Error("quote unavailable");
+    var text = await response.text(), start = text.indexOf('{"chart"'); if (start < 0) throw new Error("quote unavailable");
+    var json = JSON.parse(text.slice(start)), res = json && json.chart && json.chart.result && json.chart.result[0];
     var quote = res && res.meta && (res.meta.regularMarketPrice || res.meta.previousClose);
     if (!isFinite(Number(quote))) throw new Error("invalid quote");
     return { price: Number(quote), currency: res.meta.currency || (market === "KR" ? "KRW" : "USD"), updated: new Date().toISOString() };
+  }
+  async function fxUsdKrw() {
+    var response = await fetch("https://api.frankfurter.app/latest?from=USD&to=KRW", { cache: "no-store" }); if (!response.ok) throw new Error("fx unavailable");
+    var json = await response.json(), quote = json && json.rates && json.rates.KRW;
+    if (!isFinite(Number(quote))) throw new Error("invalid fx");
+    return { price: Number(quote), currency: "KRW", updated: new Date().toISOString() };
   }
   async function refresh(data) {
     var symbols = {}, i;
@@ -71,7 +79,7 @@
     await Promise.all(keys.map(async function (key) {
       try { data.prices[key] = await priceOne(symbols[key].market, symbols[key].ticker); } catch (e) {}
     }));
-    try { data.fx = await priceOne("US", "KRW=X"); } catch (e) {}
+    try { data.fx = await fxUsdKrw(); } catch (e) {}
     save(data); return data;
   }
   window.PortfolioStore = { load: load, save: save, id: id, aggregate: aggregate, refresh: refresh, tickerFor: tickerFor, displayTicker: displayTicker, groupKey: groupKey };
