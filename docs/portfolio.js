@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var S = window.PortfolioStore, state = S.load(), activeId = state.accounts[0].id;
+  var S = window.PortfolioStore, state = S.load(), activeId = state.accounts[0].id, lastTransactionDate = new Date().toISOString().slice(0, 10);
   var COLORS = ["#6e9cff", "#ff7c8e", "#f0b429", "#58d3a6", "#b894ff", "#64b7ff", "#ff9d63", "#d5dfef"];
   function esc(v) { return String(v == null ? "" : v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function num(v, digits) { return Number(v || 0).toLocaleString("ko-KR", { maximumFractionDigits: digits == null ? 0 : digits }); }
@@ -106,8 +106,9 @@
     reader.readAsArrayBuffer(file);
   }
   function wire() {
-    var form = document.getElementById("transaction-form"); form.date.value = new Date().toISOString().slice(0,10); form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : "";
-    form.addEventListener("submit", function (e) { e.preventDefault(); var fd = new FormData(form), market = fd.get("market"), ticker = S.tickerFor(fd.get("ticker"),market), qty = Number(fd.get("qty")), price = Number(fd.get("price")); if (!ticker || !(qty>0) || !(price>0)) return; state.transactions.push({ id:S.id("tx"), accountId:activeId, date:fd.get("date"), market:market, ticker:ticker, side:fd.get("side"), qty:qty, price:price, fx:Number(fd.get("fx")) || Number(state.fx && state.fx.price) || 1350, createdAt:new Date().toISOString() }); S.save(state); form.reset(); form.date.value = new Date().toISOString().slice(0,10); form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : ""; render(); refresh(); });
+    var form = document.getElementById("transaction-form"); form.date.value = lastTransactionDate; form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : "";
+    form.date.addEventListener("change", function () { if (form.date.value) lastTransactionDate = form.date.value; });
+    form.addEventListener("submit", function (e) { e.preventDefault(); var fd = new FormData(form), market = fd.get("market"), ticker = S.tickerFor(fd.get("ticker"),market), qty = Number(fd.get("qty")), price = Number(fd.get("price")); if (!ticker || !(qty>0) || !(price>0)) return; lastTransactionDate = fd.get("date") || lastTransactionDate; state.transactions.push({ id:S.id("tx"), accountId:activeId, date:fd.get("date"), market:market, ticker:ticker, side:fd.get("side"), qty:qty, price:price, fx:Number(fd.get("fx")) || Number(state.fx && state.fx.price) || 1350, createdAt:new Date().toISOString() }); S.save(state); form.reset(); form.date.value = lastTransactionDate; form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : ""; render(); refresh(); });
     document.getElementById("add-account").onclick = function () { var name = prompt("새 포트폴리오 이름", "포트폴리오 " + (state.accounts.length + 1)); if (!name || !name.trim()) return; var a={id:S.id("account"),name:name.trim()}; state.accounts.push(a); activeId=a.id; S.save(state); render(); };
     document.getElementById("rename-account").onclick = function () { var a=active(), name=prompt("포트폴리오 이름",a.name); if(!name||!name.trim())return;a.name=name.trim();S.save(state);render(); };
     document.getElementById("delete-account").onclick = function () { if(state.accounts.length<=1){alert("포트폴리오는 하나 이상 남겨야 합니다.");return;}var a=active();if(!confirm(a.name+"과 해당 매매 기록을 삭제할까요?"))return;state.accounts=state.accounts.filter(function(x){return x.id!==a.id;});state.transactions=state.transactions.filter(function(x){return x.accountId!==a.id;});activeId=state.accounts[0].id;S.save(state);render(); };
