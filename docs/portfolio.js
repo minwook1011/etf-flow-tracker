@@ -26,7 +26,8 @@
       var ratio = (h.valueKrw || 0) / total, length = Math.max(0, circumference * ratio - 4), item = '<circle class="ring-segment" cx="110" cy="110" r="88" stroke="' + COLORS[i % COLORS.length] + '" stroke-dasharray="' + length + ' ' + (circumference - length) + '" stroke-dashoffset="' + (-offset) + '"></circle>';
       offset += circumference * ratio; return item;
     }).join("");
-    return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">구성 비중</span><b>100%</b><small>보유 종목 ' + holdingCount + '개</small></div></div></div>';
+    var legend = items.map(function (h, i) { var label = h.ticker === "원화 예수금" || h.ticker === "외화 예수금" ? h.ticker : S.displayTicker(h.ticker), ratio = (h.valueKrw || 0) / total * 100; return '<div class="ring-legend-item"><i style="background:' + COLORS[i % COLORS.length] + '"></i><span>' + esc(label) + '</span><b>' + ratio.toFixed(1) + '%</b></div>'; }).join("");
+    return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">구성 비중</span><b>100%</b><small>보유 종목 ' + holdingCount + '개</small></div></div><div class="ring-legend">' + legend + '</div></div>';
   }
   function renderSummary() {
     var account = active(), holdings = S.aggregate(state, activeId), invested = holdingsValue(), cash = cashInfo(), total = allValue(), cost = holdings.reduce(function (sum, h) { return sum + h.costKrw; }, 0), pnl = invested - cost, rate = cost ? pnl / cost * 100 : null, fxLabel = num(cash.fx, 2);
