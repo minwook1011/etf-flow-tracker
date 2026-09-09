@@ -8,25 +8,31 @@
   function local(v, market) { return v == null ? "—" : (market === "US" ? "$" : "₩") + num(v, market === "US" ? 2 : 0); }
   function pct(v) { return v == null || !isFinite(v) ? "—" : (v >= 0 ? "+" : "") + v.toFixed(2) + "%"; }
   function active() { return state.accounts.filter(function (a) { return a.id === activeId; })[0] || state.accounts[0]; }
-  function allValue() { return S.aggregate(state, activeId).reduce(function (sum, h) { return sum + (h.valueKrw || 0); }, 0); }
+  function holdingsValue() { return S.aggregate(state, activeId).reduce(function (sum, h) { return sum + (h.valueKrw || 0); }, 0); }
+  function cashInfo() {
+    var account = active(), fx = Number(state.fx && state.fx.price) || 1350, krw = Math.max(0, Number(account.cashKrw) || 0), usd = Math.max(0, Number(account.cashUsd) || 0);
+    return { krw: krw, usd: usd, fx: fx, usdKrw: usd * fx, total: krw + usd * fx };
+  }
+  function allValue() { return holdingsValue() + cashInfo().total; }
   function renderTabs() {
     document.getElementById("account-tabs").innerHTML = state.accounts.map(function (a) {
       return '<button class="account-tab' + (a.id === activeId ? " on" : "") + '" data-account="' + esc(a.id) + '">' + esc(a.name) + '</button>';
     }).join("");
     document.querySelectorAll(".account-tab").forEach(function (b) { b.onclick = function () { activeId = b.dataset.account; render(); }; });
   }
-  function ring(holdings, total) {
-    if (!holdings.length || !total) return '<div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle></svg><div class="ring-center"><span class="label">보유 종목</span><b>0</b><small>매수 기록을 추가하세요</small></div></div>';
-    var circumference = 2 * Math.PI * 88, offset = 0, paths = holdings.map(function (h, i) {
+  function ring(items, total, holdingCount) {
+    if (!items.length || !total) return '<div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle></svg><div class="ring-center"><span class="label">총 자산</span><b>₩0</b><small>예수금 또는 매수 기록을 추가하세요</small></div></div>';
+    var circumference = 2 * Math.PI * 88, offset = 0, paths = items.map(function (h, i) {
       var ratio = (h.valueKrw || 0) / total, length = Math.max(0, circumference * ratio - 4), item = '<circle class="ring-segment" cx="110" cy="110" r="88" stroke="' + COLORS[i % COLORS.length] + '" stroke-dasharray="' + length + ' ' + (circumference - length) + '" stroke-dashoffset="' + (-offset) + '"></circle>';
       offset += circumference * ratio; return item;
     }).join("");
-    return '<div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">총 평가액</span><b>' + krw(total) + '</b><small>' + holdings.length + '개 종목</small></div></div>';
+    return '<div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">총 자산</span><b>' + krw(total) + '</b><small>보유 종목 ' + holdingCount + '개</small></div></div>';
   }
   function renderSummary() {
-    var account = active(), holdings = S.aggregate(state, activeId), total = allValue(), cost = holdings.reduce(function (sum, h) { return sum + h.costKrw; }, 0), pnl = total - cost, rate = cost ? pnl / cost * 100 : null, fxLabel = state.fx && state.fx.price ? num(state.fx.price, 2) : "—";
-    var list = holdings.map(function (h, i) { var weight = total ? (h.valueKrw || 0) / total * 100 : 0; return '<div class="allocation-item"><i class="dot" style="background:' + COLORS[i % COLORS.length] + '"></i><span class="name">' + esc(S.displayTicker(h.ticker)) + '</span><span class="weight">' + weight.toFixed(1) + '%</span></div>'; }).join("") || '<div class="allocation-item"><span></span><span class="name">아직 보유 종목이 없습니다.</span><span></span></div>';
-    document.getElementById("portfolio-summary").innerHTML = '<div class="summary-grid">' + ring(holdings, total) + '<div class="summary-side"><div class="summary-title"><h3>' + esc(account.name) + '</h3><span>USD/KRW ' + fxLabel + '</span></div><div class="summary-metrics"><div class="metric"><span>총 매입금액</span><b>' + krw(cost) + '</b></div><div class="metric"><span>평가손익</span><b class="' + (pnl >= 0 ? "pos" : "neg") + '">' + krw(pnl) + '</b></div><div class="metric"><span>수익률</span><b class="' + (rate >= 0 ? "pos" : "neg") + '">' + pct(rate) + '</b></div></div><div class="allocation-list">' + list + '</div></div></div>';
+    var account = active(), holdings = S.aggregate(state, activeId), invested = holdingsValue(), cash = cashInfo(), total = allValue(), cost = holdings.reduce(function (sum, h) { return sum + h.costKrw; }, 0), pnl = invested - cost, rate = cost ? pnl / cost * 100 : null, fxLabel = num(cash.fx, 2);
+    var allocation = holdings.slice(); if (cash.krw) allocation.push({ ticker: "원화 예수금", valueKrw: cash.krw }); if (cash.usdKrw) allocation.push({ ticker: "외화 예수금", valueKrw: cash.usdKrw });
+    var list = allocation.map(function (h, i) { var weight = total ? (h.valueKrw || 0) / total * 100 : 0; return '<div class="allocation-item"><i class="dot" style="background:' + COLORS[i % COLORS.length] + '"></i><span class="name">' + esc(h.ticker === "원화 예수금" || h.ticker === "외화 예수금" ? h.ticker : S.displayTicker(h.ticker)) + '</span><span class="weight">' + weight.toFixed(1) + '%</span></div>'; }).join("") || '<div class="allocation-item"><span></span><span class="name">예수금 또는 매수 기록을 추가하세요.</span><span></span></div>';
+    document.getElementById("portfolio-summary").innerHTML = '<div class="summary-grid">' + ring(allocation, total, holdings.length) + '<div class="summary-side"><div class="summary-title"><h3>' + esc(account.name) + '</h3><span>USD/KRW ' + fxLabel + '</span></div><div class="summary-metrics"><div class="metric"><span>총 자산</span><b>' + krw(total) + '</b></div><div class="metric"><span>주식 평가액</span><b>' + krw(invested) + '</b></div><div class="metric"><span>총 예수금</span><b>' + krw(cash.total) + '</b></div><div class="metric"><span>주식 평가손익</span><b class="' + (pnl >= 0 ? "pos" : "neg") + '">' + krw(pnl) + '<small>' + pct(rate) + '</small></b></div></div><div class="allocation-list">' + list + '</div></div></div>';
   }
   function renderHoldings() {
     var holdings = S.aggregate(state, activeId), total = allValue();
@@ -47,16 +53,70 @@
     document.querySelectorAll("[data-delete-buy]").forEach(function (b) { b.onclick = function () { state.buyList = state.buyList.filter(function (x) { return x.id !== b.dataset.deleteBuy; }); S.save(state); renderLists(); }; });
     document.querySelectorAll("[data-delete-watch]").forEach(function (b) { b.onclick = function () { state.watchlist = state.watchlist.filter(function (x) { return x.id !== b.dataset.deleteWatch; }); S.save(state); renderLists(); }; });
   }
-  function render() { renderTabs(); renderSummary(); renderHoldings(); renderTransactions(); renderLists(); }
+  function renderCash() { var cash = cashInfo(); document.getElementById("cash-krw").value = cash.krw || ""; document.getElementById("cash-usd").value = cash.usd || ""; document.getElementById("cash-usd-krw").textContent = krw(cash.usdKrw); document.getElementById("cash-fx-rate").textContent = "USD/KRW " + num(cash.fx, 2); }
+  function render() { renderTabs(); renderCash(); renderSummary(); renderHoldings(); renderTransactions(); renderLists(); }
   function setUpdated(text) { document.getElementById("portfolio-updated").textContent = text; }
+  function clean(v) { return String(v == null ? "" : v).trim(); }
+  function numberValue(v) { return Number(clean(v).replace(/,/g, "")); }
+  function isoDate(v) {
+    if (v instanceof Date && !isNaN(v.getTime())) return v.toISOString().slice(0, 10);
+    var text = clean(v).replace(/\./g, "-").replace(/\//g, "-");
+    var match = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (match) return match[1] + "-" + ("0" + match[2]).slice(-2) + "-" + ("0" + match[3]).slice(-2);
+    if (typeof v === "number" && window.XLSX && XLSX.SSF) {
+      var parsed = XLSX.SSF.parse_date_code(v);
+      if (parsed) return parsed.y + "-" + ("0" + parsed.m).slice(-2) + "-" + ("0" + parsed.d).slice(-2);
+    }
+    return "";
+  }
+  function headerIndex(row, label) {
+    for (var i = 0; i < row.length; i++) if (clean(row[i]).replace(/\s/g, "").indexOf(label) >= 0) return i;
+    return -1;
+  }
+  function importTransactions(file) {
+    if (!file) return;
+    if (!window.XLSX) { alert("엑셀 읽기 도구를 불러오는 중입니다. 잠시 후 다시 눌러 주세요."); return; }
+    var reader = new FileReader();
+    reader.onerror = function () { alert("파일을 읽지 못했습니다. 엑셀 파일인지 확인해 주세요."); };
+    reader.onload = function () {
+      try {
+        var book = XLSX.read(new Uint8Array(reader.result), { type: "array", cellDates: true });
+        var sheet = book.Sheets[book.SheetNames[0]], rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+        var headerAt = -1;
+        for (var r = 0; r < rows.length; r++) {
+          if (headerIndex(rows[r], "날짜") >= 0 && headerIndex(rows[r], "종목명/티커") >= 0) { headerAt = r; break; }
+        }
+        if (headerAt < 0) throw new Error("header");
+        var headers = rows[headerAt], dateAt = headerIndex(headers, "날짜"), marketAt = headerIndex(headers, "시장"), tickerAt = headerIndex(headers, "종목명/티커"), sideAt = headerIndex(headers, "매수/매도"), qtyAt = headerIndex(headers, "주식수"), priceAt = headerIndex(headers, "체결단가"), fxAt = headerIndex(headers, "적용환율");
+        var imported = [];
+        for (var i = headerAt + 1; i < rows.length; i++) {
+          var row = rows[i], date = isoDate(row[dateAt]), ticker = clean(row[tickerAt]).toUpperCase(), sideText = clean(row[sideAt]);
+          var qty = numberValue(row[qtyAt]), price = numberValue(row[priceAt]);
+          if (!date || !ticker || !(qty > 0) || !(price > 0) || (!/매수|매도|buy|sell/i.test(sideText))) continue;
+          var marketText = clean(row[marketAt]), market = /한국|KR/i.test(marketText) ? "KR" : "US";
+          var fx = fxAt >= 0 ? numberValue(row[fxAt]) : 0;
+          imported.push({ id: S.id("tx"), accountId: activeId, date: date, market: market, ticker: S.tickerFor(ticker, market), side: /매도|sell/i.test(sideText) ? "sell" : "buy", qty: qty, price: price, fx: fx > 0 ? fx : (market === "US" ? Number(state.fx && state.fx.price) || 1350 : 1), createdAt: new Date().toISOString() + "-" + i });
+        }
+        if (!imported.length) throw new Error("empty");
+        var existing = state.transactions.filter(function (t) { return t.accountId === activeId; }).length;
+        if (existing && !confirm("현재 포트폴리오에 매매 기록 " + imported.length + "건을 추가할까요? 같은 파일을 다시 가져오면 거래가 중복됩니다.")) return;
+        state.transactions = state.transactions.concat(imported); S.save(state); render(); setUpdated("엑셀 " + imported.length + "건을 이 브라우저에 저장함"); refresh();
+      } catch (e) { alert("첫 시트에서 날짜·시장·종목명/티커·매수/매도·주식 수·체결단가 열을 찾지 못했습니다."); }
+    };
+    reader.readAsArrayBuffer(file);
+  }
   function wire() {
     var form = document.getElementById("transaction-form"); form.date.value = new Date().toISOString().slice(0,10); form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : "";
     form.addEventListener("submit", function (e) { e.preventDefault(); var fd = new FormData(form), market = fd.get("market"), ticker = S.tickerFor(fd.get("ticker"),market), qty = Number(fd.get("qty")), price = Number(fd.get("price")); if (!ticker || !(qty>0) || !(price>0)) return; state.transactions.push({ id:S.id("tx"), accountId:activeId, date:fd.get("date"), market:market, ticker:ticker, side:fd.get("side"), qty:qty, price:price, fx:Number(fd.get("fx")) || Number(state.fx && state.fx.price) || 1350, createdAt:new Date().toISOString() }); S.save(state); form.reset(); form.date.value = new Date().toISOString().slice(0,10); form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : ""; render(); refresh(); });
     document.getElementById("add-account").onclick = function () { var name = prompt("새 포트폴리오 이름", "포트폴리오 " + (state.accounts.length + 1)); if (!name || !name.trim()) return; var a={id:S.id("account"),name:name.trim()}; state.accounts.push(a); activeId=a.id; S.save(state); render(); };
     document.getElementById("rename-account").onclick = function () { var a=active(), name=prompt("포트폴리오 이름",a.name); if(!name||!name.trim())return;a.name=name.trim();S.save(state);render(); };
     document.getElementById("delete-account").onclick = function () { if(state.accounts.length<=1){alert("포트폴리오는 하나 이상 남겨야 합니다.");return;}var a=active();if(!confirm(a.name+"과 해당 매매 기록을 삭제할까요?"))return;state.accounts=state.accounts.filter(function(x){return x.id!==a.id;});state.transactions=state.transactions.filter(function(x){return x.accountId!==a.id;});activeId=state.accounts[0].id;S.save(state);render(); };
+    document.getElementById("cash-settings").addEventListener("submit", function (e) { e.preventDefault(); var a = active(); a.cashKrw = Math.max(0, Number(document.getElementById("cash-krw").value) || 0); a.cashUsd = Math.max(0, Number(document.getElementById("cash-usd").value) || 0); S.save(state); render(); setUpdated("예수금을 이 브라우저에 저장함"); });
     document.getElementById("buy-form").addEventListener("submit",function(e){e.preventDefault();var f=new FormData(e.currentTarget),ticker=String(f.get("ticker")||"").trim().toUpperCase(),reason=String(f.get("reason")||"").trim();if(!ticker||!reason)return;state.buyList.push({id:S.id("buy"),ticker:ticker,reason:reason,createdAt:new Date().toISOString()});S.save(state);e.currentTarget.reset();renderLists();});
     document.getElementById("watch-form").addEventListener("submit",function(e){e.preventDefault();var f=new FormData(e.currentTarget),market=f.get("market"),ticker=S.tickerFor(f.get("ticker"),market);if(!ticker)return;if(state.watchlist.some(function(x){return S.groupKey(x.market,x.ticker)===S.groupKey(market,ticker);})){return;}state.watchlist.push({id:S.id("watch"),market:market,ticker:ticker,createdAt:new Date().toISOString()});S.save(state);e.currentTarget.reset();renderLists();refresh();});
+    var importButton = document.getElementById("portfolio-import-button"), importFile = document.getElementById("portfolio-import-file");
+    importButton.onclick = function () { importFile.click(); };
+    importFile.onchange = function () { importTransactions(importFile.files && importFile.files[0]); importFile.value = ""; };
   }
   async function refresh() { setUpdated("시세 갱신 중…"); try { state = await S.refresh(state); setUpdated("시세 갱신 " + new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})); } catch(e) { setUpdated("마지막 저장 시세 표시"); } render(); }
   wire(); render(); refresh();

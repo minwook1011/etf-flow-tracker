@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>포트폴리오 관리 — VANTAGE</title>
 <link rel="stylesheet" href="theme.css?v=20260909b">
-<link rel="stylesheet" href="portfolio.css?v=20260909a">
+<link rel="stylesheet" href="portfolio.css?v=20260909b">
 </head>
 <body>
 <header id="topnav"></header>
@@ -16,6 +16,12 @@
   <section class="portfolio-overview" aria-label="포트폴리오 현황">
     <div class="account-tabs" id="account-tabs"></div>
     <div class="account-actions"><button class="quiet-btn" id="rename-account">이름 변경</button><button class="quiet-btn" id="delete-account">계좌 삭제</button><button class="add-btn" id="add-account">+ 포트폴리오 추가</button></div>
+    <form class="cash-settings" id="cash-settings">
+      <label>원화 예수금<input id="cash-krw" type="number" min="0" step="1" placeholder="0"></label>
+      <label>외화 예수금 <small>USD</small><input id="cash-usd" type="number" min="0" step="0.01" placeholder="0.00"></label>
+      <div class="cash-converted"><span>외화 환산액</span><b id="cash-usd-krw">₩0</b><small id="cash-fx-rate">USD/KRW —</small></div>
+      <button class="quiet-btn" type="submit">예수금 저장</button>
+    </form>
     <div id="portfolio-summary"></div>
   </section>
 
@@ -26,6 +32,7 @@
 
   <section class="section portfolio-section transaction-section">
     <h2>신규 매수 · 매도<span class="sub">입력 후 저장하면 보유수량과 평단가에 반영</span></h2>
+    <div class="local-import"><div><b>엑셀에서 매매내역 가져오기</b><span>파일은 이 브라우저에서만 읽고 저장됩니다.</span></div><input type="file" id="portfolio-import-file" accept=".xlsx,.xls" hidden><button class="quiet-btn" type="button" id="portfolio-import-button">첫 시트 가져오기</button></div>
     <form class="transaction-form" id="transaction-form">
       <label>날짜<input type="date" name="date" required></label>
       <label>시장<select name="market"><option value="US">미국</option><option value="KR">한국</option></select></label>
@@ -53,7 +60,8 @@
   </section>
 </main>
 <script src="theme.js?v=20260909a"></script>
-<script src="portfolio-store.js?v=20260909a"></script>
-<script src="portfolio.js?v=20260909a"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<script src="portfolio-store.js?v=20260909c"></script>
+<script src="portfolio.js?v=20260909b"></script>
 </body>
 </html>

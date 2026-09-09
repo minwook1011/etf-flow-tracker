@@ -3,7 +3,7 @@
   "use strict";
   var KEY = "vantage-portfolio-v1";
   var DEFAULT = {
-    accounts: [{ id: "portfolio-1", name: "포트폴리오 1" }, { id: "portfolio-2", name: "포트폴리오 2" }],
+    accounts: [{ id: "portfolio-1", name: "포트폴리오 1", cashKrw: 0, cashUsd: 0 }, { id: "portfolio-2", name: "포트폴리오 2", cashKrw: 0, cashUsd: 0 }],
     transactions: [], buyList: [], watchlist: [], prices: {}, fx: null
   };
   function id(prefix) { return prefix + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
