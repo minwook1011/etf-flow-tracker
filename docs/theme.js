@@ -2,6 +2,7 @@
 (function () {
   var PAGES = [
     ["index.html", "시작"],
+    ["portfolio.html", "포트폴리오"],
     ["dashboard.html", "섹터 대시보드"],
     ["megacap.html", "글로벌 메가캡"],
     ["bottomup.html", "Bottom-up 발굴"],

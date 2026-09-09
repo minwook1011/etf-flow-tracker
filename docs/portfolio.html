@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>포트폴리오 관리 — VANTAGE</title>
+<link rel="stylesheet" href="theme.css?v=20260909a">
+<link rel="stylesheet" href="portfolio.css?v=20260909a">
+</head>
+<body>
+<header id="topnav"></header>
+<main class="container portfolio-page">
+  <div class="kicker">Portfolio management · 개인 기록</div>
+  <div class="page-head"><h1>포트폴리오</h1><span class="upd" id="portfolio-updated">시세 불러오는 중…</span></div>
+
+  <section class="portfolio-overview" aria-label="포트폴리오 현황">
+    <div class="account-tabs" id="account-tabs"></div>
+    <div class="account-actions"><button class="quiet-btn" id="rename-account">이름 변경</button><button class="quiet-btn" id="delete-account">계좌 삭제</button><button class="add-btn" id="add-account">+ 포트폴리오 추가</button></div>
+    <div id="portfolio-summary"></div>
+  </section>
+
+  <section class="section portfolio-section">
+    <h2>보유 종목<span class="sub">매수·매도 기록에서 자동 계산</span></h2>
+    <div class="portfolio-table-wrap"><table class="portfolio-table"><thead><tr><th>종목</th><th>시장</th><th>보유수량</th><th>평단가</th><th>현재가</th><th>평가액</th><th>평가손익</th><th>비중</th></tr></thead><tbody id="holdings-body"></tbody></table></div>
+  </section>
+
+  <section class="section portfolio-section transaction-section">
+    <h2>신규 매수 · 매도<span class="sub">입력 후 저장하면 보유수량과 평단가에 반영</span></h2>
+    <form class="transaction-form" id="transaction-form">
+      <label>날짜<input type="date" name="date" required></label>
+      <label>시장<select name="market"><option value="US">미국</option><option value="KR">한국</option></select></label>
+      <label>티커<input name="ticker" placeholder="예: NVDA / 005930" autocomplete="off" required></label>
+      <label>구분<select name="side"><option value="buy">매수</option><option value="sell">매도</option></select></label>
+      <label>수량<input name="qty" type="number" min="0.0001" step="any" required></label>
+      <label>체결단가<input name="price" type="number" min="0.0001" step="any" required></label>
+      <label class="fx-input">매수/매도 환율<input name="fx" type="number" min="1" step="0.01" placeholder="자동"></label>
+      <button class="add-btn" type="submit">기록 저장</button>
+    </form>
+    <div class="recent-transactions" id="recent-transactions"></div>
+  </section>
+
+  <section class="watch-grid">
+    <div class="watch-panel buy-panel">
+      <div class="watch-head"><div><div class="kicker">BUYING LIST</div><h2>바잉리스트</h2></div><span>종목과 매수 이유</span></div>
+      <form class="watch-form buy-form" id="buy-form"><input name="ticker" placeholder="티커" required><input name="reason" placeholder="매수 이유를 적어주세요" required><button class="add-btn">추가</button></form>
+      <div class="buy-list" id="buy-list"></div>
+    </div>
+    <div class="watch-panel">
+      <div class="watch-head"><div><div class="kicker">WATCH LIST</div><h2>관심종목</h2></div><span>접속할 때마다 현재가 갱신</span></div>
+      <form class="watch-form" id="watch-form"><select name="market"><option value="US">미국</option><option value="KR">한국</option></select><input name="ticker" placeholder="티커" required><button class="add-btn">추가</button></form>
+      <div class="watch-list" id="watch-list"></div>
+    </div>
+  </section>
+</main>
+<script src="theme.js?v=20260909a"></script>
+<script src="portfolio-store.js?v=20260909a"></script>
+<script src="portfolio.js?v=20260909a"></script>
+</body>
+</html>
