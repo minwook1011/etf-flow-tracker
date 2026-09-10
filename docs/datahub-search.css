@@ -1,0 +1,39 @@
+.company-picker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 16px 0;
+  padding: 9px;
+  border: 1px solid rgba(64, 80, 112, .76);
+  border-radius: 10px;
+  background: rgba(8, 12, 20, .42);
+}
+.company-picker label { flex: 0 0 auto; color: #91a6ca; font: 700 11px var(--mono); }
+.company-picker input {
+  width: 230px;
+  min-width: 0;
+  padding: 8px 10px;
+  color: #e9efff;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: 0;
+  background: var(--bg2);
+  font: 700 12px var(--sans);
+}
+.company-picker input:focus { border-color: #6f9eff; }
+.company-picker button {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  color: #eef3ff;
+  border: 1px solid rgba(105, 150, 255, .7);
+  border-radius: 7px;
+  background: rgba(71, 109, 199, .36);
+  font: 750 11px var(--sans);
+  cursor: pointer;
+}
+.company-picker span { color: #71809a; font-size: 11px; }
+@media (max-width: 650px) {
+  .company-picker { flex-wrap: wrap; }
+  .company-picker input { width: calc(100% - 68px); }
+  .company-picker span { width: 100%; }
+}

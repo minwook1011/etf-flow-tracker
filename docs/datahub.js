@@ -46,7 +46,7 @@
     "Microsoft": ["AI 데이터센터 CAPEX", "AI 서비스 이용자", "클라우드 사용량", "기업 IT 지출", "금리·유동성"]
   };
   var activeCountry = "korea", activeCompany = "삼성전자", activeSeries = null;
-  var countryHost = document.getElementById("country-tabs"), seriesHost = document.getElementById("series-grid"), companyHost = document.getElementById("company-tabs");
+  var countryHost = document.getElementById("country-tabs"), seriesHost = document.getElementById("series-grid");
   function renderCountries() {
     countryHost.innerHTML = Object.keys(DATA).map(function (key) { return '<button class="country-tab' + (key === activeCountry ? ' on' : '') + '" type="button" data-country="' + key + '">' + DATA[key].label + '</button>'; }).join("");
     countryHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () { activeCountry = button.dataset.country; activeSeries = null; renderCountries(); renderSeries(); renderWorkbench(); }; });
@@ -59,12 +59,21 @@
     }).join("");
     seriesHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () { var item = group.series[Number(button.dataset.index)]; activeSeries = { name: item[0], desc: item[1] }; renderSeries(); renderWorkbench(); }; });
   }
-  function renderCompanies() {
-    companyHost.innerHTML = Object.keys(COMPANIES).map(function (name) { return '<button class="company-tab' + (name === activeCompany ? ' on' : '') + '" type="button" data-company="' + name + '">' + name + '</button>'; }).join("");
-    companyHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () { activeCompany = button.dataset.company; renderCompanies(); renderWorkbench(); }; });
+  function renderCompanyOptions() {
+    var names = {};
+    Object.keys(COMPANIES).forEach(function (name) { names[name] = true; });
+    Object.keys(DATA).forEach(function (key) {
+      DATA[key].series.forEach(function (series) { (series[2] || []).forEach(function (name) { names[name] = true; }); });
+    });
+    document.getElementById("company-options").innerHTML = Object.keys(names).sort().map(function (name) { return '<option value="' + name + '"></option>'; }).join("");
+  }
+  function selectCompany() {
+    var input = document.getElementById("company-search"), name = input.value.trim();
+    if (!name) return;
+    activeCompany = name; input.value = name; renderWorkbench();
   }
   function renderWorkbench() {
-    var links = COMPANIES[activeCompany] || [];
+    var links = COMPANIES[activeCompany] || ["연관 지표 등록 대기", "기업 실적 데이터 연결 대기", "주가와 함께 볼 외부 지표 추가 가능"];
     document.getElementById("chart-company").textContent = activeCompany;
     document.getElementById("relation-core").textContent = activeCompany;
     document.getElementById("relation-links").innerHTML = links.map(function (text) { return '<div class="relation-chip">' + text + '</div>'; }).join("");
@@ -74,5 +83,7 @@
     legend.style.opacity = activeSeries ? "1" : ".5";
   }
   document.getElementById("open-onboarding").onclick = function () { var box = document.getElementById("onboarding"); box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
-  renderCountries(); renderSeries(); renderCompanies(); renderWorkbench();
+  document.getElementById("company-apply").onclick = selectCompany;
+  document.getElementById("company-search").addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); selectCompany(); } });
+  renderCountries(); renderSeries(); renderCompanyOptions(); renderWorkbench();
 })();

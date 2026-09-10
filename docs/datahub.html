@@ -7,6 +7,7 @@
 <title>데이터 허브 — VANTAGE</title>
 <link rel="stylesheet" href="theme.css?v=20260909b">
 <link rel="stylesheet" href="datahub.css?v=20260910a">
+<link rel="stylesheet" href="datahub-search.css?v=20260910a">
 </head>
 <body>
 <header id="topnav"></header>
@@ -24,7 +25,7 @@
 
   <section class="workbench" aria-label="기업 연결 차트">
     <div class="workbench-head"><div><div class="kicker">COMPANY OVERLAY</div><h2>기업과 데이터, 한 화면에서</h2></div><span id="workbench-status">지표를 선택해 주세요</span></div>
-    <div class="company-tabs" id="company-tabs"></div>
+    <div class="company-picker"><label for="company-search">기업 선택</label><input id="company-search" list="company-options" value="삼성전자" placeholder="기업명 또는 티커 입력"><datalist id="company-options"></datalist><button type="button" id="company-apply">불러오기</button><span>직접 입력 가능 · 연결된 데이터는 자동으로 모입니다</span></div>
     <div class="workbench-grid">
       <article class="chart-shell">
         <div class="chart-top"><div><b id="chart-company">삼성전자</b><span id="chart-subtitle">연결할 지표를 선택하면 주가와 함께 표시됩니다</span></div><div class="chart-mode"><button class="on" type="button">시계열</button><button type="button">상관</button></div></div>
@@ -50,6 +51,6 @@
   </section>
 </main>
 <script src="theme.js?v=20260910a"></script>
-<script src="datahub.js?v=20260910b"></script>
+<script src="datahub.js?v=20260910c"></script>
 </body>
 </html>
