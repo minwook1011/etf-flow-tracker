@@ -29,7 +29,7 @@
       ["원자재", "구리 · 유가 · 희토류", ["TSMC", "삼성전자"]],
       ["글로벌 교역", "운임 · PMI · 수출입", ["삼성전자", "TSMC"]]
     ] },
-    industry: { label: "산업", code: "IND", series: [
+    industry: { label: "섹터", code: "SEC", series: [
       ["TSMC 월매출", "월매출 · YoY · 공정 믹스", ["TSMC", "삼성전자", "NVIDIA"]],
       ["첨단 패키징", "패키징 · 기판 · 테스트", ["TSMC", "삼성전자", "SK하이닉스"]],
       ["AI 데이터센터", "CAPEX · 서버 출하 · 전력", ["NVIDIA", "Amazon", "Microsoft"]],
