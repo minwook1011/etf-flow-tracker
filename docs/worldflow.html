@@ -115,9 +115,11 @@
 .pc-head { display: flex; align-items: start; gap: 10px; padding: 14px 14px 11px; border-bottom: 1px solid var(--border); }
 .pc-rank { flex: 0 0 auto; font: 800 11px/22px var(--mono); color: var(--accent); letter-spacing: .06em; }
 .pc-who { min-width: 0; flex: 1; }.pc-name { font-size: 15px; font-weight: 800; }.pc-firm { color: var(--muted); font-size: 12px; margin-top: 1px; }
+.pc-new { display:inline-flex; align-items:center; margin-left:7px; padding:2px 5px; border:1px solid rgba(96,144,255,.62); border-radius:4px; color:#b9ceff; background:rgba(59,111,230,.16); font:800 9px/1 var(--mono); letter-spacing:.08em; vertical-align:middle; }
 .pc-date { color: var(--faint); font: 11px/1.4 var(--mono); text-align: right; white-space: nowrap; }
-.pc-holdings { padding: 4px 14px 10px; }.pc-row { display: grid; grid-template-columns: 1fr 43px; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(50,59,79,.55); }
-.pc-row:last-child { border-bottom: 0; }.pc-security { min-width: 0; font-size: 12.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.pc-security .ticker { color: var(--accent); font: 700 11px var(--mono); margin-right: 5px; }.pc-class { color: var(--faint); font-size: 10.5px; margin-left: 4px; }.pc-weight { text-align: right; color: var(--text); font: 700 12px var(--mono); }
+.pc-holdings { padding: 4px 14px 10px; }.pc-holding { border-bottom:1px solid rgba(50,59,79,.55); }.pc-holding:last-child { border-bottom:0; }.pc-row { appearance:none; width:100%; display: grid; grid-template-columns: 1fr 43px; gap: 10px; padding: 8px 0; border:0; background:transparent; color:inherit; text-align:left; cursor:pointer; font:inherit; }
+.pc-row:hover .pc-security { color:#c8d8ff; }.pc-row:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }.pc-security { min-width: 0; font-size: 12.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.pc-security .ticker { color: var(--accent); font: 700 11px var(--mono); margin-right: 5px; }.pc-class { color: var(--faint); font-size: 10.5px; margin-left: 4px; }.pc-weight { text-align: right; color: var(--text); font: 700 12px var(--mono); }
+.thesis-drawer { margin:0 0 9px; padding:11px 11px 9px; border:1px solid rgba(91,140,255,.31); border-radius:8px; background:linear-gradient(135deg,rgba(35,52,88,.44),rgba(12,17,27,.68)); }.thesis-drawer[hidden] { display:none; }.thesis-title { display:flex; align-items:baseline; justify-content:space-between; gap:9px; margin-bottom:8px; }.thesis-title b { color:#dce7ff; font-size:12px; }.thesis-title span { color:var(--faint); font:10px var(--mono); white-space:nowrap; }.thesis-lines { list-style:none; counter-reset:thesis; }.thesis-lines li { position:relative; padding:3px 0 3px 19px; color:#aebbd0; font-size:11.5px; line-height:1.48; }.thesis-lines li::before { counter-increment:thesis; content:counter(thesis); position:absolute; left:0; top:4px; width:12px; height:12px; border-radius:50%; color:#9dbaff; background:rgba(97,143,255,.13); font:700 8px/12px var(--mono); text-align:center; }.thesis-disclaimer { margin-top:7px; color:#7d8aa0; font-size:10.5px; line-height:1.45; }
 .pc-foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--border); color: var(--faint); font-size: 11px; }.pc-foot a { color: var(--muted); font-weight: 700; }.pc-foot a:hover { color: var(--accent); text-decoration: none; }
 
 /* ===== 즐겨찾기 백업/복원 ===== */
@@ -317,6 +319,7 @@
 
 <script src="theme.js?v=20260909a"></script>
 <script src="stocks-common.js?v=20260904e"></script>
+<script src="investor-theses.js?v=20260910a"></script>
 <script>
 var EV = null, PP = null, INSIGHTS = [], PORTFOLIOS = null;
 var TYPE_LABEL = { tech: "테크·AI", investor: "투자자", policy: "정책", corp: "기업 공식" };
@@ -779,18 +782,40 @@ function portfolioDate(p) {
   if (p.source_type === "daily_etf") return p.as_of ? "기준 " + p.as_of : "거래일 기준";
   return (p.as_of ? "기준 " + p.as_of : "기준일 미표기") + (p.filing_date ? " · 신고 " + p.filing_date : "");
 }
+function portfolioIsNew(p) {
+  if (p.updated_at) {
+    var at = Date.parse(String(p.updated_at).replace(" KST", "+09:00"));
+    return !isNaN(at) && Date.now() - at < 7 * 24 * 60 * 60 * 1000;
+  }
+  // 새 메타데이터가 배포되기 전에는 매일 갱신되는 ARKK만 새 항목으로 표시한다.
+  return p.source_type === "daily_etf";
+}
+function portfolioThesis(p, h) {
+  var lines = window.InvestorTheses && window.InvestorTheses.lines ? window.InvestorTheses.lines(p, h) : [];
+  return '<div class="thesis-drawer" hidden><div class="thesis-title"><b>보유 논리 체크포인트</b><span>공개 자료 해석</span></div><ol class="thesis-lines">' + lines.map(function (line) { return '<li>' + escapeHtml(line) + '</li>'; }).join("") + '</ol><div class="thesis-disclaimer">투자자의 직접 발언이나 매수 시점을 뜻하지 않으며, 공개 보유 내역을 읽기 위한 요약입니다.</div></div>';
+}
 function renderPortfolios() {
   var host = $q("#portfolio-wrap");
   if (!host) return;
   if (!PORTFOLIOS) { host.innerHTML = '<div class="spin">공개 포트폴리오 불러오는 중…</div>'; return; }
   var list = (PORTFOLIOS.investors || []).slice().sort(function (a, b) { return a.rank - b.rank; });
   if (!list.length) { host.innerHTML = '<div class="empty">공개 포트폴리오 데이터가 아직 준비되지 않았습니다.</div>'; return; }
-  host.innerHTML = '<div class="portfolio-note"><b>공개 자료 기준.</b> 13F는 분기 공시이므로 최신 실제 매매와 다를 수 있습니다. 캐시 우드는 ARKK의 거래일 마감 후 공개 보유종목을 표시합니다. 투자 판단은 반드시 별도 확인이 필요합니다.</div><div class="portfolio-grid">' + list.map(function (p) {
+  host.innerHTML = '<div class="portfolio-note"><b>공개 자료 기준.</b> 13F는 분기 공시이므로 최신 실제 매매와 다를 수 있습니다. 캐시 우드는 ARKK의 거래일 마감 후 공개 보유종목을 표시합니다. <b>종목을 누르면 10줄 요약</b>이 펼쳐집니다. 이는 투자자의 직접 매수 이유가 아닌 공개 보유 기반의 체크포인트입니다.</div><div class="portfolio-grid">' + list.map(function (p) {
     var rows = (p.holdings || []).slice(0, 10).map(function (h) {
-      return '<div class="pc-row"><div class="pc-security">' + (h.ticker ? '<span class="ticker">' + escapeHtml(h.ticker) + '</span>' : '') + escapeHtml(h.name || '') + (h.class ? '<span class="pc-class">' + escapeHtml(h.class) + '</span>' : '') + '</div><div class="pc-weight">' + (Number(h.weight || 0)).toFixed(2) + '%</div></div>';
+      return '<div class="pc-holding"><button class="pc-row" type="button" aria-expanded="false"><div class="pc-security">' + (h.ticker ? '<span class="ticker">' + escapeHtml(h.ticker) + '</span>' : '') + escapeHtml(h.name || '') + (h.class ? '<span class="pc-class">' + escapeHtml(h.class) + '</span>' : '') + '</div><div class="pc-weight">' + (Number(h.weight || 0)).toFixed(2) + '%</div></button>' + portfolioThesis(p, h) + '</div>';
     }).join("") || '<div class="empty">이 신고서의 보유종목을 읽지 못했습니다.</div>';
-    return '<article class="portfolio-card"><div class="pc-head"><div class="pc-rank">#0' + p.rank + '</div><div class="pc-who"><div class="pc-name">' + escapeHtml(p.name) + '</div><div class="pc-firm">' + escapeHtml(p.firm) + '</div></div><div class="pc-date">' + escapeHtml(portfolioDate(p)) + '</div></div><div class="pc-holdings">' + rows + '</div><div class="pc-foot"><span>' + escapeHtml(p.disclosure || '') + '</span><a href="' + escapeHtml(p.source_url || '#') + '" target="_blank" rel="noopener">원문 ↗</a></div></article>';
+    return '<article class="portfolio-card"><div class="pc-head"><div class="pc-rank">#0' + p.rank + '</div><div class="pc-who"><div class="pc-name">' + escapeHtml(p.name) + (portfolioIsNew(p) ? '<span class="pc-new">NEW</span>' : '') + '</div><div class="pc-firm">' + escapeHtml(p.firm) + '</div></div><div class="pc-date">' + escapeHtml(portfolioDate(p)) + '</div></div><div class="pc-holdings">' + rows + '</div><div class="pc-foot"><span>' + escapeHtml(p.disclosure || '') + '</span><a href="' + escapeHtml(p.source_url || '#') + '" target="_blank" rel="noopener">원문 ↗</a></div></article>';
   }).join("") + '</div>';
+  $qa(".pc-row", host).forEach(function (button) {
+    button.onclick = function () {
+      var drawer = button.nextElementSibling, open = button.getAttribute("aria-expanded") === "true";
+      $qa(".pc-row[aria-expanded=\"true\"]", host).forEach(function (other) {
+        other.setAttribute("aria-expanded", "false");
+        if (other.nextElementSibling) other.nextElementSibling.hidden = true;
+      });
+      if (!open) { button.setAttribute("aria-expanded", "true"); drawer.hidden = false; }
+    };
+  });
 }
 
 function showPpSub(name) {

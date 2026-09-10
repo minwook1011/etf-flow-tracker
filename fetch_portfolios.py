@@ -149,6 +149,12 @@ def fetch_arkk():
 
 def main():
     print("=== 공개 투자자 포트폴리오 갱신 ===")
+    previous = {}
+    try:
+        with open(OUT, "r", encoding="utf-8") as f:
+            previous = {x.get("id"): x for x in json.load(f).get("investors", [])}
+    except (OSError, ValueError, AttributeError):
+        pass
     items = []
     for inv in INVESTORS:
         try:
@@ -173,8 +179,14 @@ def main():
     if not items:
         print("[경고] 전부 실패 — 기존 파일 유지")
         return
+    now = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+    for item in items:
+        old = previous.get(item["id"], {})
+        old_signature = json.dumps({"as_of": old.get("as_of"), "filing_date": old.get("filing_date"), "holdings": old.get("holdings")}, sort_keys=True)
+        new_signature = json.dumps({"as_of": item.get("as_of"), "filing_date": item.get("filing_date"), "holdings": item.get("holdings")}, sort_keys=True)
+        item["updated_at"] = old.get("updated_at") if old_signature == new_signature and old.get("updated_at") else now
     payload = {
-        "updated": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),
+        "updated": now,
         "notice": "공시·공개 보유종목 기준이며 투자 조언이 아닙니다.",
         "investors": sorted(items, key=lambda x: x["rank"]),
     }
