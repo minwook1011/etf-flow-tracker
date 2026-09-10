@@ -8,13 +8,6 @@
       ["외국인 수급", "코스피 · 업종별 순매수", ["삼성전자", "SK하이닉스"]],
       ["제조업 가동률", "생산 · 재고 · 출하", ["삼성전자", "현대차"]]
     ] },
-    taiwan: { label: "대만", code: "TWN", series: [
-      ["TSMC 월매출", "월매출 · YoY · 공정 믹스", ["TSMC", "삼성전자", "NVIDIA"]],
-      ["반도체 수출", "품목별 수출액 · 단가", ["TSMC", "ASE"]],
-      ["패키징·기판", "첨단 패키징 · IC 기판", ["ASE", "TSMC", "삼성전자"]],
-      ["서버 ODM", "AI 서버 출하 · 매출", ["NVIDIA", "TSMC"]],
-      ["전력·용수", "산업 인프라 사용량", ["TSMC"]]
-    ] },
     usa: { label: "미국", code: "USA", series: [
       ["AI 데이터센터 CAPEX", "하이퍼스케일러 투자 · 가이던스", ["NVIDIA", "Amazon", "Microsoft"]],
       ["GPU 임대료", "GPU별 일간 임대 지수", ["NVIDIA", "CoreWeave"]],
@@ -22,21 +15,35 @@
       ["AI 서비스 이용자", "MAU · 트래픽 · 구독", ["Microsoft", "NVIDIA"]],
       ["기업 IT 지출", "소프트웨어 · 인프라 지출", ["Microsoft", "Amazon"]]
     ] },
-    global: { label: "글로벌", code: "GLB", series: [
-      ["DRAM · NAND 가격", "현물 · 계약가격 · 재고", ["삼성전자", "SK하이닉스"]],
-      ["해운·운임", "컨테이너 · 항공화물 지수", ["삼성전자", "TSMC"]],
-      ["달러·금리", "DXY · 국채금리 · 환율", ["삼성전자", "Amazon", "Microsoft"]],
+    japan: { label: "일본", code: "JPN", series: [
+      ["반도체 장비 수주", "장비 주문 · 출하 · 가동률", ["TSMC", "삼성전자", "NVIDIA"]],
+      ["로봇·자동화", "산업용 로봇 · 공장 자동화", ["삼성전자", "현대차"]],
+      ["일본 수출", "기계 · 전자부품 · 소재", ["TSMC", "삼성전자"]],
+      ["엔화·금리", "USD/JPY · 국채금리 · 정책", ["삼성전자", "TSMC"]],
+      ["전력·소재", "전력 인프라 · 핵심 소재", ["TSMC", "NVIDIA"]]
+    ] },
+    macro: { label: "매크로", code: "MAC", series: [
+      ["달러·환율", "DXY · 원/달러 · 엔/달러", ["삼성전자", "TSMC", "Amazon"]],
+      ["금리·유동성", "국채금리 · 실질금리 · 유동성", ["NVIDIA", "Microsoft", "Amazon"]],
+      ["신용 스프레드", "회사채 · 하이일드 · 금융여건", ["삼성전자", "NVIDIA"]],
       ["원자재", "구리 · 유가 · 희토류", ["TSMC", "삼성전자"]],
-      ["데이터센터 전력", "전력수요 · 발전설비 · 전력가격", ["NVIDIA", "Amazon", "Microsoft"]]
+      ["글로벌 교역", "운임 · PMI · 수출입", ["삼성전자", "TSMC"]]
+    ] },
+    industry: { label: "산업", code: "IND", series: [
+      ["TSMC 월매출", "월매출 · YoY · 공정 믹스", ["TSMC", "삼성전자", "NVIDIA"]],
+      ["첨단 패키징", "패키징 · 기판 · 테스트", ["TSMC", "삼성전자", "SK하이닉스"]],
+      ["AI 데이터센터", "CAPEX · 서버 출하 · 전력", ["NVIDIA", "Amazon", "Microsoft"]],
+      ["GPU 임대료", "GPU별 일간 임대 지수", ["NVIDIA", "CoreWeave"]],
+      ["DRAM · NAND 가격", "현물 · 계약가격 · 재고", ["삼성전자", "SK하이닉스"]]
     ] }
   };
   var COMPANIES = {
-    "삼성전자": ["한국 반도체 수출", "메모리 가격", "TSMC 월매출", "DRAM · NAND 가격", "외국인 수급"],
+    "삼성전자": ["한국 반도체 수출", "메모리 가격", "TSMC 월매출", "DRAM · NAND 가격", "달러·환율"],
     "SK하이닉스": ["한국 반도체 수출", "메모리 가격", "TSMC 월매출", "DRAM · NAND 가격", "첨단 패키징"],
-    "TSMC": ["TSMC 월매출", "대만 반도체 수출", "첨단 패키징", "서버 ODM", "전력·용수"],
-    "NVIDIA": ["AI 데이터센터 CAPEX", "GPU 임대료", "TSMC 월매출", "서버 ODM", "데이터센터 전력"],
-    "Amazon": ["AI 데이터센터 CAPEX", "클라우드 사용량", "기업 IT 지출", "달러·금리", "데이터센터 전력"],
-    "Microsoft": ["AI 데이터센터 CAPEX", "AI 서비스 이용자", "클라우드 사용량", "기업 IT 지출", "달러·금리"]
+    "TSMC": ["TSMC 월매출", "반도체 장비 수주", "첨단 패키징", "일본 수출", "전력·소재"],
+    "NVIDIA": ["AI 데이터센터 CAPEX", "GPU 임대료", "TSMC 월매출", "AI 데이터센터", "금리·유동성"],
+    "Amazon": ["AI 데이터센터 CAPEX", "클라우드 사용량", "기업 IT 지출", "달러·환율", "금리·유동성"],
+    "Microsoft": ["AI 데이터센터 CAPEX", "AI 서비스 이용자", "클라우드 사용량", "기업 IT 지출", "금리·유동성"]
   };
   var activeCountry = "korea", activeCompany = "삼성전자", activeSeries = null;
   var countryHost = document.getElementById("country-tabs"), seriesHost = document.getElementById("series-grid"), companyHost = document.getElementById("company-tabs");
