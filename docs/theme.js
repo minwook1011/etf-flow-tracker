@@ -11,6 +11,7 @@
     ["news.html", "실시간 뉴스"],
     ["earnings.html", "미국 주요 실적 정리"],
     ["macro.html", "매크로 및 투자전략"],
+    ["datahub.html", "데이터 허브"],
   ];
   var here = location.pathname.split("/").pop() || "index.html";
   var nav = document.getElementById("topnav");
