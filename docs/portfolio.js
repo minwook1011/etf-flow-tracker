@@ -107,6 +107,36 @@
     };
     reader.readAsArrayBuffer(file);
   }
+  function backupPayload() {
+    return { format: "vantage-portfolio-backup", version: 1, exportedAt: new Date().toISOString(), data: state };
+  }
+  function exportBackup() {
+    var blob = new Blob([JSON.stringify(backupPayload(), null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = "vantage-portfolio-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    setUpdated("전체 기록을 백업 파일로 저장함");
+  }
+  function validBackup(raw) {
+    var data = raw && raw.format === "vantage-portfolio-backup" ? raw.data : null;
+    if (!data || !Array.isArray(data.accounts) || !Array.isArray(data.transactions) || !Array.isArray(data.buyList) || !Array.isArray(data.watchlist)) return null;
+    if (!data.accounts.length) return null;
+    return { accounts: data.accounts, transactions: data.transactions, buyList: data.buyList, watchlist: data.watchlist, prices: data.prices || {}, fx: data.fx || null };
+  }
+  function importBackup(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onerror = function () { alert("백업 파일을 읽지 못했습니다."); };
+    reader.onload = function () {
+      try {
+        var restored = validBackup(JSON.parse(reader.result));
+        if (!restored) throw new Error("invalid");
+        if (!confirm("이 백업으로 현재 컴퓨터의 포트폴리오 기록 전체를 바꿀까요?")) return;
+        state = restored; activeId = state.accounts[0].id; S.save(state); render(); setUpdated("백업을 복원함 · 시세를 갱신하는 중"); refresh();
+      } catch (e) { alert("VANTAGE 포트폴리오 백업 파일이 아니거나 파일 형식이 올바르지 않습니다."); }
+    };
+    reader.readAsText(file);
+  }
   function wire() {
     var form = document.getElementById("transaction-form"); form.date.value = lastTransactionDate; form.fx.value = state.fx && state.fx.price ? Number(state.fx.price).toFixed(2) : "";
     form.date.addEventListener("change", function () { if (form.date.value) lastTransactionDate = form.date.value; });
@@ -120,6 +150,10 @@
     var importButton = document.getElementById("portfolio-import-button"), importFile = document.getElementById("portfolio-import-file");
     importButton.onclick = function () { importFile.click(); };
     importFile.onchange = function () { importTransactions(importFile.files && importFile.files[0]); importFile.value = ""; };
+    var backupExport = document.getElementById("portfolio-backup-export"), backupImport = document.getElementById("portfolio-backup-import"), backupFile = document.getElementById("portfolio-backup-file");
+    backupExport.onclick = exportBackup;
+    backupImport.onclick = function () { backupFile.click(); };
+    backupFile.onchange = function () { importBackup(backupFile.files && backupFile.files[0]); backupFile.value = ""; };
   }
   async function refresh() { setUpdated("시세 갱신 중…"); try { state = await S.refresh(state); setUpdated("시세 갱신 " + new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})); } catch(e) { setUpdated("마지막 저장 시세 표시"); } render(); }
   wire(); render(); refresh();

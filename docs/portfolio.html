@@ -6,7 +6,7 @@
 <script src="gate.js?v=20260909a"></script>
 <title>포트폴리오 관리 — VANTAGE</title>
 <link rel="stylesheet" href="theme.css?v=20260909b">
-<link rel="stylesheet" href="portfolio.css?v=20260909d">
+<link rel="stylesheet" href="portfolio.css?v=20260910a">
 </head>
 <body>
 <header id="topnav"></header>
@@ -33,6 +33,7 @@
 
   <section class="section portfolio-section transaction-section">
     <h2>신규 매수 · 매도<span class="sub">입력 후 저장하면 보유수량과 평단가에 반영</span></h2>
+    <div class="local-import portfolio-transfer"><div><b>내 포트폴리오 백업 · 복원</b><span>직접 입력한 예수금·계좌·매매기록·관심종목까지 한 파일로 옮깁니다. 파일은 공개 사이트에 올라가지 않습니다.</span></div><div class="transfer-actions"><input type="file" id="portfolio-backup-file" accept="application/json,.json" hidden><button class="quiet-btn" type="button" id="portfolio-backup-export">전체 기록 내보내기</button><button class="quiet-btn" type="button" id="portfolio-backup-import">백업 가져오기</button></div></div>
     <div class="local-import"><div><b>엑셀에서 매매내역 가져오기</b><span>파일은 이 브라우저에서만 읽고 저장됩니다.</span></div><input type="file" id="portfolio-import-file" accept=".xlsx,.xls" hidden><button class="quiet-btn" type="button" id="portfolio-import-button">첫 시트 가져오기</button></div>
     <form class="transaction-form" id="transaction-form">
       <label>날짜<input type="date" name="date" required></label>
@@ -63,6 +64,6 @@
 <script src="theme.js?v=20260909a"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <script src="portfolio-store.js?v=20260909d"></script>
-<script src="portfolio.js?v=20260909g"></script>
+<script src="portfolio.js?v=20260910a"></script>
 </body>
 </html>
