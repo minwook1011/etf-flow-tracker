@@ -158,7 +158,7 @@
 .brief-stats .bs-v { font-family: var(--mono); font-weight: 900; font-size: 19px; letter-spacing: -.01em; }
 .brief-stats .bs-l { color: var(--muted); font-size: 11.5px; margin-top: 3px; line-height: 1.4; }
 .flow-label { font-size: 15px; font-weight: 900; margin: 4px 0 12px; }
-.flow-label .sub { color: var(--muted); font-size: 12px; font-weight: 600; margin-left: 8px; }
+.flow-label .sub { color: var(--muted); font-size: 12px; font-weight: 600; margin-left: 8px; }.flow-label .date { display:inline-block; margin-left:8px; padding:3px 7px; border:1px solid rgba(87,112,164,.42); border-radius:999px; color:#a9bee9; background:rgba(66,91,148,.12); font:700 10px var(--mono); letter-spacing:.02em; vertical-align:1px; }
 .flow-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
 .flow-card { border: 1px solid var(--border); border-left-width: 3px; border-radius: 13px; padding: 16px 18px;
   background: var(--card); color: var(--text); }            /* ★ color 고정: .up/.dn 색 상속 차단 */
@@ -904,7 +904,7 @@ function renderBrief() {
         (b.summary ? briefThreeLines(b.summary, b.highlights) + '<details class="bh-summary"><summary>전체 브리핑 보기</summary><div class="md">' + mdRender(b.summary) + "</div></details>" : "") +
         (stats ? '<div class="brief-stats">' + stats + "</div>" : "") +
       "</div>" +
-      (flows ? '<div class="flow-label">발언은 어디로 향하나 <span class="sub">방향 → 밸류체인</span></div><div class="flow-grid">' + flows + "</div>" : "");
+      (flows ? '<div class="flow-label">발언은 어디로 향하나 <span class="date">' + escapeHtml(b.date_range || b.week || "날짜 미표기") + '</span><span class="sub">방향 → 밸류체인</span></div><div class="flow-grid">' + flows + "</div>" : "");
   }
   paint(0);
   $qa(".brief-chip").forEach(function (c) {
