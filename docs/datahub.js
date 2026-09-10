@@ -45,8 +45,12 @@
     "Amazon": ["AI 데이터센터 CAPEX", "클라우드 사용량", "기업 IT 지출", "달러·환율", "금리·유동성"],
     "Microsoft": ["AI 데이터센터 CAPEX", "AI 서비스 이용자", "클라우드 사용량", "기업 IT 지출", "금리·유동성"]
   };
-  var activeCountry = "korea", activeCompany = "삼성전자", activeSeries = null;
+  var FAVORITE_KEY = "vantage-datahub-favorite-companies-v1";
+  var activeCountry = "korea", activeCompany = "삼성전자", activeSeries = null, favorites = loadFavorites();
   var countryHost = document.getElementById("country-tabs"), seriesHost = document.getElementById("series-grid");
+  function esc(value) { return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function loadFavorites() { try { var saved = JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]"); return Array.isArray(saved) ? saved.filter(function (name) { return typeof name === "string" && name.trim(); }).slice(0, 30) : []; } catch (e) { return []; } }
+  function saveFavorites() { try { localStorage.setItem(FAVORITE_KEY, JSON.stringify(favorites)); } catch (e) {} }
   function renderCountries() {
     countryHost.innerHTML = Object.keys(DATA).map(function (key) { return '<button class="country-tab' + (key === activeCountry ? ' on' : '') + '" type="button" data-country="' + key + '">' + DATA[key].label + '</button>'; }).join("");
     countryHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () { activeCountry = button.dataset.country; activeSeries = null; renderCountries(); renderSeries(); renderWorkbench(); }; });
@@ -65,12 +69,23 @@
     Object.keys(DATA).forEach(function (key) {
       DATA[key].series.forEach(function (series) { (series[2] || []).forEach(function (name) { names[name] = true; }); });
     });
-    document.getElementById("company-options").innerHTML = Object.keys(names).sort().map(function (name) { return '<option value="' + name + '"></option>'; }).join("");
+    document.getElementById("company-options").innerHTML = Object.keys(names).sort().map(function (name) { return '<option value="' + esc(name) + '"></option>'; }).join("");
   }
   function selectCompany() {
     var input = document.getElementById("company-search"), name = input.value.trim();
     if (!name) return;
     activeCompany = name; input.value = name; renderWorkbench();
+  }
+  function renderFavorites() {
+    var host = document.getElementById("company-favorite-list");
+    host.innerHTML = favorites.length ? favorites.map(function (name) { return '<span class="favorite-company"><button class="favorite-name" type="button" data-favorite-company="' + esc(name) + '"><i>★</i>' + esc(name) + '</button><button class="favorite-remove" type="button" data-favorite-remove="' + esc(name) + '" aria-label="즐겨찾기 삭제">×</button></span>'; }).join("") : '<span class="favorite-empty">아직 고정한 기업이 없습니다</span>';
+    host.querySelectorAll("[data-favorite-company]").forEach(function (button) { button.onclick = function () { activeCompany = button.dataset.favoriteCompany; document.getElementById("company-search").value = activeCompany; renderWorkbench(); }; });
+    host.querySelectorAll("[data-favorite-remove]").forEach(function (button) { button.onclick = function (event) { event.stopPropagation(); favorites = favorites.filter(function (name) { return name !== button.dataset.favoriteRemove; }); saveFavorites(); renderFavorites(); renderWorkbench(); }; });
+  }
+  function toggleFavorite() {
+    var index = favorites.indexOf(activeCompany);
+    if (index >= 0) favorites.splice(index, 1); else favorites.unshift(activeCompany);
+    favorites = favorites.slice(0, 30); saveFavorites(); renderFavorites(); renderWorkbench();
   }
   function renderWorkbench() {
     var links = COMPANIES[activeCompany] || ["연관 지표 등록 대기", "기업 실적 데이터 연결 대기", "주가와 함께 볼 외부 지표 추가 가능"];
@@ -81,9 +96,13 @@
     document.getElementById("workbench-status").textContent = activeSeries ? activeSeries.name + ' 선택됨' : '지표를 선택해 주세요';
     var legend = document.getElementById("chart-legend");
     legend.style.opacity = activeSeries ? "1" : ".5";
+    var favoriteButton = document.getElementById("company-favorite-toggle"), isFavorite = favorites.indexOf(activeCompany) >= 0;
+    favoriteButton.textContent = isFavorite ? "★ 즐겨찾기" : "☆ 즐겨찾기";
+    favoriteButton.classList.toggle("on", isFavorite);
   }
   document.getElementById("open-onboarding").onclick = function () { var box = document.getElementById("onboarding"); box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
   document.getElementById("company-apply").onclick = selectCompany;
   document.getElementById("company-search").addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); selectCompany(); } });
-  renderCountries(); renderSeries(); renderCompanyOptions(); renderWorkbench();
+  document.getElementById("company-favorite-toggle").onclick = toggleFavorite;
+  renderCountries(); renderSeries(); renderCompanyOptions(); renderFavorites(); renderWorkbench();
 })();
