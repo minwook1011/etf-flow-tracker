@@ -11,13 +11,14 @@
   /* 시세를 못 받아온 종목을 0원으로 계산하면 매수금액 전체가 손실처럼 보인다.
      따라서 모든 보유 종목에 유효 시세가 있을 때만 평가액과 평가손익을 확정한다. */
   function valuation() {
-    var holdings = S.aggregate(state, activeId), pending = holdings.filter(function (h) { return h.valueKrw == null; });
+    var holdings = S.aggregate(state, activeId), pending = holdings.filter(function (h) { return h.valueKrw == null; }), valued = holdings.filter(function (h) { return h.valueKrw != null; });
     return {
       holdings: holdings,
       pending: pending,
       complete: pending.length === 0,
-      valueKrw: pending.length ? null : holdings.reduce(function (sum, h) { return sum + h.valueKrw; }, 0),
-      costKrw: pending.length ? null : holdings.reduce(function (sum, h) { return sum + h.costKrw; }, 0)
+      valued: valued,
+      valueKrw: valued.reduce(function (sum, h) { return sum + h.valueKrw; }, 0),
+      costKrw: valued.reduce(function (sum, h) { return sum + h.costKrw; }, 0)
     };
   }
   function holdingsValue() { return valuation().valueKrw; }
@@ -25,11 +26,7 @@
     var account = active(), fx = Number(state.fx && state.fx.price) || 1350, krw = Math.max(0, Number(account.cashKrw) || 0), usd = Math.max(0, Number(account.cashUsd) || 0);
     return { krw: krw, usd: usd, fx: fx, usdKrw: usd * fx, total: krw + usd * fx };
   }
-  function allValue() {
-    var stockValue = holdingsValue();
-    /* 보유 종목이 없을 때는 예수금만으로 총 자산을 정상 표시한다. */
-    return stockValue == null ? (S.aggregate(state, activeId).length ? null : cashInfo().total) : stockValue + cashInfo().total;
-  }
+  function allValue() { return holdingsValue() + cashInfo().total; }
   function renderTabs() {
     document.getElementById("account-tabs").innerHTML = state.accounts.map(function (a) {
       return '<button class="account-tab' + (a.id === activeId ? " on" : "") + '" data-account="' + esc(a.id) + '">' + esc(a.name) + '</button>';
@@ -47,11 +44,11 @@
     return '<div class="ring-block"><div class="allocation-ring"><svg viewBox="0 0 220 220"><circle class="ring-track" cx="110" cy="110" r="88"></circle>' + paths + '</svg><div class="ring-center"><span class="label">주식 비중</span><b>' + stockPct.toFixed(1) + '%</b><small>현금 비중 ' + cashPct.toFixed(1) + '%</small><em>원화 환산 기준</em></div></div><div class="ring-legend">' + legend + '</div></div>';
   }
   function renderSummary() {
-    var account = active(), snapshot = valuation(), holdings = snapshot.holdings, invested = snapshot.valueKrw, cash = cashInfo(), total = allValue(), cost = snapshot.costKrw, pnl = invested == null || cost == null ? null : invested - cost, rate = cost ? pnl / cost * 100 : null, fxLabel = num(cash.fx, 2);
+    var account = active(), snapshot = valuation(), holdings = snapshot.holdings, invested = snapshot.valueKrw, cash = cashInfo(), total = allValue(), cost = snapshot.costKrw, pnl = invested - cost, rate = cost ? pnl / cost * 100 : null, fxLabel = num(cash.fx, 2);
     var allocation = holdings.slice(); if (cash.krw) allocation.push({ ticker: "원화 예수금", valueKrw: cash.krw }); if (cash.usdKrw) allocation.push({ ticker: "외화 예수금", valueKrw: cash.usdKrw });
-    var list = allocation.map(function (h, i) { var label = h.ticker === "원화 예수금" || h.ticker === "외화 예수금" ? h.ticker : S.displayTicker(h.ticker), weight = total && h.valueKrw != null ? h.valueKrw / total * 100 : 0; return '<div class="allocation-item"><i class="dot" style="background:' + COLORS[i % COLORS.length] + '"></i><span class="name">' + esc(label) + '</span><span class="weight">' + (total == null && h.valueKrw == null ? '시세 대기' : weight.toFixed(1) + '%') + '</span></div>'; }).join("") || '<div class="allocation-item"><span></span><span class="name">예수금 또는 매수 기록을 추가하세요.</span><span></span></div>';
-    var shownPnl = cost ? pnl : null, pendingNote = snapshot.pending.length ? '<small>시세 수신 대기 ' + snapshot.pending.length + '종목 · 손익은 시세 확인 후 계산됩니다.</small>' : '<small>' + pct(rate) + '</small>';
-    document.getElementById("portfolio-summary").innerHTML = '<div class="summary-grid">' + ring(allocation, total, holdings.length) + '<div class="summary-side"><div class="summary-title"><h3>' + esc(account.name) + '</h3><span>USD/KRW ' + fxLabel + '</span></div><div class="summary-metrics"><div class="metric"><span>총 자산</span><b>' + krw(total) + '</b></div><div class="metric"><span>주식 평가액</span><b>' + krw(invested) + '</b></div><div class="metric"><span>총 예수금</span><b>' + krw(cash.total) + '</b></div><div class="metric"><span>주식 평가손익</span><b class="' + (shownPnl == null ? "" : shownPnl >= 0 ? "pos" : "neg") + '">' + krw(shownPnl) + pendingNote + '</b></div></div><div class="allocation-list">' + list + '</div></div></div>';
+    var list = allocation.map(function (h, i) { var label = h.ticker === "원화 예수금" || h.ticker === "외화 예수금" ? h.ticker : S.displayTicker(h.ticker), weight = total && h.valueKrw != null ? h.valueKrw / total * 100 : 0; return '<div class="allocation-item"><i class="dot" style="background:' + COLORS[i % COLORS.length] + '"></i><span class="name">' + esc(label) + '</span><span class="weight">' + (h.valueKrw == null ? '시세 대기' : weight.toFixed(1) + '%') + '</span></div>'; }).join("") || '<div class="allocation-item"><span></span><span class="name">예수금 또는 매수 기록을 추가하세요.</span><span></span></div>';
+    var shownPnl = cost ? pnl : null, pendingNote = snapshot.pending.length ? '<small>시세 수신 대기 ' + snapshot.pending.length + '종목 · 아래 금액은 확인된 시세 기준입니다.</small>' : '<small>' + pct(rate) + '</small>', partial = snapshot.pending.length ? ' (일부)' : '';
+    document.getElementById("portfolio-summary").innerHTML = '<div class="summary-grid">' + ring(allocation, total, holdings.length) + '<div class="summary-side"><div class="summary-title"><h3>' + esc(account.name) + '</h3><span>USD/KRW ' + fxLabel + '</span></div><div class="summary-metrics"><div class="metric"><span>총 자산' + partial + '</span><b>' + krw(total) + '</b></div><div class="metric"><span>주식 평가액' + partial + '</span><b>' + krw(invested) + '</b></div><div class="metric"><span>총 예수금</span><b>' + krw(cash.total) + '</b></div><div class="metric"><span>주식 평가손익' + partial + '</span><b class="' + (shownPnl == null ? "" : shownPnl >= 0 ? "pos" : "neg") + '">' + krw(shownPnl) + pendingNote + '</b></div></div><div class="allocation-list">' + list + '</div></div></div>';
   }
   function renderHoldings() {
     var holdings = S.aggregate(state, activeId), total = allValue();
