@@ -6,6 +6,9 @@
     accounts: [{ id: "portfolio-1", name: "포트폴리오 1", cashKrw: 0, cashUsd: 0 }, { id: "portfolio-2", name: "포트폴리오 2", cashKrw: 0, cashUsd: 0 }],
     transactions: [], buyList: [], watchlist: [], prices: {}, fx: null
   };
+  /* 국내 종목은 종목명으로도 입력할 수 있게 하되, 시세 조회에는 거래소 티커를 사용한다. */
+  var KR_TICKERS = { "삼성전자": "005930.KS", "삼성전자우": "005935.KS", "파인텍": "131760.KQ" };
+  var KR_NAMES = { "005930": "삼성전자", "005935": "삼성전자우", "131760": "파인텍" };
   function id(prefix) { return prefix + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function load() {
     try {
@@ -23,10 +26,12 @@
   function save(data) { localStorage.setItem(KEY, JSON.stringify(data)); return data; }
   function tickerFor(ticker, market) {
     ticker = String(ticker || "").trim().toUpperCase();
+    var bare = ticker.replace(/\.(KS|KQ)$/i, "");
+    if (market === "KR" && KR_TICKERS[bare]) return KR_TICKERS[bare];
     if (market === "KR" && !/\.(KS|KQ)$/.test(ticker)) return ticker + ".KS";
     return ticker;
   }
-  function displayTicker(ticker) { return String(ticker || "").replace(/\.(KS|KQ)$/i, ""); }
+  function displayTicker(ticker) { var bare = String(ticker || "").replace(/\.(KS|KQ)$/i, ""); return KR_NAMES[bare] || bare; }
   function groupKey(market, ticker) { return market + ":" + tickerFor(ticker, market); }
   function aggregate(data, accountId) {
     var result = {};
@@ -48,22 +53,31 @@
       var h = result[key]; if (h.qty <= 0.0000001) return null;
       var q = h.qty, quote = data.prices[h.key], current = quote && Number(quote.price);
       h.avgLocal = q ? h.costLocal / q : 0; h.avgKrw = q ? h.costKrw / q : 0;
-      h.price = isFinite(current) ? current : null; h.fx = Number(data.fx && data.fx.price) || 1350;
+      /* 0원·NaN은 실제 시세가 아니라 이전 조회 실패의 흔적이다. */
+      h.price = isFinite(current) && current > 0 ? current : null; h.fx = Number(data.fx && data.fx.price) || 1350;
       h.valueKrw = h.price == null ? null : h.price * q * (h.market === "US" ? h.fx : 1);
       h.pnlKrw = h.valueKrw == null ? null : h.valueKrw - h.costKrw;
       h.returnPct = h.pnlKrw == null || !h.costKrw ? null : h.pnlKrw / h.costKrw * 100;
       h.updated = quote && quote.updated; return h;
     }).filter(Boolean).sort(function (a, b) { return (b.valueKrw || 0) - (a.valueKrw || 0); });
   }
-  async function priceOne(market, ticker) {
-    var symbol = tickerFor(ticker, market), source = "http://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?range=5d%26interval=1d";
-    /* Yahoo는 브라우저 CORS를 허용하지 않아 읽기 전용 중계로 응답만 가져온다. 요청에는 티커만 포함된다. */
-    var response = await fetch("https://r.jina.ai/" + source, { cache: "no-store" }); if (!response.ok) throw new Error("quote unavailable");
-    var text = await response.text(), start = text.indexOf('{"chart"'); if (start < 0) throw new Error("quote unavailable");
+  function quoteFromText(text, market) {
+    var start = text.indexOf('{"chart"'); if (start < 0) throw new Error("quote unavailable");
     var json = JSON.parse(text.slice(start)), res = json && json.chart && json.chart.result && json.chart.result[0];
     var quote = res && res.meta && (res.meta.regularMarketPrice || res.meta.previousClose);
-    if (!isFinite(Number(quote))) throw new Error("invalid quote");
+    if (!isFinite(Number(quote)) || Number(quote) <= 0) throw new Error("invalid quote");
     return { price: Number(quote), currency: res.meta.currency || (market === "KR" ? "KRW" : "USD"), updated: new Date().toISOString() };
+  }
+  async function priceOne(market, ticker) {
+    var symbol = tickerFor(ticker, market), source = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?range=5d&interval=1d", response, text;
+    /* 먼저 Yahoo를 직접 읽고, 브라우저에서 차단될 때만 읽기 전용 중계를 사용한다. 요청에는 티커만 포함된다. */
+    try {
+      response = await fetch(source, { cache: "no-store" }); if (!response.ok) throw new Error("quote unavailable");
+      return quoteFromText(await response.text(), market);
+    } catch (directError) {
+      response = await fetch("https://r.jina.ai/" + source.replace("&", "%26"), { cache: "no-store" }); if (!response.ok) throw new Error("quote unavailable");
+      text = await response.text(); return quoteFromText(text, market);
+    }
   }
   async function fxUsdKrw() {
     var response = await fetch("https://api.frankfurter.app/latest?from=USD&to=KRW", { cache: "no-store" }); if (!response.ok) throw new Error("fx unavailable");
@@ -72,6 +86,10 @@
     return { price: Number(quote), currency: "KRW", updated: new Date().toISOString() };
   }
   async function refresh(data) {
+    Object.keys(data.prices || {}).forEach(function (key) {
+      var price = Number(data.prices[key] && data.prices[key].price);
+      if (!isFinite(price) || price <= 0) delete data.prices[key];
+    });
     var symbols = {}, i;
     data.accounts.forEach(function (a) { aggregate(data, a.id).forEach(function (h) { symbols[h.key] = { market: h.market, ticker: h.ticker }; }); });
     data.watchlist.forEach(function (w) { symbols[groupKey(w.market, w.ticker)] = { market: w.market, ticker: tickerFor(w.ticker, w.market) }; });
