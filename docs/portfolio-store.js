@@ -64,12 +64,19 @@
   function quoteFromText(text, market) {
     var start = text.indexOf('{"chart"'); if (start < 0) throw new Error("quote unavailable");
     var json = JSON.parse(text.slice(start)), res = json && json.chart && json.chart.result && json.chart.result[0];
-    var quote = res && res.meta && (res.meta.regularMarketPrice || res.meta.previousClose);
+    var meta = res && res.meta || {}, closes = res && res.indicators && res.indicators.quote && res.indicators.quote[0] && res.indicators.quote[0].close || [];
+    /* 장중·장후·직전 종가 순으로 쓰고, 모두 없으면 차트의 마지막 유효 종가를 사용한다. */
+    var quote = meta.regularMarketPrice || meta.postMarketPrice || meta.preMarketPrice || meta.previousClose || meta.chartPreviousClose, quoteAt = meta.regularMarketTime || null;
+    if (!isFinite(Number(quote)) || Number(quote) <= 0) {
+      for (var i = closes.length - 1; i >= 0; i--) {
+        if (isFinite(Number(closes[i])) && Number(closes[i]) > 0) { quote = Number(closes[i]); quoteAt = res.timestamp && res.timestamp[i] || null; break; }
+      }
+    }
     if (!isFinite(Number(quote)) || Number(quote) <= 0) throw new Error("invalid quote");
-    return { price: Number(quote), currency: res.meta.currency || (market === "KR" ? "KRW" : "USD"), updated: new Date().toISOString() };
+    return { price: Number(quote), currency: meta.currency || (market === "KR" ? "KRW" : "USD"), updated: new Date().toISOString(), quoteAt: quoteAt ? new Date(quoteAt * 1000).toISOString() : null };
   }
   async function priceOne(market, ticker) {
-    var symbol = tickerFor(ticker, market), source = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?range=5d&interval=1d", response, text;
+    var symbol = tickerFor(ticker, market), source = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(symbol) + "?range=1mo&interval=1d", response, text;
     /* 먼저 Yahoo를 직접 읽고, 브라우저에서 차단될 때만 읽기 전용 중계를 사용한다. 요청에는 티커만 포함된다. */
     try {
       response = await fetch(source, { cache: "no-store" }); if (!response.ok) throw new Error("quote unavailable");
