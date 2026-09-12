@@ -52,7 +52,7 @@
   }
   function render() {
     if (!active || !data) return;
-    const opened = ["financial", "trade"].filter(id => document.getElementById("fm-select-" + id)?.open);
+    const opened = ["financial", "trade", "external"].filter(id => document.getElementById("fm-select-" + id)?.open);
     const row = currentRows().at(-1) || {}, quotes = data.price?.points || [], last = quotes.at(-1), prior = quotes.at(-2);
     const change = last && prior ? (last.value / prior.value - 1) * 100 : null;
     const financialCount = state.selected.filter(id => meta(id)?.group === "financial").length;
@@ -80,6 +80,23 @@
         <details class="fm-method"><summary>계산 기준 · 해석할 때 확인할 것 ▾</summary><p>OPM = 영업이익 ÷ 매출 × 100. 성장률은 전년의 같은 분기·연간과 비교합니다. 영업손익의 부호가 바뀌거나 전년 적자인 경우에는 흑자전환·적자전환·적자축소·적자확대로 표시합니다. 최근 8개 분기 또는 5년을 표시하며, 성장률 계산에는 표시 범위 이전의 실적도 사용합니다. 과거 실적은 DART 공시로 보강했고, 최신 실적은 Naver Finance / FnGuide에서 갱신합니다. 원천 자료의 반올림 차이로 비율에 미세한 차이가 생길 수 있습니다. 4분기는 연간 누적에서 9개월 누적을 빼서 계산합니다.</p><p>수량과 금액이 함께 늘면 납품 확대를 살펴보고, 수량 대비 금액이 늘면 가격·제품 구성을 확인합니다. 영업이익과 OPM에는 가동률·수율·개발비도 영향을 줍니다. kg당 금액은 개당 판매가격이 아니며, 서로 다른 부품의 평균 단가는 제품 구성 변화만으로도 움직입니다.</p><p>통관 자료는 신고번호·품목 행 기준 중복을 제거하고, 원재료·샘플·반품·내부거래를 제외합니다. 누락된 중량·수량은 0으로 채우지 않습니다. 통관금액과 연결 매출은 인식 시점과 범위가 다르므로 과거 실적과 대조해야 합니다.</p><p>베트남 내 수출가공기업 간 거래도 통관 신고 대상이 될 수 있습니다. 실제 양사 거래가 데이터 공급자의 자료에 포함되는지, 공시 전에 제공되는지는 별도 확인이 필요합니다. <a href="https://chinhsachonline.chinhphu.vn/giao-dich-giua-hai-doanh-nghiep-che-xuat-co-phai-lam-thu-tuc-hai-quan-84938.htm" target="_blank" rel="noopener">베트남 정부 안내 ↗</a></p><p><a href="https://api.butler.works/api/ir-materials/01686755/events/2Q25_FINEMTEC_IR.pdf" target="_blank" rel="noopener">파인엠텍 2025년 IR ↗</a> · <a href="https://www.finemtec.com/product/product01" target="_blank" rel="noopener">백플레이트 제품 설명 ↗</a> · <a href="https://w3.importgenius.com/how-it-works/our-datasets/vietnam" target="_blank" rel="noopener">거래별 데이터 제공 항목 ↗</a></p></details>
       </div></details>
       ${table()}<p class="fm-sources">주가: ${esc(data.price?.source || "수신 대기")} · <a href="https://stock.naver.com/domestic/stock/441270/finance" target="_blank" rel="noopener">최신 실적: Naver Finance / FnGuide</a> · 과거: DART 공시(각 기간의 출처 링크) · 확정 실적만 표시 · 주가·실적 자동 수집: 24시간 10분 간격 예약(실행·배포 지연 가능). ${data.refresh_errors?.length ? "일부 데이터 갱신 지연 · 마지막 성공 값을 유지합니다." : ""}</p>`;
+    const selectorBox = host.querySelector(".fm-selectors");
+    const hero = host.querySelector(".fm-hero");
+    if (selectorBox && hero) hero.insertBefore(selectorBox, hero.querySelector(".fm-toolbar"));
+    const tradeSelector = host.querySelector("#fm-select-trade");
+    const tradeHeading = tradeSelector?.querySelector("summary b");
+    const tradeSubheading = tradeSelector?.querySelector("summary small");
+    if (tradeHeading) tradeHeading.textContent = "기업 연관 데이터 추가";
+    if (tradeSubheading) tradeSubheading.textContent = "베트남 납품 대표 지표" + (tradeCount ? " / " + tradeCount + "개 표시 중" : "");
+    const externalSelector = tradeSelector?.querySelector(".fm-method");
+    if (externalSelector && selectorBox) {
+      externalSelector.id = "fm-select-external";
+      externalSelector.classList.add("fm-selector");
+      const summary = externalSelector.querySelector("summary");
+      if (summary) summary.textContent = "참고 지표 · 메모리 가격 · 한국 수출 ▾";
+      externalSelector.open = opened.includes("external");
+      selectorBox.appendChild(externalSelector);
+    }
     bind(); drawChart();
     const status = document.getElementById("workbench-status");
     if (status) status.textContent = "파인엠텍 · 주가 / 실적 / 납품 비교";
