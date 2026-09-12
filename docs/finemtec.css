@@ -132,3 +132,15 @@
 .fm-logic[open] > summary .fm-chevron { transform:rotate(180deg); }
 .fm-logic-body { margin-top:16px; }
 .fm-logic-body > p { color:#bac9df; font-size:14px; line-height:1.9; }
+.fm-history-heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:26px 0 10px; color:#d5e2f5; font-size:16px; }
+.fm-history-heading span { color:#96abc9; font-size:13px; }
+.fm-period-note { color:#aabbd3; font-size:14px; line-height:1.75; margin:8px 0; }
+.fm-table td:first-child small { display:block; font:12px var(--sans); color:#8fa3c1; margin-top:5px; }
+.fm-table td a { color:#b6cff5; text-decoration:none; }
+.fm-table td a:hover { text-decoration:underline; }
+.fm-table .fm-missing-row td { color:#7f92ad; }
+.fm-table-wrap { max-height:520px; }
+.fm-table { font-size:13px; }
+.fm-segment { flex-wrap:wrap; }
+.fm-availability b { font-size:14px; }
+.fm-availability p { font-size:14px; }

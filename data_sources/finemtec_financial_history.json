@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "company": "파인엠텍",
+  "ticker": "441270",
+  "verified_at": "2026-09-12",
+  "notes": [
+    "단위 KRW. 연결 실제 실적만 포함하며 전망치는 제외합니다.",
+    "후속 공시의 비교표도 사용했습니다. source_reported_at은 출처 보고서 제출일이며 해당 실적의 최초 공개일이 아닙니다.",
+    "2021년은 법인 설립 전입니다. 2022년은 2022-09-01부터 2022-12-31까지 4개월 실적입니다."
+  ],
+  "quarterly": [
+    {
+      "date": "2023-09-30",
+      "revenue_krw": 160163412938,
+      "operating_income_krw": 13006599821,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+      "source_reported_at": "2024-11-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2024년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+          "reported_at": "2024-11-14"
+        }
+      ]
+    },
+    {
+      "date": "2023-12-31",
+      "revenue_krw": 59138918847,
+      "operating_income_krw": -1914483641,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+      "source_reported_at": "2026-03-18",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 사업보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+          "reported_at": "2026-03-18"
+        },
+        {
+          "title": "2024년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+          "reported_at": "2024-11-14"
+        }
+      ],
+      "derived": true,
+      "calculation": "2023 연간 − 2023 9개월 누적",
+      "period_note": "4분기 · 연간−9개월 누적"
+    },
+    {
+      "date": "2024-03-31",
+      "revenue_krw": 69547987843,
+      "operating_income_krw": 1117618112,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+      "source_reported_at": "2025-08-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+          "reported_at": "2025-08-14"
+        }
+      ],
+      "derived": true,
+      "calculation": "2024 반기 누적 − 2024 2분기"
+    },
+    {
+      "date": "2024-06-30",
+      "revenue_krw": 154769044122,
+      "operating_income_krw": 4525661713,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+      "source_reported_at": "2025-08-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+          "reported_at": "2025-08-14"
+        }
+      ]
+    },
+    {
+      "date": "2024-09-30",
+      "revenue_krw": 98838051298,
+      "operating_income_krw": 1007562727,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+      "source_reported_at": "2024-11-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2024년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+          "reported_at": "2024-11-14"
+        },
+        {
+          "title": "2025년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+          "reported_at": "2025-11-14"
+        }
+      ]
+    },
+    {
+      "date": "2024-12-31",
+      "revenue_krw": 59013438841,
+      "operating_income_krw": -14561073138,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+      "source_reported_at": "2026-03-18",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 사업보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+          "reported_at": "2026-03-18"
+        },
+        {
+          "title": "2025년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+          "reported_at": "2025-11-14"
+        }
+      ],
+      "derived": true,
+      "calculation": "2024 연간 − 2024 9개월 누적",
+      "period_note": "4분기 · 연간−9개월 누적"
+    },
+    {
+      "date": "2025-03-31",
+      "revenue_krw": 43576364038,
+      "operating_income_krw": -2944912491,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+      "source_reported_at": "2026-05-15",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2026년 1분기보고서",
+          "url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+          "reported_at": "2026-05-15"
+        },
+        {
+          "title": "2025년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+          "reported_at": "2025-08-14"
+        }
+      ]
+    },
+    {
+      "date": "2025-06-30",
+      "revenue_krw": 76510005533,
+      "operating_income_krw": 5287594385,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+      "source_reported_at": "2025-08-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+          "reported_at": "2025-08-14"
+        },
+        {
+          "title": "2026년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+          "reported_at": "2026-08-14"
+        }
+      ]
+    },
+    {
+      "date": "2025-09-30",
+      "revenue_krw": 57543971069,
+      "operating_income_krw": 1540892885,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+      "source_reported_at": "2025-11-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+          "reported_at": "2025-11-14"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-31",
+      "revenue_krw": 61490767202,
+      "operating_income_krw": -1948766571,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+      "source_reported_at": "2026-03-18",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 사업보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+          "reported_at": "2026-03-18"
+        },
+        {
+          "title": "2025년 3분기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+          "reported_at": "2025-11-14"
+        }
+      ],
+      "derived": true,
+      "calculation": "2025 연간 − 2025 9개월 누적",
+      "period_note": "4분기 · 연간−9개월 누적"
+    },
+    {
+      "date": "2026-03-31",
+      "revenue_krw": 46069414144,
+      "operating_income_krw": -2202975398,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+      "source_reported_at": "2026-05-15",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2026년 1분기보고서",
+          "url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+          "reported_at": "2026-05-15"
+        },
+        {
+          "title": "2026년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+          "reported_at": "2026-08-14"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-30",
+      "revenue_krw": 95213286425,
+      "operating_income_krw": 7330620602,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+      "source_reported_at": "2026-08-14",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2026년 반기보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+          "reported_at": "2026-08-14"
+        }
+      ]
+    }
+  ],
+  "annual": [
+    {
+      "date": "2022-12-31",
+      "revenue_krw": 116372755248,
+      "operating_income_krw": 5442629061,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240327000653",
+      "source_reported_at": "2024-03-27",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2023년 사업보고서 정정본",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240327000653",
+          "reported_at": "2024-03-27"
+        }
+      ],
+      "period_note": "분할 설립 후 4개월 · 2022.09–12"
+    },
+    {
+      "date": "2023-12-31",
+      "revenue_krw": 380029515142,
+      "operating_income_krw": 20333866781,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+      "source_reported_at": "2026-03-18",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 사업보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+          "reported_at": "2026-03-18"
+        },
+        {
+          "title": "2023년 사업보고서 정정본",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240327000653",
+          "reported_at": "2024-03-27"
+        }
+      ]
+    },
+    {
+      "date": "2024-12-31",
+      "revenue_krw": 382168522104,
+      "operating_income_krw": -7910230586,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+      "source_reported_at": "2026-03-18",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 사업보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+          "reported_at": "2026-03-18"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-31",
+      "revenue_krw": 239121107842,
+      "operating_income_krw": 1934808208,
+      "basis": "연결",
+      "is_estimate": false,
+      "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+      "source_reported_at": "2026-03-18",
+      "reported_at": null,
+      "source_section": "2-2. 연결 손익계산서",
+      "sources": [
+        {
+          "title": "2025년 사업보고서",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+          "reported_at": "2026-03-18"
+        }
+      ]
+    }
+  ]
+}

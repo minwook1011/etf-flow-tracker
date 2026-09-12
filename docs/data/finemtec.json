@@ -6,7 +6,7 @@
     "yahoo_ticker": "441270.KQ",
     "currency": "KRW"
   },
-  "checked_at": "2026-09-12T15:55:35+09:00",
+  "checked_at": "2026-09-12T16:24:09+09:00",
   "price": {
     "points": [
       {
@@ -3852,7 +3852,7 @@
     ],
     "source": "Yahoo Finance",
     "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/441270.KQ?range=5y&interval=1d",
-    "fetched_at": "2026-09-12T15:55:35+09:00",
+    "fetched_at": "2026-09-12T16:24:09+09:00",
     "status": "ready",
     "unit": "원",
     "basis": "KRX 일봉 · 당일 장중 값은 변동 가능",
@@ -3862,89 +3862,398 @@
   "financials": {
     "quarterly": [
       {
-        "date": "2025-06-30",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/quarter",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "date": "2023-09-30",
+        "revenue_krw": 160163412938,
+        "operating_income_krw": 13006599821,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 765.0,
-        "operating_income": 53.0,
-        "retained_fields": [],
-        "opm": 6.93,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+        "source_reported_at": "2024-11-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2024년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+            "reported_at": "2024-11-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 1601.63412938,
+        "operating_income": 130.06599821,
+        "opm": 8.12,
         "revenue_yoy": null,
         "operating_income_yoy": null,
-        "profit_growth_label": "비교 자료 없음"
+        "profit_growth_label": "비교 자료 없음",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2023-12-31",
+        "revenue_krw": 59138918847,
+        "operating_income_krw": -1914483641,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+        "source_reported_at": "2026-03-18",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 사업보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+            "reported_at": "2026-03-18"
+          },
+          {
+            "title": "2024년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+            "reported_at": "2024-11-14"
+          }
+        ],
+        "derived": true,
+        "calculation": "2023 연간 − 2023 9개월 누적",
+        "period_note": "4분기 · 연간−9개월 누적",
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 591.38918847,
+        "operating_income": -19.14483641,
+        "opm": -3.24,
+        "revenue_yoy": null,
+        "operating_income_yoy": null,
+        "profit_growth_label": "비교 자료 없음",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2024-03-31",
+        "revenue_krw": 69547987843,
+        "operating_income_krw": 1117618112,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+        "source_reported_at": "2025-08-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+            "reported_at": "2025-08-14"
+          }
+        ],
+        "derived": true,
+        "calculation": "2024 반기 누적 − 2024 2분기",
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 695.47987843,
+        "operating_income": 11.17618112,
+        "opm": 1.61,
+        "revenue_yoy": null,
+        "operating_income_yoy": null,
+        "profit_growth_label": "비교 자료 없음",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2024-06-30",
+        "revenue_krw": 154769044122,
+        "operating_income_krw": 4525661713,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+        "source_reported_at": "2025-08-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+            "reported_at": "2025-08-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 1547.69044122,
+        "operating_income": 45.25661713,
+        "opm": 2.92,
+        "revenue_yoy": null,
+        "operating_income_yoy": null,
+        "profit_growth_label": "비교 자료 없음",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2024-09-30",
+        "revenue_krw": 98838051298,
+        "operating_income_krw": 1007562727,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+        "source_reported_at": "2024-11-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2024년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241114002491",
+            "reported_at": "2024-11-14"
+          },
+          {
+            "title": "2025년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+            "reported_at": "2025-11-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 988.38051298,
+        "operating_income": 10.07562727,
+        "opm": 1.02,
+        "revenue_yoy": -38.29,
+        "operating_income_yoy": -92.25,
+        "profit_growth_label": "전년 동기 대비",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2024-12-31",
+        "revenue_krw": 59013438841,
+        "operating_income_krw": -14561073138,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+        "source_reported_at": "2026-03-18",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 사업보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+            "reported_at": "2026-03-18"
+          },
+          {
+            "title": "2025년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+            "reported_at": "2025-11-14"
+          }
+        ],
+        "derived": true,
+        "calculation": "2024 연간 − 2024 9개월 누적",
+        "period_note": "4분기 · 연간−9개월 누적",
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 590.13438841,
+        "operating_income": -145.61073138,
+        "opm": -24.67,
+        "revenue_yoy": -0.21,
+        "operating_income_yoy": null,
+        "profit_growth_label": "적자확대",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2025-03-31",
+        "revenue_krw": 43576364038,
+        "operating_income_krw": -2944912491,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+        "source_reported_at": "2026-05-15",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2026년 1분기보고서",
+            "url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+            "reported_at": "2026-05-15"
+          },
+          {
+            "title": "2025년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+            "reported_at": "2025-08-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 435.76364038,
+        "operating_income": -29.44912491,
+        "opm": -6.76,
+        "revenue_yoy": -37.34,
+        "operating_income_yoy": null,
+        "profit_growth_label": "적자전환",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2025-06-30",
+        "revenue_krw": 76510005533,
+        "operating_income_krw": 5287594385,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+        "source_reported_at": "2025-08-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250814003919",
+            "reported_at": "2025-08-14"
+          },
+          {
+            "title": "2026년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+            "reported_at": "2026-08-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 765.10005533,
+        "operating_income": 52.87594385,
+        "retained_fields": [],
+        "opm": 6.91,
+        "revenue_yoy": -50.57,
+        "operating_income_yoy": 16.84,
+        "profit_growth_label": "전년 동기 대비",
+        "verified_at": "2026-09-12"
       },
       {
         "date": "2025-09-30",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/quarter",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "revenue_krw": 57543971069,
+        "operating_income_krw": 1540892885,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 575.0,
-        "operating_income": 15.0,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+        "source_reported_at": "2025-11-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+            "reported_at": "2025-11-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 575.43971069,
+        "operating_income": 15.40892885,
         "retained_fields": [],
-        "opm": 2.61,
-        "revenue_yoy": null,
-        "operating_income_yoy": null,
-        "profit_growth_label": "비교 자료 없음"
+        "opm": 2.68,
+        "revenue_yoy": -41.78,
+        "operating_income_yoy": 52.93,
+        "profit_growth_label": "전년 동기 대비",
+        "verified_at": "2026-09-12"
       },
       {
         "date": "2025-12-31",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/quarter",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "revenue_krw": 61490767202,
+        "operating_income_krw": -1948766571,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 615.0,
-        "operating_income": -19.0,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+        "source_reported_at": "2026-03-18",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 사업보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+            "reported_at": "2026-03-18"
+          },
+          {
+            "title": "2025년 3분기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251114002134",
+            "reported_at": "2025-11-14"
+          }
+        ],
+        "derived": true,
+        "calculation": "2025 연간 − 2025 9개월 누적",
+        "period_note": "4분기 · 연간−9개월 누적",
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 614.90767202,
+        "operating_income": -19.48766571,
         "retained_fields": [],
-        "opm": -3.09,
-        "revenue_yoy": null,
+        "opm": -3.17,
+        "revenue_yoy": 4.2,
         "operating_income_yoy": null,
-        "profit_growth_label": "비교 자료 없음"
+        "profit_growth_label": "적자축소",
+        "verified_at": "2026-09-12"
       },
       {
         "date": "2026-03-31",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/quarter",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "revenue_krw": 46069414144,
+        "operating_income_krw": -2202975398,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 461.0,
-        "operating_income": -22.0,
+        "source_url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+        "source_reported_at": "2026-05-15",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2026년 1분기보고서",
+            "url": "https://kind.krx.co.kr/external/2026/05/15/002356/20260515005294/11013.htm",
+            "reported_at": "2026-05-15"
+          },
+          {
+            "title": "2026년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+            "reported_at": "2026-08-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 460.69414144,
+        "operating_income": -22.02975398,
         "retained_fields": [],
-        "opm": -4.77,
-        "revenue_yoy": null,
+        "opm": -4.78,
+        "revenue_yoy": 5.72,
         "operating_income_yoy": null,
-        "profit_growth_label": "비교 자료 없음"
+        "profit_growth_label": "적자축소",
+        "verified_at": "2026-09-12"
       },
       {
         "date": "2026-06-30",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/quarter",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "revenue_krw": 95213286425,
+        "operating_income_krw": 7330620602,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 952.0,
-        "operating_income": 73.0,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+        "source_reported_at": "2026-08-14",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2026년 반기보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814001699",
+            "reported_at": "2026-08-14"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 952.13286425,
+        "operating_income": 73.30620602,
         "retained_fields": [],
-        "opm": 7.67,
-        "revenue_yoy": 24.44,
-        "operating_income_yoy": 37.74,
-        "profit_growth_label": "전년 동기 대비"
+        "opm": 7.7,
+        "revenue_yoy": 24.45,
+        "operating_income_yoy": 38.64,
+        "profit_growth_label": "전년 동기 대비",
+        "verified_at": "2026-09-12"
       }
     ],
     "status": {
@@ -3952,60 +4261,131 @@
       "annual": "ready"
     },
     "fetched_at": {
-      "quarterly": "2026-09-12T15:55:35+09:00",
-      "annual": "2026-09-12T15:55:35+09:00"
+      "quarterly": "2026-09-12T16:24:09+09:00",
+      "annual": "2026-09-12T16:24:09+09:00"
     },
     "annual": [
       {
-        "date": "2023-12-31",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/annual",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "date": "2022-12-31",
+        "revenue_krw": 116372755248,
+        "operating_income_krw": 5442629061,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 3800.0,
-        "operating_income": 203.0,
-        "retained_fields": [],
-        "opm": 5.34,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240327000653",
+        "source_reported_at": "2024-03-27",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2023년 사업보고서 정정본",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240327000653",
+            "reported_at": "2024-03-27"
+          }
+        ],
+        "period_note": "분할 설립 후 4개월 · 2022.09–12",
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12",
+        "revenue": 1163.72755248,
+        "operating_income": 54.42629061,
+        "opm": 4.68,
         "revenue_yoy": null,
         "operating_income_yoy": null,
-        "profit_growth_label": "비교 자료 없음"
+        "profit_growth_label": "비교 자료 없음",
+        "retained_fields": [],
+        "verified_at": "2026-09-12"
+      },
+      {
+        "date": "2023-12-31",
+        "revenue_krw": 380029515142,
+        "operating_income_krw": 20333866781,
+        "basis": "연결",
+        "is_estimate": false,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+        "source_reported_at": "2026-03-18",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 사업보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+            "reported_at": "2026-03-18"
+          },
+          {
+            "title": "2023년 사업보고서 정정본",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240327000653",
+            "reported_at": "2024-03-27"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 3800.29515142,
+        "operating_income": 203.33866781,
+        "retained_fields": [],
+        "opm": 5.35,
+        "revenue_yoy": null,
+        "operating_income_yoy": null,
+        "profit_growth_label": "비교 자료 없음",
+        "verified_at": "2026-09-12"
       },
       {
         "date": "2024-12-31",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/annual",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "revenue_krw": 382168522104,
+        "operating_income_krw": -7910230586,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 3822.0,
-        "operating_income": -79.0,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+        "source_reported_at": "2026-03-18",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 사업보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+            "reported_at": "2026-03-18"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 3821.68522104,
+        "operating_income": -79.10230586,
         "retained_fields": [],
         "opm": -2.07,
-        "revenue_yoy": 0.58,
+        "revenue_yoy": 0.56,
         "operating_income_yoy": null,
-        "profit_growth_label": "적자전환"
+        "profit_growth_label": "적자전환",
+        "verified_at": "2026-09-12"
       },
       {
         "date": "2025-12-31",
-        "observed_at": "2026-09-12T15:01:31+09:00",
-        "reported_at": null,
-        "source_url": "https://m.stock.naver.com/api/stock/441270/finance/annual",
-        "source": "Naver Finance / FnGuide",
-        "unit": "억원",
+        "revenue_krw": 239121107842,
+        "operating_income_krw": 1934808208,
         "basis": "연결",
         "is_estimate": false,
-        "revenue": 2391.0,
-        "operating_income": 19.0,
+        "source_url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+        "source_reported_at": "2026-03-18",
+        "reported_at": null,
+        "source_section": "2-2. 연결 손익계산서",
+        "sources": [
+          {
+            "title": "2025년 사업보고서",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001161",
+            "reported_at": "2026-03-18"
+          }
+        ],
+        "source": "DART 공시",
+        "unit": "억원",
+        "observed_at": "2026-09-12T15:01:31+09:00",
+        "revenue": 2391.21107842,
+        "operating_income": 19.34808208,
         "retained_fields": [],
-        "opm": 0.79,
-        "revenue_yoy": -37.44,
+        "opm": 0.81,
+        "revenue_yoy": -37.43,
         "operating_income_yoy": null,
-        "profit_growth_label": "흑자전환"
+        "profit_growth_label": "흑자전환",
+        "verified_at": "2026-09-12"
       }
     ]
   },

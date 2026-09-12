@@ -23,11 +23,33 @@
   function validDate(value) {
     return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(timestamp(value)) && new Date(timestamp(value)).toISOString().slice(0, 10) === value;
   }
+  function financialWindow(data, period) {
+    const annual = period === "annual";
+    const records = (data.financials?.[annual ? "annual" : "quarterly"] || [])
+      .filter(row => validDate(row.date) && row.is_estimate !== true && (finite(row.revenue) || finite(row.operating_income)))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (!records.length) return [];
+    const latest = new Date(timestamp(records.at(-1).date));
+    const byDate = new Map(records.map(row => [row.date, row]));
+    return Array.from({length: annual ? 5 : 8}, (_, index) => {
+      const offset = (annual ? 4 : 7) - index;
+      const date = new Date(Date.UTC(latest.getUTCFullYear() - (annual ? offset : 0), annual ? 12 : latest.getUTCMonth() + 1 - offset * 3, 0)).toISOString().slice(0, 10);
+      const year = Number(date.slice(0, 4));
+      const original = byDate.get(date);
+      const note = original?.period_note || (year < 2022 ? "법인 설립 전 · 해당 없음" : annual && year === 2022 ? "분할 설립 후 단기 실적" : "");
+      return original ? {...original, period_note: note} : {date, revenue: null, operating_income: null, opm: null, revenue_yoy: null, operating_income_yoy: null, missing: true, period_note: note || "공시 자료 미확보", profit_growth_label: "—"};
+    });
+  }
+  function financialRangeStart(rows, period) {
+    if (!rows.length) return 0;
+    const first = new Date(timestamp(rows[0].date));
+    return Date.UTC(first.getUTCFullYear(), period === "annual" ? 0 : first.getUTCMonth() - 2, 1);
+  }
   function seriesFor(id, data, period, customs) {
     if (id === "price") return (data.price?.points || []).map(p => ({...p, source: data.price.source}));
-    if (METRICS[id]?.group === "financial") return (data.financials?.[period] || []).map(row => ({
+    if (METRICS[id]?.group === "financial") return financialWindow(data, period).map(row => ({
       date: row.date, value: finite(row[id]) ? row[id] : null,
-      reported_at: row.reported_at, source: row.source,
+      reported_at: row.reported_at, source: row.field_sources?.[id]?.source || row.source, period_note: row.period_note,
       label: id === "operating_income_yoy" && !finite(row[id]) ? row.profit_growth_label : null
     }));
     if (METRICS[id]?.group === "trade") return data.trade?.series?.[id] || [];
@@ -75,5 +97,5 @@
     if (!finite(value)) return "—";
     return new Intl.NumberFormat("ko-KR", {maximumFractionDigits: digits ?? (unit === "%" || unit === "USD/개" ? 2 : 1)}).format(value) + (unit === "%" ? "%" : " " + unit);
   }
-  return {METRICS, finite, timestamp, validDate, seriesFor, rangeStart, domain, normalize, parsePoints, nearest, format};
+  return {METRICS, finite, timestamp, validDate, financialWindow, financialRangeStart, seriesFor, rangeStart, domain, normalize, parsePoints, nearest, format};
 });

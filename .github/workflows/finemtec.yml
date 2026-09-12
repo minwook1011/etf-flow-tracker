@@ -12,6 +12,7 @@ on:
       - publish_pages.py
       - ingest_finemtec_trade.py
       - data_sources/finemtec_trade_rules.json
+      - data_sources/finemtec_financial_history.json
       - .github/workflows/finemtec.yml
 
 permissions:

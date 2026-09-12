@@ -1,7 +1,9 @@
 import copy
+import io
 import unittest
+from unittest.mock import patch
 
-from fetch_finemtec import enrich, merge_records, parse_financials, profit_growth
+from fetch_finemtec import enrich, load_history, main, merge_records, parse_financials, profit_growth, supplement_history
 from ingest_finemtec_trade import aggregate
 
 
@@ -47,6 +49,65 @@ class FinancialTests(unittest.TestCase):
         row = merge_records(before, after)[0]
         self.assertEqual(row["operating_income"],10)
         self.assertEqual(row["retained_fields"],["operating_income"])
+
+    def test_history_reconciles_quarters_to_annual_and_has_yoy_baseline(self):
+        history = load_history()
+        self.assertEqual(len(history["quarterly"]), 12)
+        self.assertEqual(len(history["annual"]), 4)
+        for year in ("2024", "2025"):
+            annual = next(r for r in history["annual"] if r["date"].startswith(year))
+            quarters = [r for r in history["quarterly"] if r["date"].startswith(year)]
+            for field in ("revenue_krw", "operating_income_krw"):
+                self.assertEqual(sum(r[field] for r in quarters), annual[field])
+        rows = enrich(history["quarterly"], "quarter")
+        first_visible = rows[-8]
+        self.assertEqual(first_visible["date"], "2024-09-30")
+        self.assertIsNotNone(first_visible["revenue_yoy"])
+        annual = enrich(history["annual"], "annual")
+        self.assertIsNone(annual[1]["revenue_yoy"])
+        self.assertIn("4개월", annual[0]["period_note"])
+
+    def test_rounded_provider_does_not_destroy_filing_precision(self):
+        before = load_history()["quarterly"]
+        live = {"date":"2026-06-30", "revenue":952, "operating_income":73,
+                "source":"Naver Finance / FnGuide", "source_url":"https://example.org"}
+        row = merge_records(before, [live])[-1]
+        self.assertEqual(row["source"], "DART 공시")
+        self.assertEqual(row["operating_income"], 73.30620602)
+        corrected = merge_records(before, [{**live, "revenue":980}])
+        self.assertEqual(corrected[-1]["revenue"], 980)
+        self.assertEqual(corrected[-1]["source"], "Naver Finance / FnGuide")
+        self.assertNotIn("revenue_krw", corrected[-1])
+        reapplied = merge_records(load_history()["quarterly"], corrected)
+        self.assertEqual(reapplied[-1]["revenue"], 980, "seed must not undo a material revision")
+
+    def test_history_survives_live_failure_without_claiming_freshness(self):
+        with patch("fetch_finemtec.OUT") as out, patch("fetch_finemtec.fetch_prices", side_effect=OSError), patch("fetch_finemtec.read_url", side_effect=OSError), patch("fetch_finemtec.write_changed") as write, patch("sys.argv", ["fetch_finemtec.py"]), patch("sys.stdout", new_callable=io.StringIO):
+            out.exists.return_value = False
+            write.return_value = False
+            self.assertEqual(main(), 1)
+            data = write.call_args.args[1]
+            self.assertEqual(len(data["financials"]["quarterly"]), 12)
+            self.assertEqual(data["financials"]["status"]["quarterly"], "stale")
+            self.assertEqual(data["trade"]["status"], "not_connected")
+
+    def test_seed_preserves_archive_first_observation_and_filing_date(self):
+        archive = [{"date":"2026-06-30", "revenue":952, "operating_income":73,
+                    "source":"Naver Finance / FnGuide", "observed_at":"2026-08-15", "reported_at":"2026-08-14"}]
+        row = supplement_history(load_history()["quarterly"], archive)[-1]
+        self.assertEqual(row["source"], "DART 공시")
+        self.assertEqual(row["observed_at"], "2026-08-15")
+        self.assertEqual(row["reported_at"], "2026-08-14")
+
+    def test_mixed_refresh_keeps_per_field_provenance(self):
+        new = {"date":"2026-06-30", "revenue":980, "operating_income":None,
+               "source":"Naver Finance / FnGuide", "source_url":"https://example.org"}
+        row = merge_records(load_history()["quarterly"], [new])[-1]
+        self.assertEqual(row["operating_income"], 73.30620602)
+        self.assertEqual(row["field_sources"]["operating_income"]["source"], "DART 공시")
+        self.assertEqual(row["field_sources"]["revenue"]["source"], "Naver Finance / FnGuide")
+        self.assertTrue(row["field_sources"]["operating_income"]["source_url"].startswith("https://dart.fss.or.kr/"))
+        self.assertIn("혼합 자료", row["source"])
 
 
 class TradeTests(unittest.TestCase):

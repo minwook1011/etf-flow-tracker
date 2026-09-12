@@ -61,7 +61,7 @@
     var group = DATA[activeCountry];
     seriesHost.innerHTML = group.series.map(function (item, index) {
       var selected = activeSeries && activeSeries.name === item[0];
-      return '<button class="series-card' + (selected ? ' selected' : '') + '" type="button" style="animation-delay:' + (index * 65) + 'ms" data-index="' + index + '"><span class="country-code">' + group.code + ' · SERIES 0' + (index + 1) + '</span><b>' + item[0] + '</b><p>' + item[1] + '</p><span class="series-state"><i></i>' + (item[3] ? '주가·실적 연결 · 거래 대기' : item[4] ? '지표 목록 · 발표 일정 보기' : selected ? '지표 선택됨 · 연결 대기' : '출처 연결 대기') + '</span></button>';
+      return '<button class="series-card' + (selected ? ' selected' : '') + '" type="button" style="animation-delay:' + (index * 65) + 'ms" data-index="' + index + '"><span class="country-code">' + group.code + ' · SERIES 0' + (index + 1) + '</span><b>' + item[0] + '</b><p>' + item[1] + '</p><span class="series-state"><i></i>' + (item[3] ? '주가·실적 연결 · 베트남 자료 미확보' : item[4] ? '지표 목록 · 발표 일정 보기' : selected ? '지표 선택됨 · 연결 대기' : '출처 연결 대기') + '</span></button>';
     }).join("");
     seriesHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () {
       var item = group.series[Number(button.dataset.index)]; activeSeries = { name: item[0], desc: item[1] };

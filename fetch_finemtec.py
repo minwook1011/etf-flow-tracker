@@ -22,6 +22,7 @@ UA = "Mozilla/5.0 (compatible; VantageFinancialData/1.0)"
 PRICE_URL = "https://query1.finance.yahoo.com/v8/finance/chart/441270.KQ?range=5y&interval=1d"
 NAVER_CHART = "https://fchart.stock.naver.com/sise.nhn?symbol=441270&timeframe=day&count=1500&requestType=0"
 FINANCE_URL = "https://m.stock.naver.com/api/stock/441270/finance/"
+HISTORY = ROOT / "data_sources" / "finemtec_financial_history.json"
 
 
 def read_url(url):
@@ -123,16 +124,75 @@ def merge_records(old, new):
     merged = {row["date"]: row for row in old}
     for row in new:
         previous = merged.get(row["date"], {})
+        # Do not replace a verified won-precision filing with the same amount
+        # rounded to integer eok by the rolling quote provider. A material
+        # revision still wins; the archive must not resurrect an older value.
+        fields = ("revenue", "operating_income")
+        keep_filing = previous.get("source") == "DART 공시" and row.get("source") == "Naver Finance / FnGuide" and all(
+            row.get(field) is None or (previous.get(field) is not None and
+            abs(row[field] - previous[field]) <= (0.50000001 if float(row[field]).is_integer() else 0.00000001))
+            for field in fields)
+        if keep_filing:
+            merged[row["date"]] = {**previous, "reported_at": previous.get("reported_at") or row.get("reported_at"),
+                                   "retained_fields": [field for field in fields if row.get(field) is None]}
+            continue
         row = {**row, "observed_at": previous.get("observed_at") or row.get("observed_at")}
         row["retained_fields"] = []
         for field in ("revenue", "operating_income"):
             if row.get(field) is None and previous.get(field) is not None:
                 row[field] = previous[field]
                 row["retained_fields"].append(field)
+        if row["retained_fields"]:
+            row["field_sources"] = {
+                field: (previous.get("field_sources", {}).get(field) or
+                        {"source": previous.get("source"), "source_url": previous.get("source_url")})
+                if field in row["retained_fields"] else
+                {"source": row.get("source"), "source_url": row.get("source_url")}
+                for field in fields
+            }
+            sources = list(dict.fromkeys(item["source"] for item in row["field_sources"].values() if item.get("source")))
+            if len(sources) > 1:
+                row["source"] = "혼합 자료 · " + " / ".join(sources)
         # Preserve verified filing dates when a source lacks them.
         row["reported_at"] = previous.get("reported_at") or row.get("reported_at")
+        if previous.get("period_note") and not row.get("period_note"):
+            row["period_note"] = previous["period_note"]
+        if row.get("source") == previous.get("source") and previous.get("verified_at") and not row.get("verified_at"):
+            row["verified_at"] = previous["verified_at"]
         merged[row["date"]] = row
     return [merged[day] for day in sorted(merged)]
+
+
+def supplement_history(history, archive):
+    """Backfill/upgrade precision without resetting first-observation metadata."""
+    records = merge_records(history, archive)
+    original = {row["date"]: row for row in archive}
+    for row in records:
+        for field in ("observed_at", "reported_at"):
+            if original.get(row["date"], {}).get(field):
+                row[field] = original[row["date"]][field]
+    return records
+
+
+def load_history(path=HISTORY):
+    """Verified public filings, not estimates; keep original won values in seed."""
+    history = json.loads(path.read_text(encoding="utf-8"))
+    output = {}
+    for key in ("quarterly", "annual"):
+        rows = []
+        for raw in history[key]:
+            datetime.strptime(raw["date"], "%Y-%m-%d")
+            if raw.get("is_estimate") is not False or raw.get("basis") != "연결" or not raw.get("source_url", "").startswith("https://"):
+                raise ValueError("history must contain sourced reported consolidated results")
+            row = {**raw, "source": "DART 공시", "unit": "억원", "observed_at": history["verified_at"], "verified_at": history["verified_at"], "retained_fields": []}
+            for field in ("revenue", "operating_income"):
+                value = number(raw[field + "_krw"])
+                if value is None:
+                    raise ValueError("missing filing value")
+                row[field] = value / 100_000_000
+            rows.append(row)
+        output[key] = rows
+    return output
 
 
 def main():
@@ -152,8 +212,11 @@ def main():
         errors.append("주가: " + type(error).__name__)
         data.setdefault("price", {"points": []})["status"] = "stale" if data.get("price", {}).get("points") else "unavailable"
     financials = data.setdefault("financials", {})
+    # Supplement missing historical periods even if the live endpoint fails.
+    history = load_history()
     for period in ("quarter", "annual"):
         key = "quarterly" if period == "quarter" else "annual"
+        financials[key] = enrich(supplement_history(history[key], financials.get(key, [])), period)
         try:
             records = parse_financials(json.loads(read_url(FINANCE_URL + period)), period, now)
             financials[key] = enrich(merge_records(financials.get(key, []), records), period)
