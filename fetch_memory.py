@@ -35,12 +35,15 @@ SECTIONS = {
     "dram_contract": ("contract", "DRAM 계약가격", "dram"),
     "flash_contract": ("contract", "NAND 계약가격", "flash"),
 }
+# Keep one representative benchmark per displayed category. The catalog is
+# intentionally small: product variants remain in the raw source, but do not
+# overwhelm the personal dashboard with near-duplicate rows.
 CATALOG = {
-    "dram_spot": ("2026-09-11T18:10:00+08:00", ["DDR5 16Gb (2Gx8) 4800/5600", "DDR5 16Gb (2Gx8) eTT", "DDR4 16Gb (2Gx8) 3200", "DDR4 16Gb (2Gx8) eTT", "DDR4 8Gb (1Gx8) 3200", "DDR4 8Gb (1Gx8) eTT", "DDR3 4Gb 512Mx8 1600/1866"]),
-    "module_spot": ("2026-08-31T14:40:00+08:00", ["DDR5 UDIMM 16GB 4800/5600", "DDR5 RDIMM 32GB 4800/5600", "DDR4 UDIMM 16GB 3200"]),
-    "flash_spot": ("2026-08-31T14:40:00+08:00", ["SLC 2Gb 256MBx8", "SLC 1Gb 128MBx8", "MLC 64Gb 8GBx8", "MLC 32Gb 4GBx8"]),
-    "dram_contract": ("2026-07-31T15:00:00+08:00", ["DDR5 8GB SO-DIMM", "DDR4 16GB SO-DIMM", "DDR4 8GB SO-DIMM", "DDR4 16Gb 2Gx8", "DDR4 8Gb 1Gx8", "DDR4 4Gb 256Mx16", "DDR3 4Gb 256Mx16"]),
-    "flash_contract": ("2026-07-31T09:00:00+08:00", ["NAND 128Gb 16Gx8 MLC", "NAND 64Gb 8Gx8 MLC", "NAND 32Gb 4Gx8 MLC"]),
+    "dram_spot": ("2026-09-11T18:10:00+08:00", ["DDR5 16Gb (2Gx8) 4800/5600"]),
+    "module_spot": ("2026-08-31T14:40:00+08:00", ["DDR5 RDIMM 32GB 4800/5600"]),
+    "flash_spot": ("2026-08-31T14:40:00+08:00", ["MLC 64Gb 8GBx8"]),
+    "dram_contract": ("2026-07-31T15:00:00+08:00", ["DDR5 8GB SO-DIMM"]),
+    "flash_contract": ("2026-07-31T09:00:00+08:00", ["NAND 128Gb 16Gx8 MLC"]),
 }
 NOTES = [
     "Spot은 현물가격이며 Contract(계약가격)과 다릅니다. DRAM 칩과 완성 모듈은 별도 품목입니다.",
@@ -169,12 +172,6 @@ def permission_catalog(now, previous=None):
                          "refresh": {**refresh_rule(section), "enabled": False},
                          "status": "permission_required", "status_message": "자동수집·재배포 이용 허용 확인 대기",
                          "display_prices": False, "points": prior.get("points", [])})
-    # Preserve historical licensed observations if execution permission is removed.
-    # The UI must honor display_prices/status rather than treating them as live data.
-    for prior in old.values():
-        rows.append({**prior, "status": "permission_required", "display_prices": False,
-                     "status_message": "자동수집·재배포 이용 허용 확인 대기",
-                     "refresh": {**prior.get("refresh", {}), "enabled": False}})
     return {"schema_version": 1, "checked_at": now,
             "series": sorted(rows, key=lambda item: (item["group"], item["id"])),
             "notes": NOTES, "refresh_errors": [],
@@ -287,7 +284,8 @@ def collect(data=None, now=None):
     now = now or datetime.now(UTC).isoformat(timespec="seconds")
     data = data or {}
     previous = {item["id"]: item for item in permission_catalog(now)["series"]}
-    previous.update({item["id"]: item for item in data.get("series", [])})
+    allowed_ids = set(previous)
+    previous.update({item["id"]: item for item in data.get("series", []) if item.get("id") in allowed_ids})
     result = dict(previous)
     errors = []
     seen = set()
@@ -321,7 +319,7 @@ def collect(data=None, now=None):
 def self_test():
     html = '''<div id="dram_spot" class="price-content"><div><p>Last Update 2026-09-11 18:10 (GMT+8)</p></div>
 <table class="price-table"><thead><tr><th>Item</th><th>Daily High</th><th>Daily Low</th><th>Session High</th><th>Session Low</th><th>Session Average</th><th>Session Change</th><th>History</th></tr></thead>
-<tbody><tr><td><span>DDR5 RDIMM 32GB</span></td><td>2,150.00</td><td>1,700.00</td><td>2,150.00</td><td>1,700.00</td><td>1,800.00</td><td><span>▲ 8.11 %</span></td><td></td></tr></tbody><tfoot><tr><td colspan="8">Members click for details</td></tr></tfoot></table></div>'''
+<tbody><tr><td><span>DDR5 16Gb (2Gx8) 4800/5600</span></td><td>2,150.00</td><td>1,700.00</td><td>2,150.00</td><td>1,700.00</td><td>1,800.00</td><td><span>▲ 8.11 %</span></td><td></td></tr></tbody><tfoot><tr><td colspan="8">Members click for details</td></tr></tfoot></table></div>'''
     rows, groups = parse_page(html, "2026-09-12T00:00:00+00:00")
     assert groups == {"dram_spot"} and len(rows) == 1
     assert rows[0]["points"][0]["value"] == 1800 and rows[0]["points"][0]["change_pct"] == 8.11
