@@ -5,6 +5,9 @@
   const esc = v => String(v ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const safeURL = v => { try { const u = new URL(v); return u.protocol === "https:" ? u.href : ""; } catch (_) { return ""; } };
   const GROUPS = {dram_spot:"DRAM 칩 · 현물", module_spot:"DRAM 모듈 · 현물", nand_spot:"NAND · 현물", contract:"계약가격", memory_exports:"한국 수출"};
+  // The export feed keeps value and weight for auditability, but the UI presents
+  // one representative benchmark so this page remains a quick signal board.
+  const EXPORT_REPRESENTATIVE = "kr_dram_export_value";
   const COLORS = ["#7da8ff", "#63d5bc", "#c5a2ef", "#f1b87a", "#85cbdc"];
   let datasets = [], group = "dram_spot", selected = null, search = "", loading = false, errors = [];
   const visiblePoints = s => s?.display_prices === false || s?.status === "permission_required" ? [] : (s?.points || []).filter(p => p && C.validDate(p.date) && (p.value === null || C.finite(p.value)));
@@ -15,7 +18,7 @@
     return Number.isNaN(+date) ? "기준 시각 확인 필요" : new Intl.DateTimeFormat("ko-KR", {timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).format(date) + " KST";
   }
   function availableSeries() { return datasets.map((s,i) => ({...s, group:"external", color:COLORS[i % COLORS.length], points:visiblePoints(s)})); }
-  function rows() { return datasets.filter(s => (s.group || s.category) === group && (s.label + " " + (s.hs_code || "")).toLowerCase().includes(search.toLowerCase())); }
+  function rows() { return datasets.filter(s => (s.group || s.category) === group && (group !== "memory_exports" || s.id === EXPORT_REPRESENTATIVE) && (s.label + " " + (s.hs_code || "")).toLowerCase().includes(search.toLowerCase())); }
   function logic(s) {
     const explanations = {
       dram_spot: [
@@ -65,7 +68,7 @@
     const calendarOpen = document.getElementById("md-calendar")?.open;
     const logicOpen = document.getElementById("md-logic")?.open;
     host.innerHTML = `<div class="md-header"><div><span class="md-eyebrow">MEMORY & TRADE OBSERVATORY</span><h2>가격에서 출하까지.</h2><p>칩과 모듈, 현물과 계약을 나누어 봅니다.</p></div><button type="button" id="md-refresh" ${loading ? "disabled" : ""}>${loading ? "확인 중…" : "게시 데이터 새로고침 ↻"}</button></div>
-      <div class="md-definition"><b>Spot = 현물가격</b><span>Contract = 계약가격</span><span>수출 물량 = 순중량(kg) · 칩 개수 아님</span></div>
+      <div class="md-definition"><b>Spot = 현물가격</b><span>Contract = 계약가격</span><span>한국 수출 = 대표 DRAM 수출금액 · 순중량은 원자료에 보존</span></div>
       <div class="md-tabs" role="group" aria-label="메모리 지표 분류">${Object.entries(GROUPS).map(([id,label]) => `<button type="button" data-md-group="${id}" class="${id === group ? "on" : ""}" aria-pressed="${id === group}">${label}</button>`).join("")}</div>
       ${errors.length ? `<p class="md-warning" role="status">${esc(errors.join(" · "))} 기존에 받은 자료가 있으면 유지합니다.</p>` : ""}
       <div class="md-grid"><div class="md-catalog"><label class="md-search">지표 검색<input id="md-search" type="search" value="${esc(search)}" placeholder="DDR5, UDIMM, HS 코드…"></label><div class="md-list" role="group" aria-label="지표 목록">${list.length ? list.map((item,i) => `<button class="md-item ${selected === item.id ? "on" : ""}" type="button" data-md-id="${esc(item.id)}" style="--item-delay:${Math.min(i,10)*30}ms" aria-pressed="${selected === item.id}"><span>${esc(item.item || item.label)}</span><small>${esc(item.hs_code ? "HS " + item.hs_code + " · " + item.unit : item.unit)}<i>${status(item)}</i></small></button>`).join("") : '<p class="md-caveat">일치하는 지표가 없습니다.</p>'}</div></div>
