@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "exporter_ids": ["2300851647", "2301166235"],
+  "buyer_ids": [],
+  "verified_products": [],
+  "asp_product": null,
+  "note": "실제 거래 샘플 확인 후 삼성디스플레이 수취 법인 ID와 백플레이트 제품코드·근거 URL을 등록합니다. 비어 있는 상태에서는 거래를 확정하지 않습니다."
+}

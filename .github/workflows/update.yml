@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: daily-update
@@ -50,6 +51,8 @@ jobs:
         run: python3 fetch_telegram.py || echo "텔레그램 수집 실패 — 기존 데이터 유지"
 
       - name: 변경 시 커밋 & 푸시
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -58,5 +61,13 @@ jobs:
             echo "변경 없음 — 커밋 생략"
           else
             git commit -m "data: $(TZ=Asia/Seoul date +%Y-%m-%d) 갱신"
-            git push
+            for attempt in 1 2 3; do
+              git pull --rebase origin main || exit 1
+              if git push; then exit 0; fi
+            done
+            exit 1
           fi
+      - name: 사이트 미게시 변경 복구
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python publish_pages.py

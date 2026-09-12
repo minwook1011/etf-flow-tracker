@@ -1,0 +1,842 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-09-12T06:34:02+00:00",
+  "series": [
+    {
+      "id": "dram_contract_ddr3_4gb_256mx16",
+      "label": "DRAM 계약가격 · DDR3 4Gb 256Mx16",
+      "item": "DDR3 4Gb 256Mx16",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_contract_ddr4_16gb_2gx8",
+      "label": "DRAM 계약가격 · DDR4 16Gb 2Gx8",
+      "item": "DDR4 16Gb 2Gx8",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_contract_ddr4_16gb_so_dimm",
+      "label": "DRAM 계약가격 · DDR4 16GB SO-DIMM",
+      "item": "DDR4 16GB SO-DIMM",
+      "group": "contract",
+      "unit": "USD/모듈",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_contract_ddr4_4gb_256mx16",
+      "label": "DRAM 계약가격 · DDR4 4Gb 256Mx16",
+      "item": "DDR4 4Gb 256Mx16",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_contract_ddr4_8gb_1gx8",
+      "label": "DRAM 계약가격 · DDR4 8Gb 1Gx8",
+      "item": "DDR4 8Gb 1Gx8",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_contract_ddr4_8gb_so_dimm",
+      "label": "DRAM 계약가격 · DDR4 8GB SO-DIMM",
+      "item": "DDR4 8GB SO-DIMM",
+      "group": "contract",
+      "unit": "USD/모듈",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_contract_ddr5_8gb_so_dimm",
+      "label": "DRAM 계약가격 · DDR5 8GB SO-DIMM",
+      "item": "DDR5 8GB SO-DIMM",
+      "group": "contract",
+      "unit": "USD/모듈",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_contract",
+      "source_updated_at": "2026-07-31T15:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_contract_nand_128gb_16gx8_mlc",
+      "label": "NAND 계약가격 · NAND 128Gb 16Gx8 MLC",
+      "item": "NAND 128Gb 16Gx8 MLC",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_contract",
+      "source_updated_at": "2026-07-31T09:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_contract_nand_32gb_4gx8_mlc",
+      "label": "NAND 계약가격 · NAND 32Gb 4Gx8 MLC",
+      "item": "NAND 32Gb 4Gx8 MLC",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_contract",
+      "source_updated_at": "2026-07-31T09:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_contract_nand_64gb_8gx8_mlc",
+      "label": "NAND 계약가격 · NAND 64Gb 8Gx8 MLC",
+      "item": "NAND 64Gb 8Gx8 MLC",
+      "group": "contract",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_contract",
+      "source_updated_at": "2026-07-31T09:00:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "monthly",
+        "schedule_confirmed": false,
+        "note": "월 1회 원칙 · 공개표의 정확한 발표 일시 미확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr3_4gb_512mx8_1600_1866",
+      "label": "DRAM 칩 현물 · DDR3 4Gb 512Mx8 1600/1866",
+      "item": "DDR3 4Gb 512Mx8 1600/1866",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr4_16gb_2gx8_3200",
+      "label": "DRAM 칩 현물 · DDR4 16Gb (2Gx8) 3200",
+      "item": "DDR4 16Gb (2Gx8) 3200",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr4_16gb_2gx8_ett",
+      "label": "DRAM 칩 현물 · DDR4 16Gb (2Gx8) eTT",
+      "item": "DDR4 16Gb (2Gx8) eTT",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr4_8gb_1gx8_3200",
+      "label": "DRAM 칩 현물 · DDR4 8Gb (1Gx8) 3200",
+      "item": "DDR4 8Gb (1Gx8) 3200",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr4_8gb_1gx8_ett",
+      "label": "DRAM 칩 현물 · DDR4 8Gb (1Gx8) eTT",
+      "item": "DDR4 8Gb (1Gx8) eTT",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr5_16gb_2gx8_4800_5600",
+      "label": "DRAM 칩 현물 · DDR5 16Gb (2Gx8) 4800/5600",
+      "item": "DDR5 16Gb (2Gx8) 4800/5600",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "dram_spot_ddr5_16gb_2gx8_ett",
+      "label": "DRAM 칩 현물 · DDR5 16Gb (2Gx8) eTT",
+      "item": "DDR5 16Gb (2Gx8) eTT",
+      "group": "dram_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/dram_spot",
+      "source_updated_at": "2026-09-11T18:10:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "frequency": "daily_three_sessions",
+        "schedule_confirmed": true,
+        "note": "일반 공개 세션 · 실제 요약표 반영시각은 Last Update로 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "module_spot_ddr4_udimm_16gb_3200",
+      "label": "DRAM 모듈 현물 · DDR4 UDIMM 16GB 3200",
+      "item": "DDR4 UDIMM 16GB 3200",
+      "group": "module_spot",
+      "unit": "USD/모듈",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/module_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "module_spot_ddr5_rdimm_32gb_4800_5600",
+      "label": "DRAM 모듈 현물 · DDR5 RDIMM 32GB 4800/5600",
+      "item": "DDR5 RDIMM 32GB 4800/5600",
+      "group": "module_spot",
+      "unit": "USD/모듈",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/module_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "module_spot_ddr5_udimm_16gb_4800_5600",
+      "label": "DRAM 모듈 현물 · DDR5 UDIMM 16GB 4800/5600",
+      "item": "DDR5 UDIMM 16GB 4800/5600",
+      "group": "module_spot",
+      "unit": "USD/모듈",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/dram/module_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_spot_mlc_32gb_4gbx8",
+      "label": "NAND 칩 현물 · MLC 32Gb 4GBx8",
+      "item": "MLC 32Gb 4GBx8",
+      "group": "nand_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_spot_mlc_64gb_8gbx8",
+      "label": "NAND 칩 현물 · MLC 64Gb 8GBx8",
+      "item": "MLC 64Gb 8GBx8",
+      "group": "nand_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_spot_slc_1gb_128mbx8",
+      "label": "NAND 칩 현물 · SLC 1Gb 128MBx8",
+      "item": "SLC 1Gb 128MBx8",
+      "group": "nand_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    },
+    {
+      "id": "flash_spot_slc_2gb_256mbx8",
+      "label": "NAND 칩 현물 · SLC 2Gb 256MBx8",
+      "item": "SLC 2Gb 256MBx8",
+      "group": "nand_spot",
+      "unit": "USD/개",
+      "currency": "USD",
+      "source": "TrendForce / DRAMeXchange",
+      "source_url": "https://www.trendforce.com/price/flash/flash_spot",
+      "source_updated_at": "2026-08-31T14:40:00+08:00",
+      "source_checked_on": "2026-09-12",
+      "refresh": {
+        "timezone": "Asia/Taipei",
+        "check_times": [
+          "11:00",
+          "14:40",
+          "18:10"
+        ],
+        "evidence_url": "https://www.dramexchange.com/service/faqs",
+        "access": "public_summary",
+        "terms_url": "https://www.trendforce.com/about/terms",
+        "publish_times": [],
+        "frequency": "not_confirmed",
+        "schedule_confirmed": false,
+        "observed_publish_times": [
+          "14:40"
+        ],
+        "note": "해당 공개표의 고정 발표주기 미확인 · 현물 세션 시각에 갱신 여부 확인",
+        "enabled": false
+      },
+      "status": "permission_required",
+      "status_message": "자동수집·재배포 이용 허용 확인 대기",
+      "display_prices": false,
+      "points": []
+    }
+  ],
+  "notes": [
+    "Spot은 현물가격이며 Contract(계약가격)과 다릅니다. DRAM 칩과 완성 모듈은 별도 품목입니다.",
+    "가격은 공개 표의 Session Average(계약가격은 Average)입니다. 용량·규격·eTT 여부가 다른 품목을 합산하지 않습니다.",
+    "source_updated_at은 공급자 표의 기준시각, observed_at은 수집기가 처음 확인한 시각입니다. 과거 시계열을 임의로 생성하지 않습니다.",
+    "일반 현물 세션은 대만 11:00 / 14:40 / 18:10, 한국 12:00 / 15:40 / 19:10입니다. 공개 요약표가 모든 세션에 갱신된다는 보장은 없습니다.",
+    "공개 모듈·NAND 표의 별도 고정 발표주기는 확인되지 않았습니다. 월간 계약가격도 정확한 발표 일시가 고정되지 않습니다.",
+    "공개 표에 표시되는 계약가격 기준월은 유료 최신 리포트 안내의 기준월보다 늦을 수 있습니다.",
+    "TrendForce 약관의 자동수집·재배포 조건은 별도 확인이 필요합니다. 출처 링크만으로 사용 허가가 성립하지 않습니다."
+  ],
+  "refresh_errors": [],
+  "collection_policy": {
+    "terms_url": "https://www.trendforce.com/about/terms",
+    "publication_permission": "not_confirmed",
+    "enabled": false,
+    "display_prices": false,
+    "method": "public_summary_html",
+    "paid_history_accessed": false,
+    "message": "공급자의 자동수집·공개 재배포 허용 확인 후 연결됩니다."
+  }
+}

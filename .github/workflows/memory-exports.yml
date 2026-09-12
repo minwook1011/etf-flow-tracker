@@ -1,0 +1,68 @@
+name: memory-exports-publication-window
+on:
+  schedule:
+    # Together these cover KST calendar days 15~18, not UTC days 15~18.
+    - cron: "2-57/5 0-14 15-18 * *"
+    - cron: "2-57/5 15-23 14-17 * *"
+    - cron: "7 23 * * *" # Daily KST 08:07: historical revisions, also outside release window.
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: memory-export-source-update
+  cancel-in-progress: false
+jobs:
+  update:
+    if: vars.KCS_EXPORTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 관세청 키 설정 확인
+        env:
+          KCS_API_KEY: ${{ secrets.KCS_API_KEY }}
+        run: |
+          if [ -z "$KCS_API_KEY" ]; then
+            echo "KCS_API_KEY secret is required; no request sent."
+            exit 1
+          fi
+      - name: 전월 관측값 또는 과거 정정분 확인
+        id: exports
+        continue-on-error: true
+        env:
+          KCS_API_KEY: ${{ secrets.KCS_API_KEY }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$SCHEDULE" = "7 23 * * *" ] || [ -z "$SCHEDULE" ]; then
+            python fetch_memory_exports.py --only-if-changed
+          else
+            python fetch_memory_exports.py --recent-only --only-if-changed
+          fi
+      - name: 관측값 변경 시 게시
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/memory_exports.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh Korean memory export observations"
+            for attempt in 1 2 3; do
+              git pull --rebase origin main || exit 1
+              if git push; then exit 0; fi
+            done
+            exit 1
+          fi
+      - name: 사이트 미게시 변경 복구
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python publish_pages.py
+      - name: 수집 실패 표시
+        if: steps.exports.outcome == 'failure'
+        run: exit 1

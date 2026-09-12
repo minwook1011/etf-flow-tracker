@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-09-12T06:26:10Z",
+  "series": [
+    {
+      "id": "kr_dram_export_value",
+      "label": "한국 DRAM 수출금액",
+      "unit": "USD",
+      "country": "KR",
+      "category": "memory_exports",
+      "frequency": "monthly",
+      "hs_code": "8542321010",
+      "hs_classification_year": 2026,
+      "classification_source_url": "https://unipass.customs.go.kr/clip/hsinfosrch/openULS0201005Q.do?searchVal=854232",
+      "coverage": "모노리식 DRAM 집적회로. DRAM 모듈 및 HBM 전체 출하를 뜻하지 않습니다.",
+      "source": "관세청 품목별 수출입실적(GW)",
+      "source_url": "https://www.data.go.kr/data/15101609/openapi.do",
+      "source_updated_at": null,
+      "source_time_note": "API에 원출처 갱신 시각 필드가 없어 확인 시각으로 대체하지 않습니다.",
+      "source_latest_period": null,
+      "refresh": {
+        "frequency": "monthly",
+        "publish_times": [],
+        "timezone": "Asia/Seoul",
+        "publication_rule": "매월 15일경 전월까지의 자료 현행화; 정확한 발표 시각 미공시",
+        "publication_day_approximate": 15,
+        "evidence_url": "https://www.data.go.kr/data/15101609/openapi.do",
+        "polling_policy": {
+          "kind": "application_policy_not_official_release_schedule",
+          "release_window_days": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "release_window_interval_minutes": 5,
+          "outside_window_interval_minutes": 1440
+        },
+        "note": "1·11·21일 총괄/주요품목 잠정치 발표와 이 HS10 월별 API의 갱신은 별개입니다."
+      },
+      "status": "needs_api_key",
+      "status_message": "무료 관세청 API 연결키 설정 대기",
+      "points": [],
+      "last_successful_fetch_at": null,
+      "checked_at": "2026-09-12T06:26:10Z"
+    },
+    {
+      "id": "kr_dram_export_weight",
+      "label": "한국 DRAM 수출 순중량",
+      "unit": "kg",
+      "country": "KR",
+      "category": "memory_exports",
+      "frequency": "monthly",
+      "hs_code": "8542321010",
+      "hs_classification_year": 2026,
+      "classification_source_url": "https://unipass.customs.go.kr/clip/hsinfosrch/openULS0201005Q.do?searchVal=854232",
+      "coverage": "모노리식 DRAM 집적회로. DRAM 모듈 및 HBM 전체 출하를 뜻하지 않습니다.",
+      "source": "관세청 품목별 수출입실적(GW)",
+      "source_url": "https://www.data.go.kr/data/15101609/openapi.do",
+      "source_updated_at": null,
+      "source_time_note": "API에 원출처 갱신 시각 필드가 없어 확인 시각으로 대체하지 않습니다.",
+      "source_latest_period": null,
+      "refresh": {
+        "frequency": "monthly",
+        "publish_times": [],
+        "timezone": "Asia/Seoul",
+        "publication_rule": "매월 15일경 전월까지의 자료 현행화; 정확한 발표 시각 미공시",
+        "publication_day_approximate": 15,
+        "evidence_url": "https://www.data.go.kr/data/15101609/openapi.do",
+        "polling_policy": {
+          "kind": "application_policy_not_official_release_schedule",
+          "release_window_days": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "release_window_interval_minutes": 5,
+          "outside_window_interval_minutes": 1440
+        },
+        "note": "1·11·21일 총괄/주요품목 잠정치 발표와 이 HS10 월별 API의 갱신은 별개입니다."
+      },
+      "status": "needs_api_key",
+      "status_message": "무료 관세청 API 연결키 설정 대기",
+      "points": [],
+      "last_successful_fetch_at": null,
+      "checked_at": "2026-09-12T06:26:10Z"
+    },
+    {
+      "id": "kr_flash_export_value",
+      "label": "한국 플래시 메모리 수출금액",
+      "unit": "USD",
+      "country": "KR",
+      "category": "memory_exports",
+      "frequency": "monthly",
+      "hs_code": "8542321030",
+      "hs_classification_year": 2026,
+      "classification_source_url": "https://unipass.customs.go.kr/clip/hsinfosrch/openULS0201005Q.do?searchVal=854232",
+      "coverage": "플래시 메모리 품목 전체로 NAND만 분리되지 않습니다. NAND 전용 출하량으로 해석하지 않습니다.",
+      "source": "관세청 품목별 수출입실적(GW)",
+      "source_url": "https://www.data.go.kr/data/15101609/openapi.do",
+      "source_updated_at": null,
+      "source_time_note": "API에 원출처 갱신 시각 필드가 없어 확인 시각으로 대체하지 않습니다.",
+      "source_latest_period": null,
+      "refresh": {
+        "frequency": "monthly",
+        "publish_times": [],
+        "timezone": "Asia/Seoul",
+        "publication_rule": "매월 15일경 전월까지의 자료 현행화; 정확한 발표 시각 미공시",
+        "publication_day_approximate": 15,
+        "evidence_url": "https://www.data.go.kr/data/15101609/openapi.do",
+        "polling_policy": {
+          "kind": "application_policy_not_official_release_schedule",
+          "release_window_days": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "release_window_interval_minutes": 5,
+          "outside_window_interval_minutes": 1440
+        },
+        "note": "1·11·21일 총괄/주요품목 잠정치 발표와 이 HS10 월별 API의 갱신은 별개입니다."
+      },
+      "status": "needs_api_key",
+      "status_message": "무료 관세청 API 연결키 설정 대기",
+      "points": [],
+      "last_successful_fetch_at": null,
+      "checked_at": "2026-09-12T06:26:10Z"
+    },
+    {
+      "id": "kr_flash_export_weight",
+      "label": "한국 플래시 메모리 수출 순중량",
+      "unit": "kg",
+      "country": "KR",
+      "category": "memory_exports",
+      "frequency": "monthly",
+      "hs_code": "8542321030",
+      "hs_classification_year": 2026,
+      "classification_source_url": "https://unipass.customs.go.kr/clip/hsinfosrch/openULS0201005Q.do?searchVal=854232",
+      "coverage": "플래시 메모리 품목 전체로 NAND만 분리되지 않습니다. NAND 전용 출하량으로 해석하지 않습니다.",
+      "source": "관세청 품목별 수출입실적(GW)",
+      "source_url": "https://www.data.go.kr/data/15101609/openapi.do",
+      "source_updated_at": null,
+      "source_time_note": "API에 원출처 갱신 시각 필드가 없어 확인 시각으로 대체하지 않습니다.",
+      "source_latest_period": null,
+      "refresh": {
+        "frequency": "monthly",
+        "publish_times": [],
+        "timezone": "Asia/Seoul",
+        "publication_rule": "매월 15일경 전월까지의 자료 현행화; 정확한 발표 시각 미공시",
+        "publication_day_approximate": 15,
+        "evidence_url": "https://www.data.go.kr/data/15101609/openapi.do",
+        "polling_policy": {
+          "kind": "application_policy_not_official_release_schedule",
+          "release_window_days": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "release_window_interval_minutes": 5,
+          "outside_window_interval_minutes": 1440
+        },
+        "note": "1·11·21일 총괄/주요품목 잠정치 발표와 이 HS10 월별 API의 갱신은 별개입니다."
+      },
+      "status": "needs_api_key",
+      "status_message": "무료 관세청 API 연결키 설정 대기",
+      "points": [],
+      "last_successful_fetch_at": null,
+      "checked_at": "2026-09-12T06:26:10Z"
+    }
+  ],
+  "notes": [
+    "물량은 순중량(kg)입니다. 칩 개수·비트 출하량·DRAM 모듈 출하량이 아닙니다.",
+    "HS8542321030은 플래시 메모리 전체이며 NAND 전용 통계가 아닙니다.",
+    "국가 전체 수출 통계로 개별 기업의 납품 또는 실적으로 확정하지 않습니다.",
+    "전월 관측값은 매월 15일경 현행화되며 정정될 수 있습니다. 발표 시각은 공식 미공시입니다.",
+    "금액/순중량은 제품 구성과 패키지 변화에 영향을 받으므로 메모리 칩의 거래 단가와 동일하지 않습니다."
+  ]
+}

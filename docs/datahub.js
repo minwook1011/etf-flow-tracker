@@ -2,8 +2,9 @@
   "use strict";
   var DATA = {
     korea: { label: "한국", code: "KOR", series: [
-      ["반도체 수출", "수출액 · 물량 · 단가", ["삼성전자", "SK하이닉스"]],
-      ["메모리 가격", "DRAM · NAND · 계약가격", ["삼성전자", "SK하이닉스"]],
+      ["파인엠텍 · 폴더블 납품", "주가 · 실적 · 베트남 거래 비교", ["파인엠텍"], "파인엠텍"],
+      ["메모리 수출", "DRAM · 플래시 / 금액 · 순중량", ["삼성전자", "SK하이닉스"], null, "exports"],
+      ["메모리 가격", "DRAM 칩 · 모듈 · NAND 현물", ["삼성전자", "SK하이닉스"], null, "memory"],
       ["전력 수요", "산업용 전력 · 데이터센터", ["삼성전자", "한전"]],
       ["외국인 수급", "코스피 · 업종별 순매수", ["삼성전자", "SK하이닉스"]],
       ["제조업 가동률", "생산 · 재고 · 출하", ["삼성전자", "현대차"]]
@@ -34,10 +35,11 @@
       ["첨단 패키징", "패키징 · 기판 · 테스트", ["TSMC", "삼성전자", "SK하이닉스"]],
       ["AI 데이터센터", "CAPEX · 서버 출하 · 전력", ["NVIDIA", "Amazon", "Microsoft"]],
       ["GPU 임대료", "GPU별 일간 임대 지수", ["NVIDIA", "CoreWeave"]],
-      ["DRAM · NAND 가격", "현물 · 계약가격 · 재고", ["삼성전자", "SK하이닉스"]]
+      ["DRAM · NAND 가격", "현물 · 모듈 · 계약가격 분리", ["삼성전자", "SK하이닉스"], null, "memory"]
     ] }
   };
   var COMPANIES = {
+    "파인엠텍": ["베트남 백플레이트 납품", "매출 · 영업이익", "OPM · 성장률"],
     "삼성전자": ["한국 반도체 수출", "메모리 가격", "TSMC 월매출", "DRAM · NAND 가격", "달러·환율"],
     "SK하이닉스": ["한국 반도체 수출", "메모리 가격", "TSMC 월매출", "DRAM · NAND 가격", "첨단 패키징"],
     "TSMC": ["TSMC 월매출", "반도체 장비 수주", "첨단 패키징", "일본 수출", "전력·소재"],
@@ -46,7 +48,7 @@
     "Microsoft": ["AI 데이터센터 CAPEX", "AI 서비스 이용자", "클라우드 사용량", "기업 IT 지출", "금리·유동성"]
   };
   var FAVORITE_KEY = "vantage-datahub-favorite-companies-v1";
-  var activeCountry = "korea", activeCompany = "삼성전자", activeSeries = null, favorites = loadFavorites();
+  var activeCountry = "korea", activeCompany = "파인엠텍", activeSeries = null, favorites = loadFavorites();
   var countryHost = document.getElementById("country-tabs"), seriesHost = document.getElementById("series-grid");
   function esc(value) { return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function loadFavorites() { try { var saved = JSON.parse(localStorage.getItem(FAVORITE_KEY) || "[]"); return Array.isArray(saved) ? saved.filter(function (name) { return typeof name === "string" && name.trim(); }).slice(0, 30) : []; } catch (e) { return []; } }
@@ -59,9 +61,16 @@
     var group = DATA[activeCountry];
     seriesHost.innerHTML = group.series.map(function (item, index) {
       var selected = activeSeries && activeSeries.name === item[0];
-      return '<button class="series-card' + (selected ? ' selected' : '') + '" type="button" style="animation-delay:' + (index * 65) + 'ms" data-index="' + index + '"><span class="country-code">' + group.code + ' · SERIES 0' + (index + 1) + '</span><b>' + item[0] + '</b><p>' + item[1] + '</p><span class="series-state"><i></i>' + (selected ? '차트에 추가됨' : '출처 연결 대기') + '</span></button>';
+      return '<button class="series-card' + (selected ? ' selected' : '') + '" type="button" style="animation-delay:' + (index * 65) + 'ms" data-index="' + index + '"><span class="country-code">' + group.code + ' · SERIES 0' + (index + 1) + '</span><b>' + item[0] + '</b><p>' + item[1] + '</p><span class="series-state"><i></i>' + (item[3] ? '주가·실적 연결 · 거래 대기' : item[4] ? '지표 목록 · 발표 일정 보기' : selected ? '지표 선택됨 · 연결 대기' : '출처 연결 대기') + '</span></button>';
     }).join("");
-    seriesHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () { var item = group.series[Number(button.dataset.index)]; activeSeries = { name: item[0], desc: item[1] }; renderSeries(); renderWorkbench(); }; });
+    seriesHost.querySelectorAll("button").forEach(function (button) { button.onclick = function () {
+      var item = group.series[Number(button.dataset.index)]; activeSeries = { name: item[0], desc: item[1] };
+      if (item[3]) { activeCompany = item[3]; document.getElementById("company-search").value = activeCompany; }
+      renderSeries(); renderWorkbench();
+      if (item[4]) document.dispatchEvent(new CustomEvent("vantage-data-category", {detail:{category:item[4]}}));
+      else document.getElementById("memory-workspace").hidden = true;
+      if (item[3]) document.querySelector('.workbench').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    }; });
   }
   function renderCompanyOptions() {
     var names = {};
@@ -73,6 +82,7 @@
   }
   function selectCompany() {
     var input = document.getElementById("company-search"), name = input.value.trim();
+    if (/^(441270(?:\.KQ)?|fine\s*m[- ]?tec)$/i.test(name)) name = "파인엠텍";
     if (!name) return;
     activeCompany = name; input.value = name; renderWorkbench();
   }
@@ -99,6 +109,7 @@
     var favoriteButton = document.getElementById("company-favorite-toggle"), isFavorite = favorites.indexOf(activeCompany) >= 0;
     favoriteButton.textContent = isFavorite ? "★ 즐겨찾기" : "☆ 즐겨찾기";
     favoriteButton.classList.toggle("on", isFavorite);
+    document.dispatchEvent(new CustomEvent("vantage-company-change", {detail:{company:activeCompany}}));
   }
   document.getElementById("open-onboarding").onclick = function () { var box = document.getElementById("onboarding"); box.hidden = !box.hidden; if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
   document.getElementById("company-apply").onclick = selectCompany;
