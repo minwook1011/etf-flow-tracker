@@ -9,12 +9,14 @@
   const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (_) { return fallback; } };
   let saved = read(KEY, {});
   if (!saved || typeof saved !== "object") saved = {};
+  const upgradeQuarterlyView = saved.windowVersion !== 3;
+  const savedSelection = Array.isArray(saved.selected) ? saved.selected.filter(id => typeof id === "string") : ["revenue", "operating_income"];
   const state = {
-    selected: Array.isArray(saved.selected) ? saved.selected.filter(id => typeof id === "string") : ["revenue", "operating_income"],
-    range: saved.windowVersion === 2 && ["FINANCIAL", "6M", "YTD", "1Y", "2Y", "ALL"].includes(saved.range) ? saved.range : "FINANCIAL",
-    period: saved.period === "annual" ? "annual" : "quarterly",
+    selected: upgradeQuarterlyView ? [...new Set([...savedSelection, "revenue_yoy", "opm"])] : savedSelection,
+    range: !upgradeQuarterlyView && ["FINANCIAL", "6M", "YTD", "1Y", "2Y", "ALL"].includes(saved.range) ? saved.range : "FINANCIAL",
+    period: !upgradeQuarterlyView && saved.period === "annual" ? "annual" : "quarterly",
     mode: saved.mode === "normalized" ? "normalized" : "units",
-    windowVersion: 2
+    windowVersion: 3
   };
   let customs = read(CUSTOM_KEY, []);
   customs = Array.isArray(customs) ? customs.filter(s => s && typeof s.id === "string" && s.id.startsWith("custom-") && typeof s.label === "string" && typeof s.unit === "string" && Array.isArray(s.points) && s.points.every(p => p && C.validDate(p.date) && C.finite(p.value))).slice(0, 20) : [];
@@ -38,7 +40,7 @@
       const unavailable = !good.length;
       const title = unavailable ? (group === "external" ? (m.status === "permission_required" ? "이용 허용 대기" : "원본 연결 대기") : group === "trade" ? "원본 미연결" : latest?.label || "비교 자료 없음") : C.format(latest?.value, m.unit);
       const note = group === "external" ? (latest?.date || "관측값 미수신") + " · " + m.source : id.startsWith("custom-") ? "직접 추가 · 이 브라우저에 저장" : group === "trade" ? "확인된 백플레이트 · 거래별 원본 기준" : (latest ? quarterLabel(latest.date) : "확정 실적") + (id.includes("yoy") ? " · 전년 동기 비교" : " · 연결 실적");
-      return `<div class="fm-metric${unavailable ? " unavailable" : ""}"><label style="display:flex;align-items:center;gap:9px;flex:1;min-width:0;cursor:inherit"><input type="checkbox" data-metric="${esc(id)}" ${state.selected.includes(id) ? "checked" : ""} ${unavailable ? "disabled" : ""}><i class="fm-metric-color" style="--series-color:${esc(m.color)}"></i><span class="fm-metric-info">${esc(m.label)}<small>${esc(note)}</small></span><span class="fm-metric-value">${esc(title)}</span></label>${id.startsWith("custom-") ? `<button class="fm-remove-custom" data-delete-custom="${esc(id)}" aria-label="${esc(m.label)} 삭제">×</button>` : ""}</div>`;
+      return `<div class="fm-metric${unavailable ? " unavailable" : ""}"><label style="display:flex;align-items:center;gap:9px;flex:1;min-width:0;cursor:inherit"><input type="checkbox" data-metric="${esc(id)}" ${state.selected.includes(id) ? "checked" : ""} ${unavailable ? "disabled" : ""}><i class="fm-metric-color" style="--series-color:${esc(m.color)}"></i><span class="fm-metric-info">${esc(m.label)}<small>${esc(note)}${M[id]?.group === "financial" ? ` · ${good.length}개 ${state.period === "annual" ? "연도" : "분기"}` : ""}</small></span><span class="fm-metric-value">${esc(title)}</span></label>${id.startsWith("custom-") ? `<button class="fm-remove-custom" data-delete-custom="${esc(id)}" aria-label="${esc(m.label)} 삭제">×</button>` : ""}</div>`;
     }).join("");
   }
   function currentRows() { return C.financialWindow(data || {}, state.period); }
@@ -85,7 +87,10 @@
     host.querySelectorAll("[data-range]").forEach(btn => btn.onclick = () => { state.range = btn.dataset.range; store(); render(); });
     host.querySelectorAll("[data-metric]").forEach(input => input.onchange = () => {
       state.selected = state.selected.filter(id => id !== input.dataset.metric);
-      if (input.checked) state.selected.push(input.dataset.metric);
+      if (input.checked) {
+        state.selected.push(input.dataset.metric);
+        if (M[input.dataset.metric]?.group === "financial") state.range = "FINANCIAL";
+      }
       store(); render();
     });
     host.querySelectorAll("[data-delete-custom]").forEach(btn => btn.onclick = () => {
@@ -138,22 +143,17 @@
     }
     svg += '<g clip-path="url(#fm-clip)">';
     plotSeries.forEach(s => {
-      let path="", pen=false, good=[];
-      s.points.forEach(p => {
-        if (!C.finite(p.value)) { pen=false; return; }
-        const xx=x(p.date), yy=y(p.value,s.unit); good.push([xx,yy]);
-        path += `${pen ? "L" : "M"}${xx.toFixed(2)} ${yy.toFixed(2)} `; pen=true;
-      });
+      const {path, vertices:good} = C.lineGeometry(s.points, x, value => y(value, s.unit));
       if (!good.length) return;
       if (s.id === "price" && good.length > 1) svg += `<path d="${path}L${good.at(-1)[0]} ${height-bottom}L${good[0][0]} ${height-bottom}Z" fill="url(#fm-price-fill)"/>`;
       if (!effectiveNormalized && scales[s.unit][0] < 0 && scales[s.unit][1] > 0 && s.id !== "price") svg += `<path d="M${left} ${y(0,s.unit)}H${left+plotWidth}" stroke="${s.color}" stroke-opacity=".13" stroke-dasharray="3 5"/>`;
-      svg += `<path data-series="${esc(s.id)}" class="fm-series-path ${s.id==='price'?'fm-price-path':''}" pathLength="1" d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.id==='price'?2:1.9}" stroke-linecap="round" stroke-linejoin="round"/>`;
-      if (s.id !== "price") good.forEach(([xx,yy]) => { svg += `<circle cx="${xx}" cy="${yy}" r="3" fill="${s.color}" stroke="#101623" stroke-width="1.5"/>`; });
+      svg += `<path data-series="${esc(s.id)}" data-point-count="${good.length}" class="fm-series-path ${s.id==='price'?'fm-price-path':''}" ${s.id==='price'?'pathLength="1"':''} d="${path}" fill="none" stroke="${s.color}" stroke-width="${M[s.id]?.group==='financial'?2.6:s.id==='price'?2:1.9}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      if (s.id !== "price") good.forEach(([xx,yy]) => { svg += `<circle cx="${xx}" cy="${yy}" r="2.5" fill="${s.color}" stroke="#101623" stroke-width="1"/>`; });
     });
     svg += `</g><line id="fm-crosshair" x1="0" y1="${top}" x2="0" y2="${height-bottom}" stroke="#a2b9db" stroke-opacity=".4" stroke-dasharray="4 4" visibility="hidden"/><rect id="fm-hit" x="${left}" y="${top}" width="${plotWidth}" height="${plotHeight}" fill="transparent" tabindex="0" role="slider" aria-label="차트 날짜 탐색, 좌우 화살표" aria-valuemin="0" aria-valuemax="${Math.max(0, pricePoints.length-1)}" aria-valuenow="0"/></svg><div class="fm-tooltip" id="fm-tooltip" hidden></div>`;
     box.innerHTML=svg;
     document.getElementById("fm-axis-note").textContent = effectiveNormalized ? "흐름 비교: 선택한 기간에서 각 지표의 최솟값을 0, 최댓값을 100으로 맞춥니다. 수익률이 아니며, 원래 값은 차트 위에 마우스를 올리면 보입니다." + (state.mode!=="normalized" ? " 단위가 많아 흐름 비교를 적용했습니다." : "") : "주가(원)와 선택 지표는 단위별 독립 축을 사용합니다. 선의 높이를 금액 크기로 직접 비교하지 마세요. 점은 실제 관측값이며 점 사이 선은 시각적 연결입니다.";
-    document.getElementById("fm-legend").innerHTML=series.map(s => `<button type="button" data-remove-series="${esc(s.id)}" ${s.id==='price'?'disabled':''} title="${s.id==='price'?'기본 주가':'차트에서 빼기'}"><i style="--series-color:${esc(s.color)}"></i>${esc(s.label)}<small>${s.id==='price'?'기본':'×'}</small></button>`).join("");
+    document.getElementById("fm-legend").innerHTML=series.map(s => `<button type="button" data-remove-series="${esc(s.id)}" ${s.id==='price'?'disabled':''} title="${s.id==='price'?'기본 주가':'차트에서 빼기'}"><i style="--series-color:${esc(s.color)}"></i>${esc(s.label)}<small>${s.id==='price'?'기본':M[s.id]?.group==='financial'?s.points.filter(p=>C.finite(p.value)).length+'개 '+(state.period==='annual'?'연도':'분기')+' · ×':'×'}</small></button>`).join("");
     host.querySelectorAll("[data-remove-series]").forEach(btn => btn.onclick=()=>{state.selected=state.selected.filter(id=>id!==btn.dataset.removeSeries);store();render();});
     const hit=document.getElementById("fm-hit"), tip=document.getElementById("fm-tooltip"), cross=document.getElementById("fm-crosshair");
     function showAt(pos) {

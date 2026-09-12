@@ -93,9 +93,21 @@
   function nearest(points, time) {
     return points.reduce((best, row) => !best || Math.abs(timestamp(row.date) - time) < Math.abs(timestamp(best.date) - time) ? row : best, null);
   }
+  function lineGeometry(points, x, y) {
+    let path = "", pen = false;
+    const vertices = [];
+    for (const point of points) {
+      if (!finite(point.value)) { pen = false; continue; }
+      const xx = x(point.date), yy = y(point.value);
+      if (!finite(xx) || !finite(yy)) { pen = false; continue; }
+      path += `${pen ? "L" : "M"}${xx.toFixed(2)} ${yy.toFixed(2)} `;
+      vertices.push([xx, yy]); pen = true;
+    }
+    return {path, vertices};
+  }
   function format(value, unit, digits) {
     if (!finite(value)) return "—";
     return new Intl.NumberFormat("ko-KR", {maximumFractionDigits: digits ?? (unit === "%" || unit === "USD/개" ? 2 : 1)}).format(value) + (unit === "%" ? "%" : " " + unit);
   }
-  return {METRICS, finite, timestamp, validDate, financialWindow, financialRangeStart, seriesFor, rangeStart, domain, normalize, parsePoints, nearest, format};
+  return {METRICS, finite, timestamp, validDate, financialWindow, financialRangeStart, seriesFor, rangeStart, domain, normalize, parsePoints, nearest, lineGeometry, format};
 });

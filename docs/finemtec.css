@@ -28,7 +28,8 @@
 .fm-chart svg { display:block; width:100%; overflow:visible; touch-action:pan-y; }
 .fm-chart svg text { font-family:var(--mono); font-size:10px; fill:#788ba9; }
 .fm-chart svg .fm-price-path { filter:drop-shadow(0 0 5px #7da4ff35); }
-.fm-chart svg .fm-series-path { stroke-dasharray:1; stroke-dashoffset:1; animation:fm-draw .95s cubic-bezier(.2,.6,.3,1) forwards; }
+.fm-chart svg .fm-series-path { stroke-dasharray:none; stroke-dashoffset:0; animation:fm-line-in .4s ease-out both; }
+.fm-chart svg .fm-series-path.fm-price-path { stroke-dasharray:1; stroke-dashoffset:1; animation:fm-draw .95s cubic-bezier(.2,.6,.3,1) forwards; }
 .fm-legend { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
 .fm-legend button { display:flex; align-items:center; gap:6px; padding:6px 9px; border-radius:6px; border:1px solid var(--fm-line); background:#151f30; color:#c2cee2; font-size:11px; }
 .fm-legend button:hover { background:#24334c; }
@@ -106,6 +107,7 @@
 .fm-remove-custom { border:0; background:transparent; color:#9faec3; padding:5px 8px; }
 @keyframes fm-reveal { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fm-draw { to { stroke-dashoffset:0; } }
+@keyframes fm-line-in { from { opacity:.65; } to { opacity:1; } }
 @media(max-width:750px) {
   .fm-hero { padding:17px 10px; }
   .fm-heading { padding:0 5px; }
@@ -125,7 +127,7 @@
   .fm-status { font-size:10px; }
   .fm-head-tools { gap:5px; }
 }
-@media(prefers-reduced-motion:reduce) { .fm-workspace,.fm-selector[open] .fm-options,.fm-chart svg .fm-series-path { animation:none; } .fm-chart svg .fm-series-path { stroke-dashoffset:0; } }
+@media(prefers-reduced-motion:reduce) { .fm-workspace,.fm-selector[open] .fm-options,.fm-chart svg .fm-series-path,.fm-chart svg .fm-series-path.fm-price-path { animation:none; stroke-dasharray:none; stroke-dashoffset:0; } }
 .fm-logic > summary { display:flex; align-items:center; justify-content:space-between; gap:15px; cursor:pointer; list-style:none; color:#c3d7f4; font-size:14px; }
 .fm-logic > summary::-webkit-details-marker { display:none; }
 .fm-logic > summary .fm-chevron { width:20px; height:20px; flex-shrink:0; transition:transform .25s; }

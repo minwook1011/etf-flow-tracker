@@ -35,4 +35,25 @@ assert.equal(C.seriesFor('operating_income', zero, 'quarterly', []).at(-1).value
 assert.equal(C.financialWindow(zero, 'annual').at(-1).date, '2025-12-31');
 assert.deepEqual(C.financialWindow({}, 'quarterly'), []);
 assert.equal(C.financialRangeStart([], 'annual'), 0);
+const published = require('../docs/data/finemtec.json');
+const archive = new Map(published.financials.quarterly.map(row=>[row.date.slice(0,7), row]));
+for (const id of ['revenue_yoy', 'opm']) {
+  const points = C.seriesFor(id, published, 'quarterly', []);
+  assert.equal(points.length, 8);
+  assert.equal(points.filter(p=>C.finite(p.value)).length, 8, `${id}: all eight quarters must be numeric`);
+  const geometry = C.lineGeometry(points, date=>C.timestamp(date)/86400000, value=>value);
+  assert.equal(geometry.vertices.length, 8);
+  assert.equal((geometry.path.match(/M/g)||[]).length, 1, `${id}: one connected line`);
+  assert.equal((geometry.path.match(/L/g)||[]).length, 7, `${id}: seven links between eight quarters`);
+  for (const point of points) {
+    const row = archive.get(point.date.slice(0,7));
+    const previous = archive.get(`${Number(point.date.slice(0,4))-1}${point.date.slice(4,7)}`);
+    const expected = id === 'opm' ? row.operating_income/row.revenue*100 : (row.revenue/previous.revenue-1)*100;
+    assert.equal(point.value, Number(expected.toFixed(2)), `${id}: same-quarter YoY / quarterly OPM`);
+  }
+}
+const disconnected = C.lineGeometry([{date:'2026-01-01',value:1},{date:'2026-02-01',value:null},{date:'2026-03-01',value:0}], C.timestamp, value=>value);
+assert.equal((disconnected.path.match(/M/g)||[]).length, 2, 'missing data is not interpolated');
+assert.equal((disconnected.path.match(/L/g)||[]).length, 0);
+console.log('Revenue YoY and OPM: eight numeric quarters joined by seven solid-line segments');
 console.log('Fine M-Tec financial windows: 8 quarters / 5 years, gaps and ranges passed');
